@@ -233,10 +233,52 @@
         ufoGroup.visible = false;
         root.add(ufoGroup);
 
+        // 阿純打紀錄時自動變出折疊露營桌椅 (Camping Desk & Workstation)
+        const campingDeskGroup = new THREE.Group();
+        const woodMat = new THREE.MeshLambertMaterial({ color: 0x9a3412, flatShading: true }); // 溫暖原木桌板
+        const darkFrameMat = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // 鋁合金折疊骨架
+        const canvasMat = new THREE.MeshLambertMaterial({ color: 0x3f6212, flatShading: true }); // 戶外露營帆布
+
+        // 1. 折疊露營桌 (置於阿純身前)
+        const tableGroup = new THREE.Group();
+        tableGroup.position.set(0, 0, 0.28);
+        const tableTop = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.024, 0.32), woodMat);
+        tableTop.position.y = 0.34;
+        [[-0.22, -0.12], [0.22, -0.12], [-0.22, 0.12], [0.22, 0.12]].forEach(p => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.34, 6), darkFrameMat);
+            leg.position.set(p[0], 0.17, p[1]);
+            tableGroup.add(leg);
+        });
+        tableGroup.add(tableTop);
+
+        // 2. 折疊露營椅 (置於阿純身下)
+        const chairGroup = new THREE.Group();
+        chairGroup.position.set(0, 0, -0.04);
+        const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.025, 0.28), canvasMat);
+        chairSeat.position.y = 0.20;
+        const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.28, 0.025), canvasMat);
+        chairBack.position.set(0, 0.32, -0.13);
+        chairBack.rotation.x = -0.15;
+        // X 型椅腳骨架
+        const legF1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.26, 6), darkFrameMat);
+        legF1.position.set(-0.13, 0.10, 0);
+        legF1.rotation.z = 0.25;
+        const legF2 = legF1.clone();
+        legF2.position.x = 0.13;
+        legF2.rotation.z = -0.25;
+        chairGroup.add(chairSeat, chairBack, legF1, legF2);
+
+        campingDeskGroup.add(tableGroup, chairGroup);
+        campingDeskGroup.scale.setScalar(0.001);
+        campingDeskGroup.visible = false;
+        root.add(campingDeskGroup);
+
         root.userData = {
             role: 'achun',
             legL, legR, armL, armR, headGroup, torso,
             ufoGroup, ufoSpinRing, tractorBeam,
+            campingDeskGroup,
+            deskScale: 0,
             eyes: [eyeL, eyeR],
             jumping: 0,
             actionPhase: Math.random() * 10
@@ -339,9 +381,55 @@
         armR.add(armMeshR, wheelRing);
         root.add(armL, armR);
 
+        // 姨丈魔法懸浮倒試管配件 (Floating Water-Sort Puzzle Test Tubes)
+        const puzzleTubeGroup = new THREE.Group();
+        puzzleTubeGroup.position.set(0, 0.72, 0.28);
+        const glassMat = new THREE.MeshPhongMaterial({
+            color: 0x93c5fd,
+            transparent: true,
+            opacity: 0.55,
+            shininess: 90
+        });
+        const liquidBlueMat = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
+        const liquidYellowMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+        const sparkleMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        // 左試管 (傾斜 45 度倒出水流)
+        const tubeLeftGroup = new THREE.Group();
+        tubeLeftGroup.position.set(-0.11, 0.05, 0);
+        const tubeLeftGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.18, 12, 1, true), glassMat);
+        const tubeLeftLiquid = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.10, 10), liquidBlueMat);
+        tubeLeftLiquid.position.y = -0.03;
+        tubeLeftGroup.add(tubeLeftGlass, tubeLeftLiquid);
+        tubeLeftGroup.rotation.z = -0.72;
+
+        // 倒出的優美液體弧線 (Liquid Stream)
+        const streamMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.012, 0.12, 6), liquidBlueMat);
+        streamMesh.position.set(0, 0.04, 0);
+        streamMesh.rotation.z = 0.45;
+
+        // 右試管 (正立接水)
+        const tubeRightGroup = new THREE.Group();
+        tubeRightGroup.position.set(0.11, -0.04, 0);
+        const tubeRightGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.18, 12, 1, true), glassMat);
+        const tubeRightLiquid = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.11, 10), liquidYellowMat);
+        tubeRightLiquid.position.y = -0.03;
+        tubeRightGroup.add(tubeRightGlass, tubeRightLiquid);
+
+        // 試管上方過關金色星芒
+        const sparkle = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), sparkleMat);
+        sparkle.position.set(0.11, 0.10, 0);
+
+        puzzleTubeGroup.add(tubeLeftGroup, streamMesh, tubeRightGroup, sparkle);
+        puzzleTubeGroup.scale.setScalar(0.001);
+        puzzleTubeGroup.visible = false;
+        root.add(puzzleTubeGroup);
+
         root.userData = {
             role: 'yijhang',
             legL, legR, armL, armR, headGroup, torso,
+            puzzleTubeGroup,
+            tubeScale: 0,
             eyes: [],
             jumping: 0,
             actionPhase: Math.random() * 10
@@ -453,10 +541,75 @@
         dangoStick.rotation.x = -0.8;
         armR.add(armMeshR, dangoStick);
 
+        // 阿姨野餐墊與點心茶席配件 (Gingham Picnic Blanket & Sweets Feast)
+        const picnicMatGroup = new THREE.Group();
+        picnicMatGroup.position.set(0.18, 0.01, 0.18);
+
+        // 紅白格紋野餐墊
+        const matBase = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.82, 0.82),
+            new THREE.MeshLambertMaterial({ color: 0xfef2f2 })
+        );
+        matBase.rotation.x = -Math.PI / 2;
+        picnicMatGroup.add(matBase);
+        // 紅色格紋交錯裝飾方塊
+        const redSqMat = new THREE.MeshLambertMaterial({ color: 0xef4444 });
+        for (let ix = -3; ix <= 3; ix += 2) {
+            for (let iz = -3; iz <= 3; iz += 2) {
+                const sq = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.11), redSqMat);
+                sq.rotation.x = -Math.PI / 2;
+                sq.position.set(ix * 0.11, 0.003, iz * 0.11);
+                picnicMatGroup.add(sq);
+            }
+        }
+
+        // 竹編草莓籃
+        const basket = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.10, 0.08, 0.07, 10),
+            new THREE.MeshLambertMaterial({ color: 0x92400e })
+        );
+        basket.position.set(-0.16, 0.04, -0.14);
+        const berryMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+        for (let i = 0; i < 5; i++) {
+            const b = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.045, 6), berryMat);
+            b.rotation.x = Math.PI;
+            b.position.set(-0.16 + (Math.sin(i * 1.5)) * 0.04, 0.07, -0.14 + (Math.cos(i * 1.5)) * 0.04);
+            picnicMatGroup.add(b);
+        }
+        picnicMatGroup.add(basket);
+
+        // 黑色漆器托盤 + 三色糰子點心
+        const tray = new THREE.Mesh(
+            new THREE.BoxGeometry(0.22, 0.018, 0.16),
+            new THREE.MeshLambertMaterial({ color: 0x1c1917 })
+        );
+        tray.position.set(0.14, 0.015, -0.12);
+        const sw1 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0xf472b6 }));
+        sw1.position.set(0.10, 0.035, -0.12);
+        const sw2 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0xffffff }));
+        sw2.position.set(0.14, 0.035, -0.12);
+        const sw3 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0x84cc16 }));
+        sw3.position.set(0.18, 0.035, -0.12);
+        picnicMatGroup.add(tray, sw1, sw2, sw3);
+
+        // 陶瓷保溫熱茶壺
+        const teapot = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.042, 0.048, 0.11, 10),
+            new THREE.MeshLambertMaterial({ color: 0x0284c7 })
+        );
+        teapot.position.set(0, 0.06, 0.16);
+        picnicMatGroup.add(teapot);
+
+        picnicMatGroup.scale.setScalar(0.001);
+        picnicMatGroup.visible = false;
+        root.add(picnicMatGroup);
+
         root.add(armL, armR);
         root.userData = {
             role: 'ayee',
             legL, legR, armL, armR, headGroup, torso,
+            picnicMatGroup,
+            matScale: 0,
             eyes: [eyeL, eyeR],
             heart,
             dangoStick,
@@ -576,7 +729,17 @@
         flash.position.set(-0.055, 0.035, 0.05);
         const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
         flashGlow.position.set(-0.055, 0.035, 0.07);
-        cameraGroup.add(camBody, camGrip, lens, flash, flashGlow);
+
+        // 拍照爆閃光源 (PointLight) 與瞬間星芒光環 (Flash Burst Star)
+        const flashLight = new THREE.PointLight(0xffffff, 0, 8.0);
+        flashLight.position.set(-0.055, 0.035, 0.12);
+        const flashBurst = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.42, 0.42),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })
+        );
+        flashBurst.position.set(-0.055, 0.035, 0.14);
+
+        cameraGroup.add(camBody, camGrip, lens, flash, flashGlow, flashLight, flashBurst);
         cameraGroup.position.set(-0.12, -0.14, 0.14);
         armR.add(cameraGroup);
 
@@ -588,6 +751,8 @@
             eyes: [eyeL, eyeR],
             cameraGroup,
             flashGlow,
+            flashLight,
+            flashBurst,
             jumping: 0,
             actionPhase: Math.random() * 10
         };
@@ -815,18 +980,41 @@
             }
 
             if (ud.role === 'achun') {
-                // 阿純：景點停車時直接席地而坐，膝上打開銀色筆電狂敲物理治療紀錄，偶爾喝拿鐵！
+                // 阿純景點動作配件：打紀錄時自動長出木質露營桌與帆布折疊椅，外加伸懶腰動作
+                if (ud.campingDeskGroup) {
+                    if (ud.isSpotBusy) {
+                        ud.deskScale = Math.min(1.0, (ud.deskScale || 0) + delta * 4.0);
+                        ud.campingDeskGroup.visible = true;
+                    } else {
+                        ud.deskScale = Math.max(0, (ud.deskScale || 0) - delta * 5.0);
+                        if (ud.deskScale <= 0.01) ud.campingDeskGroup.visible = false;
+                    }
+                    ud.campingDeskGroup.scale.setScalar(ud.deskScale);
+                }
+
                 if (ud.isSpotBusy) {
-                    ud.legL.rotation.x = -Math.PI * 0.42;
-                    ud.legR.rotation.x = -Math.PI * 0.42;
-                    charGroup.position.y = baseY - 0.16; // 坐下高度
-                    // 雙手在膝上筆電狂敲字
-                    ud.armL.rotation.x = -1.15 + Math.sin(elapsed * 15.0) * 0.08;
-                    ud.armL.rotation.y = 0.22;
-                    ud.armR.rotation.x = -1.15 + Math.cos(elapsed * 15.0) * 0.08;
-                    ud.armR.rotation.y = -0.22;
-                    ud.headGroup.rotation.x = 0.28 + Math.sin(elapsed * 2.8) * 0.06;
-                    ud.headGroup.rotation.y = Math.cos(elapsed * 1.8) * 0.12;
+                    // 坐在露營休閒椅上
+                    ud.legL.rotation.x = -Math.PI * 0.44;
+                    ud.legR.rotation.x = -Math.PI * 0.44;
+                    charGroup.position.y = baseY - 0.12;
+
+                    // 每 5.2 秒觸發一段 1.8 秒的舒爽「大伸懶腰」放鬆胸椎腰椎 (Deep Spine Stretch & Yawn)
+                    const stretchCycle = (elapsed * 0.95 + (ud.actionPhase || 0)) % 5.2;
+                    if (stretchCycle < 1.8) {
+                        const arch = Math.sin((stretchCycle / 1.8) * Math.PI);
+                        // 雙手高舉過頭拉伸筋膜、背部微後仰、仰頭舒爽閉目
+                        ud.armL.rotation.set(-2.65 - arch * 0.25, 0.18, 0.30);
+                        ud.armR.rotation.set(-2.65 - arch * 0.25, -0.18, -0.30);
+                        ud.torso.rotation.x = -0.18 * arch;
+                        ud.headGroup.rotation.x = -0.28 * arch;
+                        if (ud.eyes && ud.eyes.length) ud.eyes.forEach(e => { e.scale.y = 0.12; });
+                    } else {
+                        // 筆電鍵盤飛快敲打打字 (SOAP 評估表狂敲中)
+                        ud.armL.rotation.set(-1.15 + Math.sin(elapsed * 16.0) * 0.08, 0.22, 0);
+                        ud.armR.rotation.set(-1.15 + Math.cos(elapsed * 16.0) * 0.08, -0.22, 0);
+                        ud.headGroup.rotation.x = 0.22 + Math.sin(elapsed * 2.8) * 0.05;
+                        ud.headGroup.rotation.y = Math.cos(elapsed * 1.8) * 0.10;
+                    }
                 } else if (activeQuirk === 3) {
                     // 香甜站著打瞌睡（閉眼 + 頭一點一點度估）
                     ud.eyes.forEach(e => { e.scale.y = 0.12; });
@@ -835,7 +1023,7 @@
                     ud.armL.rotation.z = 0.20;
                     ud.armR.rotation.x = -0.35;
                 } else {
-                    // 左手托著銀色筆電、右手飛快敲鍵盤打物理治療紀錄＆喝拿鐵
+                    // 站立時左手托著銀色筆電、右手敲鍵盤或喝拿鐵
                     ud.armL.rotation.x = -1.18 + Math.sin(elapsed * 2.5) * 0.06;
                     ud.armL.rotation.y = 0.22;
                     ud.armR.rotation.x = -1.12 + Math.sin(elapsed * 12.0) * 0.14;
@@ -844,54 +1032,123 @@
                     ud.headGroup.rotation.y = 0.16 * Math.cos(elapsed * 2.2);
                 }
             } else if (ud.role === 'yijhang') {
-                // 姨丈：沉默酷哥司機，景點一停下來就低頭專心雙手握手機玩「倒試管益智小遊戲」，手指連點螢幕
-                ud.armL.rotation.x = -1.22 + Math.sin(elapsed * 2.0) * 0.05;
-                ud.armL.rotation.y = 0.32;
-                ud.armR.rotation.x = -1.20 + Math.sin(elapsed * 7.5) * 0.12; // 右手拇指專注點螢幕倒試管
-                ud.armR.rotation.y = -0.28;
-                ud.headGroup.rotation.x = 0.34;
-                ud.headGroup.rotation.y = 0.12 * Math.sin(elapsed * 1.5);
+                // 姨丈景點動作配件：自動懸浮透明雙試管魔法倒水 + 帥氣推墨鏡手勢
+                if (ud.puzzleTubeGroup) {
+                    if (ud.isSpotBusy) {
+                        ud.tubeScale = Math.min(1.0, (ud.tubeScale || 0) + delta * 4.0);
+                        ud.puzzleTubeGroup.visible = true;
+                    } else {
+                        ud.tubeScale = Math.max(0, (ud.tubeScale || 0) - delta * 5.0);
+                        if (ud.tubeScale <= 0.01) ud.puzzleTubeGroup.visible = false;
+                    }
+                    ud.puzzleTubeGroup.scale.setScalar(ud.tubeScale);
+                    ud.puzzleTubeGroup.position.y = 0.72 + Math.sin(elapsed * 2.5) * 0.025;
+                }
+
+                if (ud.isSpotBusy) {
+                    const puzzleCycle = (elapsed * 0.85 + (ud.actionPhase || 0)) % 4.2;
+                    if (puzzleCycle < 2.6) {
+                        // 雙手專心低頭滑手機倒試管
+                        ud.armL.rotation.set(-1.22 + Math.sin(elapsed * 2.0) * 0.05, 0.32, 0);
+                        ud.armR.rotation.set(-1.20 + Math.sin(elapsed * 8.0) * 0.12, -0.28, 0);
+                        ud.headGroup.rotation.set(0.32, 0.10 * Math.sin(elapsed * 1.5), 0);
+                    } else {
+                        // 帥氣推墨鏡 (右手抬至墨鏡鼻樑處推一下，展現車神淡定)
+                        ud.armL.rotation.set(-0.85, 0.20, 0);
+                        ud.armR.rotation.set(-1.52, -0.32, -0.14);
+                        ud.headGroup.rotation.set(-0.06, 0.16, 0.04);
+                    }
+                } else {
+                    ud.armL.rotation.x = -1.22 + Math.sin(elapsed * 2.0) * 0.05;
+                    ud.armL.rotation.y = 0.32;
+                    ud.armR.rotation.x = -1.20 + Math.sin(elapsed * 7.5) * 0.12;
+                    ud.armR.rotation.y = -0.28;
+                    ud.headGroup.rotation.x = 0.34;
+                    ud.headGroup.rotation.y = 0.12 * Math.sin(elapsed * 1.5);
+                }
             } else if (ud.role === 'ayee') {
-                // 阿姨：熱情話匣子＆餵食總隊長，雙手不停把烤糰子與伴手禮遞給大家吃，轉頭開心狂聊
-                ud.armR.rotation.x = -1.15 + Math.sin(elapsed * 5.8) * 0.25;
-                ud.armR.rotation.y = Math.sin(elapsed * 3.0) * 0.30;
-                ud.armL.rotation.x = -0.55 + Math.cos(elapsed * 4.2) * 0.20;
-                ud.headGroup.rotation.y = Math.sin(elapsed * 3.2) * 0.38;
-                ud.headGroup.rotation.z = Math.cos(elapsed * 2.8) * 0.12;
+                // 阿姨景點動作配件：自動展開紅白格紋野餐墊、草莓水果籃與熱茶，開心熱情投餵
+                if (ud.picnicMatGroup) {
+                    if (ud.isSpotBusy) {
+                        ud.matScale = Math.min(1.0, (ud.matScale || 0) + delta * 4.0);
+                        ud.picnicMatGroup.visible = true;
+                    } else {
+                        ud.matScale = Math.max(0, (ud.matScale || 0) - delta * 5.0);
+                        if (ud.matScale <= 0.01) ud.picnicMatGroup.visible = false;
+                    }
+                    ud.picnicMatGroup.scale.setScalar(ud.matScale);
+                }
+
+                if (ud.isSpotBusy) {
+                    // 站在野餐墊旁熱情揮手遞糰子餵食
+                    ud.armR.rotation.x = -1.25 + Math.sin(elapsed * 6.5) * 0.28;
+                    ud.armR.rotation.y = 0.20 + Math.sin(elapsed * 3.0) * 0.25;
+                    ud.armL.rotation.x = -0.55 + Math.cos(elapsed * 4.0) * 0.20;
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 3.0) * 0.35;
+                    ud.headGroup.rotation.z = Math.cos(elapsed * 2.5) * 0.10;
+                } else {
+                    ud.armR.rotation.x = -1.15 + Math.sin(elapsed * 5.8) * 0.25;
+                    ud.armR.rotation.y = Math.sin(elapsed * 3.0) * 0.30;
+                    ud.armL.rotation.x = -0.55 + Math.cos(elapsed * 4.2) * 0.20;
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 3.2) * 0.38;
+                    ud.headGroup.rotation.z = Math.cos(elapsed * 2.8) * 0.12;
+                }
                 if (ud.heart) {
                     const hs = 0.92 + Math.sin(elapsed * 6.5) * 0.35;
                     ud.heart.scale.setScalar(hs);
                     ud.heart.rotation.y = elapsed * 3.0;
                 }
             } else if (ud.role === 'alu') {
-                // 阿嚕：景點停車時雙手舉起復古相機四處取景拍照！相機閃光燈定時閃爍
+                // 阿嚕景點動作配件：雙手舉起復古相機，真實閃光燈爆閃 + 星芒光環
                 if (ud.isSpotBusy) {
                     ud.armL.rotation.set(-1.42, 0.26, 0.32);
                     ud.armR.rotation.set(-1.40, -0.26, -0.32);
-                    ud.headGroup.rotation.y = Math.sin(elapsed * 2.2) * 0.42;
-                    ud.headGroup.rotation.x = -0.08 + Math.cos(elapsed * 1.8) * 0.10;
-                    if (ud.flashGlow) {
-                        const flashPhase = (elapsed * 0.85) % 1.0;
-                        const isFlash = flashPhase > 0.88;
-                        ud.flashGlow.material.opacity = isFlash ? 0.95 : 0;
-                        ud.flashGlow.scale.setScalar(isFlash ? 1.4 : 0.2);
+                    const photoCycle = (elapsed * 0.95 + (ud.actionPhase || 0)) % 2.6;
+                    if (photoCycle < 0.22) {
+                        // 拍照爆閃瞬間！
+                        const flashT = photoCycle / 0.22;
+                        const flashIntensity = Math.sin(flashT * Math.PI) * 5.5;
+                        if (ud.flashLight) ud.flashLight.intensity = flashIntensity;
+                        if (ud.flashBurst) {
+                            ud.flashBurst.material.opacity = Math.sin(flashT * Math.PI) * 0.95;
+                            ud.flashBurst.scale.setScalar(1.0 + Math.sin(flashT * Math.PI) * 1.8);
+                            ud.flashBurst.rotation.z = elapsed * 8.0;
+                        }
+                        if (ud.flashGlow) ud.flashGlow.material.opacity = 0.95;
+                    } else {
+                        if (ud.flashLight) ud.flashLight.intensity = 0;
+                        if (ud.flashBurst) ud.flashBurst.material.opacity = 0;
+                        if (ud.flashGlow) ud.flashGlow.material.opacity = 0;
+                        if (photoCycle < 1.1) {
+                            // 低頭查看相片成果
+                            ud.armL.rotation.set(-1.08, 0.18, 0.10);
+                            ud.armR.rotation.set(-1.08, -0.18, -0.10);
+                            ud.headGroup.rotation.set(0.30 + Math.sin(elapsed * 3.5) * 0.08, 0, 0);
+                        } else {
+                            // 舉起相機環顧四周取景
+                            ud.headGroup.rotation.y = Math.sin(elapsed * 1.8) * 0.42;
+                            ud.headGroup.rotation.x = -0.06 + Math.cos(elapsed * 1.4) * 0.08;
+                        }
                     }
-                } else if (activeQuirk === 3 || activeQuirk === 4) {
-                    // 抬起兩隻熊掌盯著看：「這雙熊掌是真毛皮還是 Three.js Mesh？」
-                    ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
-                    ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;
-                    ud.armL.rotation.z = -0.25;
-                    ud.armR.rotation.z = 0.25;
-                    ud.headGroup.rotation.x = 0.22;
-                    ud.headGroup.rotation.y = Math.sin(elapsed * 2.5) * 0.28;
                 } else {
-                    // 單手托下巴、歪頭仰望鏡頭外的人類思考自由意志
-                    ud.torso.rotation.z = Math.sin(elapsed * 2.5) * 0.08;
-                    ud.armR.rotation.x = -1.48;
-                    ud.armR.rotation.z = 0.32;
-                    ud.armL.rotation.z = 0.25;
-                    ud.headGroup.rotation.x = -0.24 + Math.sin(elapsed * 2.0) * 0.08;
-                    ud.headGroup.rotation.z = -0.18;
+                    if (ud.flashLight) ud.flashLight.intensity = 0;
+                    if (ud.flashBurst) ud.flashBurst.material.opacity = 0;
+                    if (ud.flashGlow) ud.flashGlow.material.opacity = 0;
+                    if (activeQuirk === 3 || activeQuirk === 4) {
+                        ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
+                        ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;
+                        ud.armL.rotation.z = -0.25;
+                        ud.armR.rotation.z = 0.25;
+                        ud.headGroup.rotation.x = 0.22;
+                        ud.headGroup.rotation.y = Math.sin(elapsed * 2.5) * 0.28;
+                    } else {
+                        ud.torso.rotation.z = Math.sin(elapsed * 2.5) * 0.08;
+                        ud.armR.rotation.x = -1.48;
+                        ud.armR.rotation.z = 0.32;
+                        ud.armL.rotation.z = 0.25;
+                        ud.headGroup.rotation.x = -0.24 + Math.sin(elapsed * 2.0) * 0.08;
+                        ud.headGroup.rotation.z = -0.18;
+                    }
                 }
             }
         }

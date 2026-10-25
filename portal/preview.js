@@ -120,6 +120,7 @@
             if (currentShowcaseRoot) {
                 if (currentCategory === 'character') {
                     currentShowcaseRoot.userData.baseY = 0;
+                    currentShowcaseRoot.userData.isSpotBusy = (charPoseIdx === 0);
                     currentShowcaseRoot.userData.isUfoChasing = (currentCode === 'C1' && charPoseIdx === 2);
                     window.KyushuIsland.Characters.animateCharacterPose(currentShowcaseRoot, elapsed, delta, charPoseIdx === 1);
                 } else if (currentCategory === 'landmark') {

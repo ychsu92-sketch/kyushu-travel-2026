@@ -248,11 +248,6 @@
         craterLake.position.set(0, 1.16, -0.10);
         g.add(craterLake);
 
-        // 草千里雪原與放牧小馬
-        const kusasenri = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 0.12, 10), snowMat);
-        kusasenri.position.set(-0.95, 0.06, 0.35);
-        g.add(kusasenri);
-
         // 袅袅白煙球團 (由動畫迴圈更新)
         const puffs = [];
         const puffMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 });
