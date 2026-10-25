@@ -163,6 +163,7 @@
     let islandRoot;
     let envState, terrainState, landmarkState, propState;
     let characters = {};
+    let mainlandCoastPts = null;
     let isAutoRotate = true;
     let isSnowEnabled = true;
 
@@ -2044,6 +2045,7 @@
         if (!container || typeof THREE === 'undefined') return;
 
         const coastData = await loadJsonData('./portal/data/kyushu_coast.json', 'coast');
+        mainlandCoastPts = coastData && coastData.mainland ? coastData.mainland : null;
         const routeData = await loadJsonData('./portal/data/route.json', 'route');
 
         const w = container.clientWidth || 800;
@@ -2611,6 +2613,28 @@
                 isMovingOutside = false;
             }
 
+            // 嚴格陸地邊界防跌落安全錨定（Coastline Safety Clamping）
+            // 解決 1: 鵜戶神宮等靠海狹長景點人物走出陸地掉進海裡
+            // 解決 2: 走出陸地後因高度取樣錯誤導致在空中懸空飄浮
+            if (isStoppedAtLandmark && !isSummitSpot && mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
+                const isInside = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
+                if (!isInside(cx, cz)) {
+                    // 朝向小巴停車位置（100% 在安全道路陸地）內縮二分法拉回陸地
+                    let safeT = 0.0; // 0 = vanPos, 1 = (cx, cz)
+                    for (let step = 1; step <= 8; step++) {
+                        const testT = safeT + (1.0 - safeT) * 0.5;
+                        const tx = vanPos.x + (cx - vanPos.x) * testT;
+                        const tz = vanPos.z + (cz - vanPos.z) * testT;
+                        if (isInside(tx, tz)) {
+                            safeT = testT;
+                        }
+                    }
+                    safeT = Math.max(0.15, safeT * 0.90); // 留出 10% 岸邊緩衝安全餘裕
+                    cx = vanPos.x + (cx - vanPos.x) * safeT;
+                    cz = vanPos.z + (cz - vanPos.z) * safeT;
+                }
+            }
+
             outsideChars.push({
                 role,
                 idx,
@@ -2787,7 +2811,9 @@
             charGroup.userData.prevZ = c.cz;
 
             const charOnFerry = (c.cx > -4.56 && c.cx < -3.12 && c.cz > 9.78 && c.cz < 10.62);
-            const rawCharY = Math.max(vanGroundY, getGroundY(c.cx, c.cz) + 0.05);
+            // 嚴格貼地高度：在景點漫步時，以自身所在座標的地表高度 getGroundY 為準，徹底杜絕因為 vanGroundY 較高而飄浮在空中！
+            const actualGroundY = getGroundY(c.cx, c.cz) + 0.05;
+            const rawCharY = c.isStoppedAtLandmark ? actualGroundY : Math.max(vanGroundY, actualGroundY);
             charGroup.userData.baseY = charOnFerry
                 ? 0.42
                 : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(c.cx, c.cz, rawCharY));

@@ -893,6 +893,7 @@
 
     window.KyushuIsland.Terrain = {
         getTerrainElevation,
-        buildSouthKyushuTerrain
+        buildSouthKyushuTerrain,
+        isPointInPolygon
     };
 })();
