@@ -209,10 +209,10 @@
     };
 
     const ROLE_MARKER_STYLES = {
-        achun:   { label: '🧭 首席導遊', bg: '#fef3c7', border: '#d97706', text: '#92400e', pin: '#f59e0b' },
-        yijhang: { label: '🎩 榮譽總指揮', bg: '#dbeafe', border: '#2563eb', text: '#1e40af', pin: '#3b82f6' },
-        ayee:    { label: '⭐ 美食評鑑官', bg: '#ffe4e6', border: '#e11d48', text: '#9f1239', pin: '#f43f5e' },
-        alu:     { label: '💰 總務大臣', bg: '#ffedd5', border: '#ea580c', text: '#9a3412', pin: '#f97316' }
+        achun:   { icon: '🧭', name: '阿純', title: '首席導遊', bg: 'rgba(254, 243, 199, 0.72)', border: '#d97706', text: '#92400e', pin: '#f59e0b' },
+        yijhang: { icon: '🎩', name: '姨丈', title: '榮譽總指揮', bg: 'rgba(219, 234, 254, 0.72)', border: '#2563eb', text: '#1e40af', pin: '#3b82f6' },
+        ayee:    { icon: '⭐', name: '阿姨', title: '美食評鑑官', bg: 'rgba(255, 228, 230, 0.72)', border: '#e11d48', text: '#9f1239', pin: '#f43f5e' },
+        alu:     { icon: '💰', name: '阿嚕', title: '總務大臣', bg: 'rgba(255, 237, 213, 0.72)', border: '#ea580c', text: '#9a3412', pin: '#f97316' }
     };
     const ROLE_SPOT_STATUSES = {
         achun: [
@@ -3327,56 +3327,106 @@
         markerLayer.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:22;overflow:hidden;';
         container.appendChild(markerLayer);
 
+        // 注入頭頂名牌半透明與平時收折 CSS
+        let markerStyle = document.getElementById('char-marker-css');
+        if (!markerStyle) {
+            markerStyle = document.createElement('style');
+            markerStyle.id = 'char-marker-css';
+            markerStyle.textContent = `
+                .char-overhead-btn {
+                    position:absolute;
+                    transform:translate(-50%, -100%);
+                    pointer-events:auto;
+                    cursor:pointer;
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    transition:transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+                    background:transparent;
+                    border:none;
+                    padding:0;
+                    touch-action:manipulation;
+                }
+                .char-pin-badge {
+                    display:flex;
+                    align-items:center;
+                    gap:4px;
+                    padding:3px 5px;
+                    border-radius:9999px;
+                    backdrop-filter:blur(6px);
+                    -webkit-backdrop-filter:blur(6px);
+                    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+                    transition:all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+                    line-height:1.2;
+                }
+                .char-pin-icon {
+                    font-size:13px;
+                    display:inline-flex;
+                    align-items:center;
+                    justify-content:center;
+                    line-height:1;
+                }
+                .char-pin-text-block {
+                    display:none;
+                    align-items:center;
+                    gap:3px;
+                    white-space:nowrap;
+                    font-size:10.5px;
+                    font-weight:900;
+                    animation: charPinExpand 0.16s ease-out;
+                }
+                /* hover 時 或 被鎖定時 (locked) 完整展開半透明精緻名牌 */
+                .char-overhead-btn:hover .char-pin-badge,
+                .char-overhead-btn.locked .char-pin-badge {
+                    padding:3px 8px;
+                    box-shadow:0 4px 14px rgba(0,0,0,0.22);
+                    background-color:rgba(255, 255, 255, 0.92);
+                }
+                .char-overhead-btn:hover .char-pin-text-block,
+                .char-overhead-btn.locked .char-pin-text-block {
+                    display:inline-flex;
+                }
+                @keyframes charPinExpand {
+                    from { opacity:0; transform:translateX(-4px); }
+                    to { opacity:1; transform:none; }
+                }
+            `;
+            document.head.appendChild(markerStyle);
+        }
+
         Object.keys(ROLE_MARKER_STYLES).forEach(role => {
             const st = ROLE_MARKER_STYLES[role];
             const el = document.createElement('button');
             el.type = 'button';
+            el.className = 'char-overhead-btn';
             el.dataset.role = role;
-            el.style.cssText = [
-                'position:absolute;',
-                'transform:translate(-50%, -100%);',
-                'pointer-events:auto;',
-                'cursor:pointer;',
-                'display:flex;',
-                'flex-direction:column;',
-                'align-items:center;',
-                'transition:transform 0.15s ease, box-shadow 0.15s ease;',
-                'background:transparent;',
-                'border:none;',
-                'padding:0;'
-            ].join('');
 
             el.innerHTML = `
                 <div class="char-pin-badge" style="
                     background:${st.bg};
-                    border:2px solid ${st.border};
+                    border:1.5px solid ${st.border};
                     color:${st.text};
-                    padding:2px 7px;
-                    border-radius:9999px;
-                    font-size:10.5px;
-                    font-weight:900;
-                    white-space:nowrap;
-                    box-shadow:0 3px 8px rgba(0,0,0,0.16);
-                    display:flex;
-                    align-items:center;
-                    gap:3px;
-                    line-height:1.2;
                 ">
-                    <span>${st.label}</span>
-                    <span class="mode-icon" style="font-size:9px;opacity:0.85;"></span>
-                    <span class="lock-icon" style="display:none;font-size:9px;background:${st.border};color:#fff;padding:0 4px;border-radius:999px;">🔒跟隨中</span>
+                    <span class="char-pin-icon">${st.icon}</span>
+                    <div class="char-pin-text-block">
+                        <span>${st.title} ${st.name}</span>
+                        <span class="mode-icon" style="font-size:9.5px;opacity:0.9;"></span>
+                        <span class="lock-icon" style="display:none;font-size:9px;background:${st.border};color:#fff;padding:0 4px;border-radius:999px;">🔒跟隨中</span>
+                    </div>
                 </div>
                 <div style="
                     width:0;height:0;
-                    border-left:5px solid transparent;
-                    border-right:5px solid transparent;
-                    border-top:6px solid ${st.border};
+                    border-left:4px solid transparent;
+                    border-right:4px solid transparent;
+                    border-top:5px solid ${st.border};
                     margin-top:-1px;
+                    opacity:0.85;
                 "></div>
             `;
 
             // 快取 DOM 節點引用
             el._modeSpan = el.querySelector('.mode-icon');
+            el._lockSpan = el.querySelector('.lock-icon');
 
             el.addEventListener('pointerdown', ev => {
                 ev.stopPropagation();
@@ -3446,10 +3496,11 @@
             const clampedY = Math.max(44, Math.min(h - 16, y));
 
             const isLocked = (lockedRole === role);
+            el.classList.toggle('locked', isLocked);
             el.style.left = `${clampedX}px`;
             el.style.top = `${clampedY}px`;
             el.style.zIndex = isLocked ? '28' : '22';
-            el.style.transform = isLocked ? 'translate(-50%, -100%) scale(1.12)' : 'translate(-50%, -100%) scale(1)';
+            el.style.transform = isLocked ? 'translate(-50%, -100%) scale(1.14)' : 'translate(-50%, -100%) scale(1)';
         }
     }
 
@@ -3492,10 +3543,11 @@
                 }
             }
 
-            // 2. 更新頭頂指標上的 🔒 標籤
+            // 2. 更新頭頂指標上的 🔒 標籤與 locked 類別
             const markerEl = charMarkers[r];
             if (markerEl) {
-                const lockSpan = markerEl.querySelector('.lock-icon');
+                markerEl.classList.toggle('locked', lockedRole === r);
+                const lockSpan = markerEl._lockSpan || markerEl.querySelector('.lock-icon');
                 if (lockSpan) {
                     lockSpan.style.display = (lockedRole === r) ? 'inline-block' : 'none';
                 }
