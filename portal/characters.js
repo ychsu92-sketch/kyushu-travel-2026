@@ -48,8 +48,17 @@
     function enableShadow(obj) {
         obj.traverse(child => {
             if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
+                // 特殊光效、透明粒子與光環嚴禁投射陰影，否則會在身上產生方形投影！
+                if (child.material && child.material.transparent && child.material.opacity === 0) {
+                    child.castShadow = false;
+                    child.receiveShadow = false;
+                } else if (child.geometry && (child.geometry.type === 'PlaneGeometry' || child.geometry.type === 'RingGeometry')) {
+                    child.castShadow = false;
+                    child.receiveShadow = false;
+                } else {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
             }
         });
     }
@@ -911,18 +920,27 @@
         flashHousing.position.set(-0.065, 0.055, 0.07);
         const flashWindow = new THREE.Mesh(new THREE.PlaneGeometry(0.052, 0.032), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
         flashWindow.position.set(-0.065, 0.055, 0.089);
+        flashWindow.castShadow = false;
+        flashWindow.receiveShadow = false;
 
         const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
         flashGlow.position.set(-0.065, 0.055, 0.11);
+        flashGlow.visible = false;
+        flashGlow.castShadow = false;
+        flashGlow.receiveShadow = false;
 
-        // 5. 拍照爆閃光源 (PointLight) 與星芒光環
+        // 5. 拍照爆閃光源 (PointLight) 與星芒光環（改為圓形 RingGeometry，嚴禁投射陰影，避免阿嚕身體出現巨大方形陰影！）
         const flashLight = new THREE.PointLight(0xffffff, 0, 9.5);
         flashLight.position.set(-0.065, 0.055, 0.18);
+        flashLight.castShadow = false;
         const flashBurst = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.55, 0.55),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })
+            new THREE.RingGeometry(0.02, 0.28, 16),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
         );
         flashBurst.position.set(-0.065, 0.055, 0.20);
+        flashBurst.visible = false;
+        flashBurst.castShadow = false;
+        flashBurst.receiveShadow = false;
 
         // 6. 專業皮質相機背帶 (掛在阿嚕胸前)
         const strapMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
@@ -1322,15 +1340,25 @@
                         const flashIntensity = Math.sin(flashT * Math.PI) * 5.5;
                         if (ud.flashLight) ud.flashLight.intensity = flashIntensity;
                         if (ud.flashBurst) {
+                            ud.flashBurst.visible = true;
                             ud.flashBurst.material.opacity = Math.sin(flashT * Math.PI) * 0.95;
                             ud.flashBurst.scale.setScalar(1.0 + Math.sin(flashT * Math.PI) * 1.8);
                             ud.flashBurst.rotation.z = elapsed * 8.0;
                         }
-                        if (ud.flashGlow) ud.flashGlow.material.opacity = 0.95;
+                        if (ud.flashGlow) {
+                            ud.flashGlow.visible = true;
+                            ud.flashGlow.material.opacity = 0.95;
+                        }
                     } else {
                         if (ud.flashLight) ud.flashLight.intensity = 0;
-                        if (ud.flashBurst) ud.flashBurst.material.opacity = 0;
-                        if (ud.flashGlow) ud.flashGlow.material.opacity = 0;
+                        if (ud.flashBurst) {
+                            ud.flashBurst.visible = false;
+                            ud.flashBurst.material.opacity = 0;
+                        }
+                        if (ud.flashGlow) {
+                            ud.flashGlow.visible = false;
+                            ud.flashGlow.material.opacity = 0;
+                        }
                         if (photoCycle < 1.1) {
                             // 低頭查看相片成果
                             ud.armL.rotation.set(-1.08, 0.18, 0.10);
@@ -1344,8 +1372,14 @@
                     }
                 } else {
                     if (ud.flashLight) ud.flashLight.intensity = 0;
-                    if (ud.flashBurst) ud.flashBurst.material.opacity = 0;
-                    if (ud.flashGlow) ud.flashGlow.material.opacity = 0;
+                    if (ud.flashBurst) {
+                        ud.flashBurst.visible = false;
+                        ud.flashBurst.material.opacity = 0;
+                    }
+                    if (ud.flashGlow) {
+                        ud.flashGlow.visible = false;
+                        ud.flashGlow.material.opacity = 0;
+                    }
                     if (activeQuirk === 3 || activeQuirk === 4) {
                         ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
                         ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;
