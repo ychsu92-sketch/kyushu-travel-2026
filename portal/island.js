@@ -2539,15 +2539,15 @@
 
                 let spotAnchorX, spotAnchorZ, spotAnchorY;
                 if (isSummitSpot) {
-                    // 抵達阿蘇火山 (L04) 或大觀峰 (L05)：登上山頂火口觀景台 / 展望台隨意走動
+                    // 抵達阿蘇火山 (L04) 或大觀峰 (L05)：登上山頂火口觀景台 / 展望台安全木棧平臺 (緊湊集中於觀景台範圍內，半徑收縮至安全區，絕不跌出山崖飄浮)
                     const lx = currentLandmark.renderX !== undefined ? currentLandmark.renderX : currentLandmark.x;
                     const lz = currentLandmark.renderZ !== undefined ? currentLandmark.renderZ : currentLandmark.z;
                     const ly = currentLandmark.renderY !== undefined ? currentLandmark.renderY : getGroundY(lx, lz);
                     const sc = currentLandmark.scaleVal || 1.20;
-                    const summitSpread = (idx - 1.5) * 1.15;
-                    spotAnchorX = lx + summitSpread * 1.10;
-                    spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.45 * sc : 0.32 * sc);
-                    spotAnchorY = ly + ((currentLandmark.id === 'aso_crater') ? 1.22 * sc : 0.80 * sc);
+                    const summitSpread = (idx - 1.5) * 0.48; // 緊湊對稱於觀景台中心兩側
+                    spotAnchorX = lx + summitSpread;
+                    spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.36 * sc : 0.25 * sc);
+                    spotAnchorY = ly + ((currentLandmark.id === 'aso_crater') ? 1.18 * sc : 0.76 * sc);
                 } else {
                     // 大幅擴增下車自由漫步範圍（半徑擴大至 2.2~3.8 米，自由舒展，極具探險旅行感！）
                     const roamAnchorsLocal = [
@@ -2565,7 +2565,12 @@
                 // 景點自由生動漫步：阿姨與阿嚕在廣闊區域內自由踱步賞景，阿純與姨丈定點時亦有悠閒身體微動
                 let wanderX = 0;
                 let wanderZ = 0;
-                if (role === 'ayee') {
+                if (isSummitSpot) {
+                    // 山頂地段安全微動：在山頂觀景台上適度微動 (半徑 <= 0.10m)，絕不因隨意大幅走動而走出木棧台懸空飄浮！
+                    const wPhase = elapsed * 0.9 + idx * 2.0;
+                    wanderX = (Math.sin(wPhase) * 0.08) * roamWeight;
+                    wanderZ = (Math.cos(wPhase * 0.7) * 0.06) * roamWeight;
+                } else if (role === 'ayee') {
                     // 阿姨逛特產店、四處走動：半徑達 0.55m 的自由探索八字形動態軌跡
                     const wPhase = elapsed * 1.1 + idx * 1.7;
                     wanderX = (Math.sin(wPhase) * 0.55) * roamWeight;
@@ -2585,7 +2590,9 @@
                 cx = doorSideX + (spotAnchorX - doorSideX) * roamWeight + wanderX;
                 cz = doorSideZ + (spotAnchorZ - doorSideZ) * roamWeight + wanderZ;
                 if (isSummitSpot) {
-                    customSummitY = doorSideY + (spotAnchorY - doorSideY) * roamWeight;
+                    // 山頂真實高度：依據角色當前腳下即時坐標取樣山體表面，杜絕固定線性插值導致的懸空飄起！
+                    const summitSurfaceY = getMountainSummitY(cx, cz, getGroundY(cx, cz) + 0.05);
+                    customSummitY = doorSideY + (summitSurfaceY - doorSideY) * roamWeight;
                 }
             } else if (role === stragglerRole) {
                 // 落單苦主：在 Sienta 車尾後方追車（阿純開飛碟，阿嚕/阿姨奔跑）
