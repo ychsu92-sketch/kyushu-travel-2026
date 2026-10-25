@@ -93,61 +93,63 @@
         torso.add(coat, skirt, scarf);
         root.add(torso);
 
-        // 頭部（Q版大頭 + 眨眼雙眸 + 粉嫩腮紅 + 及肩髮 + 黃色針織毛帽）
+        // 頭部（Q版大頭 + 眨眼雙眸 + 粉嫩腮紅 + 及肩長髮 + 黃色針織毛帽）
         const headGroup = new THREE.Group();
         headGroup.position.y = 0.96;
         const head = new THREE.Mesh(new THREE.SphereGeometry(0.29, 14, 12), skinMat);
 
-        // 眼睛與腮紅
+        // 雙眸與粉嫩腮紅（眼睛向前微凸 z = 0.275，確保清楚鑲嵌於白皙臉蛋，絕對不被任何帽簷或髮片遮蓋）
         const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), eyeMat);
-        eyeL.position.set(-0.10, 0.02, 0.26);
+        eyeL.position.set(-0.095, 0.015, 0.275);
         const eyeR = eyeL.clone();
-        eyeR.position.set(0.10, 0.02, 0.26);
-        const blushL = new THREE.Mesh(new THREE.CircleGeometry(0.055, 8), blushMat);
-        blushL.position.set(-0.16, -0.05, 0.26);
+        eyeR.position.set(0.095, 0.015, 0.275);
+        const blushL = new THREE.Mesh(new THREE.CircleGeometry(0.052, 8), blushMat);
+        blushL.position.set(-0.16, -0.06, 0.27);
         blushL.rotation.y = -0.35;
-        const blushR = new THREE.Mesh(new THREE.CircleGeometry(0.055, 8), blushMat);
-        blushR.position.set(0.16, -0.05, 0.26);
+        const blushR = new THREE.Mesh(new THREE.CircleGeometry(0.052, 8), blushMat);
+        blushR.position.set(0.16, -0.06, 0.27);
         blushR.rotation.y = 0.35;
 
-        // 微笑嘴型
+        // 甜美微微笑嘴型（高於下巴，避免被圍巾遮擋）
         const smile = new THREE.Mesh(
-            new THREE.TorusGeometry(0.04, 0.012, 6, 10, Math.PI),
+            new THREE.TorusGeometry(0.036, 0.010, 6, 10, Math.PI),
             new THREE.MeshBasicMaterial({ color: 0xe11d48 })
         );
         smile.rotation.x = Math.PI;
-        smile.position.set(0, -0.06, 0.275);
+        smile.position.set(0, -0.075, 0.28);
 
-        // 及肩栗色長髮（後頭部包覆與溫柔側髮，嚴格露出正臉膚色，眼睛絕不長在頭髮上！）
+        // 後頭部包覆栗色長髮（嚴格收在後腦與後頸 z <= -0.04，前額與下巴 100% 潔淨露出，絕不穿透到下巴變成鬍子！）
         const hairBack = new THREE.Mesh(
-            new THREE.SphereGeometry(0.298, 14, 10, Math.PI * 0.25, Math.PI * 1.5, 0, Math.PI * 0.75),
+            new THREE.SphereGeometry(0.295, 14, 10, Math.PI * 0.30, Math.PI * 1.40, 0, Math.PI * 0.65),
             hairMat
         );
-        hairBack.position.set(0, -0.02, -0.03);
+        hairBack.position.set(0, 0.02, -0.05);
 
-        // 日系可愛側分齊瀏海（位置在額頭上方 y = 0.12~0.16，自然垂墜於眉骨上方，完全不覆蓋雙眼）
+        // 輕盈齊瀏海（位於高額頭 y = 0.16~0.20，緊貼額骨頂部，遠在眼睛 y = 0.015 上方，完全錯開）
         const bangs = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.292, 0.296, 0.08, 12, 1, false, Math.PI * 0.70, Math.PI * 0.60),
+            new THREE.CylinderGeometry(0.288, 0.292, 0.055, 12, 1, false, Math.PI * 0.72, Math.PI * 0.56),
             hairMat
         );
-        bangs.position.set(0, 0.12, 0.04);
-        bangs.rotation.x = 0.18;
+        bangs.position.set(0, 0.17, 0.02);
+        bangs.rotation.x = 0.12;
 
-        const lockL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 0.28, 7), hairMat);
-        lockL.position.set(-0.24, -0.10, 0.06);
-        lockL.rotation.z = 0.16;
+        // 兩側長垂髮（自然順著耳側垂落，位置在左右外側 x = +-0.25、深度 z = -0.02，落在肩膀後方，絕不長到下巴前緣！）
+        const lockL = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.28, 7), hairMat);
+        lockL.position.set(-0.25, -0.14, -0.02);
+        lockL.rotation.z = 0.14;
         const lockR = lockL.clone();
-        lockR.position.set(0.24, -0.10, 0.06);
-        lockR.rotation.z = -0.16;
+        lockR.position.set(0.25, -0.14, -0.02);
+        lockR.rotation.z = -0.14;
 
-        // 招牌黃色針織毛帽 + 反摺帽簷 + 白色大毛球
-        const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.56), hatMat);
-        beanie.position.y = 0.05;
-        const brim = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.055, 8, 16), hatMat);
-        brim.rotation.x = Math.PI / 2;
-        brim.position.y = 0.10;
-        const pom = new THREE.Mesh(new THREE.SphereGeometry(0.10, 10, 10), pomMat);
-        pom.position.set(0, 0.39, -0.03);
+        // 招牌亮黃針織毛帽（帽體整體抬高至 y = 0.14、略微向後仰戴，帽簷 y = 0.16 位於高額頭上方，雙眼完全豁然開朗！）
+        const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.305, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.52), hatMat);
+        beanie.position.set(0, 0.14, -0.04);
+        beanie.rotation.x = -0.15; // 俏皮向後仰戴
+        const brim = new THREE.Mesh(new THREE.TorusGeometry(0.275, 0.042, 8, 16), hatMat);
+        brim.rotation.x = Math.PI / 2 - 0.15;
+        brim.position.set(0, 0.16, -0.01);
+        const pom = new THREE.Mesh(new THREE.SphereGeometry(0.095, 10, 10), pomMat);
+        pom.position.set(0, 0.44, -0.11);
 
         headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBack, bangs, lockL, lockR, beanie, brim, pom);
         root.add(headGroup);
