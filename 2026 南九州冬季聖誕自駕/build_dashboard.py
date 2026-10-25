@@ -3069,56 +3069,85 @@ def build():
 
                 meals[mType].forEach(opt => {{
                     const row = document.createElement('div');
-                    row.className = 'bg-white p-3 sm:p-3.5 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between gap-2';
+                    // 統一固定高度 h-[156px]，確保早中晚宵夜4欄卡片水平完全齊平對齊，絕不大小不一
+                    row.className = 'bg-white p-3 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between h-[156px] min-h-[156px] max-h-[156px] overflow-hidden';
                     
-                    // 根據訂位類型區分標籤色彩與圖示
-                    const resText = (opt.reserve_type || '').trim();
-                    let badgeClass = 'bg-stone-100 text-stone-600 border-stone-200';
-                    let badgeIcon = '📋';
+                    // 1. 精簡訂位標籤為 2~4 字，確保絕不溢出到隔壁欄位
+                    const rawRes = (opt.reserve_type || '').toLowerCase();
+                    let badgeLabel = '現場入座';
+                    let badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                    let badgeIcon = '⚡';
                     
-                    if (resText.includes('預約') || resText.includes('訂位') || resText.includes('洽詢')) {{
-                        badgeClass = 'bg-rose-50 text-rose-700 border-rose-200 font-bold';
-                        badgeIcon = '📅';
-                    }} else if (resText.includes('免預約') || resText.includes('現場入座') || resText.includes('現場點餐') || resText.includes('現場排隊') || resText.includes('現場候位') || resText.includes('現場採買')) {{
-                        badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
-                        badgeIcon = '⚡';
-                    }} else if (resText.includes('房客') || resText.includes('住宿') || resText.includes('朝食')) {{
-                        badgeClass = 'bg-purple-50 text-purple-700 border-purple-200 font-bold';
+                    if (rawRes.includes('房客') || rawRes.includes('住宿') || rawRes.includes('朝食')) {{
+                        badgeLabel = '房客專享';
+                        badgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
                         badgeIcon = '🏨';
+                    }} else if (rawRes.includes('免預約') || rawRes.includes('無需預約')) {{
+                        badgeLabel = '免預約';
+                        badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                        badgeIcon = '⚡';
+                    }} else if (rawRes.includes('現場排隊') || rawRes.includes('現場候位') || rawRes.includes('取號')) {{
+                        badgeLabel = '現場候位';
+                        badgeClass = 'bg-teal-50 text-teal-800 border-teal-200';
+                        badgeIcon = '⏳';
+                    }} else if (rawRes.includes('線上預約') || rawRes.includes('官網預約')) {{
+                        badgeLabel = '線上預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📅';
+                    }} else if (rawRes.includes('電話預約')) {{
+                        badgeLabel = '電話預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📞';
+                    }} else if (rawRes.includes('預約') || rawRes.includes('訂位') || rawRes.includes('洽詢')) {{
+                        badgeLabel = '需預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📅';
                     }}
+
+                    // 2. 乾淨純粹的店名 (過濾括號宣傳詞與重複菜品後綴)
+                    let cleanName = (opt.name || '').trim();
+                    cleanName = cleanName.replace(/\\s*[\\(（][^()（）]*(靈魂|神店|傳奇|酒吧|小酌|專門|夜酌|老始祖|霸主|朝食|百匯|便當|居酒|昭和|名物|老舖)[^()（）]*[\\)）]/g, '');
+                    cleanName = cleanName.replace(/\\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '');
+
+                    // 3. 價格精簡乾淨
+                    let cleanPrice = (opt.price || '').split('~')[0].split('/')[0].trim();
+                    if (cleanPrice.includes('住宿內含')) cleanPrice = '住宿內含';
+
+                    // 4. 地點精簡
+                    const cleanArea = (opt.area || '').split(' ')[0].trim();
 
                     row.innerHTML = `
                         <div class="space-y-1.5">
-                            <!-- 頂部獨立資訊列：訂位狀態標籤獨立一行，絕不擠壓店名 -->
-                            <div class="flex items-center justify-between gap-1 flex-wrap">
-                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-lg border ${{badgeClass}} shrink-0 shadow-2xs">
+                            <!-- 頂部獨立標籤列 (嚴格控制寬度，絕不溢出) -->
+                            <div class="flex items-center justify-between gap-1">
+                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border ${{badgeClass}} font-bold shrink-0 shadow-2xs">
                                     <span>${{badgeIcon}}</span>
-                                    <span>${{resText.split('/')[0].trim()}}</span>
+                                    <span>${{badgeLabel}}</span>
                                 </span>
-                                ${{opt.area ? `<span class="text-[10px] text-stone-400 font-medium truncate max-w-[80px]">📍 ${{opt.area.split(' ')[0]}}</span>` : ''}}
+                                ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[70px]">📍 ${{cleanArea}}</span>` : ''}}
                             </div>
 
-                            <!-- 店名享有 100% 橫向寬度，不再被壓縮成長條直列 -->
-                            <h5 class="font-black text-stone-800 text-xs sm:text-[13px] leading-snug tracking-tight hover:text-orange-600 transition cursor-pointer" onclick="jumpToRestaurant('${{opt.id}}')">
-                                ${{opt.name}}
+                            <!-- 乾淨純粹店名 (單行截斷，字體清爽易讀) -->
+                            <h5 class="font-black text-stone-800 text-xs sm:text-[13px] leading-snug tracking-tight hover:text-orange-600 transition cursor-pointer truncate" onclick="jumpToRestaurant('${{opt.id}}')" title="${{opt.name}}">
+                                ${{cleanName}}
                             </h5>
 
-                            <!-- 必吃特色推薦小卡 -->
+                            <!-- 必吃特色推薦小卡 (招牌菜獨立呈現) -->
                             <div class="bg-stone-50 rounded-lg px-2 py-1 text-[11px] text-stone-600 font-medium line-clamp-1 border border-stone-100">
                                 🍴 <span class="text-stone-700 font-bold">${{opt.must_eat}}</span>
                             </div>
                         </div>
 
-                        <!-- 底部價格與操作區 (強制 whitespace-nowrap 防止折行) -->
-                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px]">
-                            <span class="font-mono text-stone-700 font-black tracking-tight shrink-0">
-                                ${{opt.price.split('~')[0].trim()}}
+                        <!-- 底部價格與操作區 (按鈕精簡，徹底解決擠壓出界與卡住問題) -->
+                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px] gap-2">
+                            <span class="font-mono text-stone-800 font-black tracking-tight shrink-0 text-xs truncate max-w-[75px]">
+                                ${{cleanPrice}}
                             </span>
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[11px] font-bold flex items-center gap-0.5 transition active:scale-95 shadow-2xs">
-                                    <span>訂位攻略</span> ↗
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[11px] font-bold transition active:scale-95 shadow-2xs">
+                                    攻略 ↗
                                 </button>
-                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + opt.area)}}" target="_blank" class="w-6 h-6 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-xs font-bold transition active:scale-95 shadow-2xs" title="Google 地圖導航">
+                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + opt.area)}}" target="_blank" class="w-6 h-6 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-xs font-bold transition active:scale-95 shadow-2xs shrink-0" title="Google 地圖導航">
                                     🗺️
                                 </a>
                             </div>
