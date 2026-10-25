@@ -1014,24 +1014,42 @@
         flashWindow.castShadow = false;
         flashWindow.receiveShadow = false;
 
-        const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
-        flashGlow.position.set(-0.065, 0.055, 0.11);
-        flashGlow.visible = false;
-        flashGlow.castShadow = false;
-        flashGlow.receiveShadow = false;
-
-        // 5. 拍照爆閃光源 (PointLight) 與星芒光環（改為圓形 RingGeometry，嚴禁投射陰影，避免阿嚕身體出現巨大方形陰影！）
-        const flashLight = new THREE.PointLight(0xffffff, 0, 9.5);
+        // 5. 拍照爆閃光源 (PointLight) 與八角星芒光暈 (Star Flare，徹底取代空心圓環與立體實心球，杜絕突兀圓形卡住問題)
+        const flashLight = new THREE.PointLight(0xffffff, 0, 7.5);
         flashLight.position.set(-0.065, 0.055, 0.18);
         flashLight.castShadow = false;
+
+        const flareShape = new THREE.Shape();
+        const rOuter = 0.22, rInner = 0.038;
+        for (let i = 0; i < 8; i++) {
+            const a = (i * Math.PI) / 4;
+            const r = (i % 2 === 0) ? rOuter : rInner;
+            const fx = Math.cos(a) * r;
+            const fy = Math.sin(a) * r;
+            if (i === 0) flareShape.moveTo(fx, fy);
+            else flareShape.lineTo(fx, fy);
+        }
+        flareShape.closePath();
         const flashBurst = new THREE.Mesh(
-            new THREE.RingGeometry(0.02, 0.28, 16),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide })
+            new THREE.ShapeGeometry(flareShape),
+            new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0,
+                depthWrite: false,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending
+            })
         );
-        flashBurst.position.set(-0.065, 0.055, 0.20);
+        flashBurst.position.set(-0.065, 0.055, 0.12);
+        flashBurst.scale.setScalar(0.001);
         flashBurst.visible = false;
         flashBurst.castShadow = false;
         flashBurst.receiveShadow = false;
+
+        // 移除原突兀的實心白色小球 (flashGlow)，建立相容的不可見虛擬節點
+        const flashGlow = new THREE.Group();
+        flashGlow.visible = false;
 
         // 6. 專業皮質相機背帶 (掛在阿嚕胸前)
         const strapMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
@@ -1278,6 +1296,21 @@
         ud.armR.rotation.set(0, 0, 0);
         ud.torso.rotation.set(0, 0, 0);
         ud.headGroup.rotation.set(0, 0, 0);
+
+        // 阿嚕相機閃光燈安全防護：只要處於走路、乘車、追車或不在景點拍照模式，強制關閉並歸零，絕不殘留圓形星芒！
+        if (ud.role === 'alu') {
+            if (!ud.isSpotBusy || isWalking || ud.isDragonChasing) {
+                if (ud.flashLight) ud.flashLight.intensity = 0;
+                if (ud.flashBurst) {
+                    ud.flashBurst.visible = false;
+                    ud.flashBurst.material.opacity = 0;
+                    ud.flashBurst.scale.setScalar(0.001);
+                }
+                if (ud.flashGlow) ud.flashGlow.visible = false;
+                if (ud.flashWindow) ud.flashWindow.material.color.setHex(0xfef08a);
+            }
+        }
+
         if (ud.ufoGroup) {
             ud.ufoGroup.visible = !!ud.isUfoChasing;
             ud.legL.visible = !ud.isUfoChasing;
@@ -1638,36 +1671,33 @@
                     ud.heart.rotation.y = elapsed * 3.0;
                 }
             } else if (ud.role === 'alu') {
-                // 阿嚕景點動作配件：雙手舉起復古相機，真實閃光燈爆閃 + 星芒光環
+                // 阿嚕景點動作配件：雙手舉起復古相機，真實閃光燈爆閃 + 星芒光暈 (0.15s 閃動，徹底杜絕圓環殘留)
                 if (ud.isSpotBusy) {
                     ud.armL.rotation.set(-1.42, 0.26, 0.32);
                     ud.armR.rotation.set(-1.40, -0.26, -0.32);
-                    const photoCycle = (elapsed * 0.95 + (ud.actionPhase || 0)) % 2.6;
-                    if (photoCycle < 0.22) {
-                        // 拍照爆閃瞬間！
-                        const flashT = photoCycle / 0.22;
-                        const flashIntensity = Math.sin(flashT * Math.PI) * 5.5;
+                    const photoCycle = (elapsed * 0.95 + (ud.actionPhase || 0)) % 2.8;
+                    if (photoCycle < 0.15) {
+                        // 拍照爆閃瞬間！(0.15 秒真實微閃)
+                        const flashT = photoCycle / 0.15;
+                        const flashIntensity = Math.sin(flashT * Math.PI) * 4.8;
                         if (ud.flashLight) ud.flashLight.intensity = flashIntensity;
                         if (ud.flashBurst) {
                             ud.flashBurst.visible = true;
-                            ud.flashBurst.material.opacity = Math.sin(flashT * Math.PI) * 0.95;
-                            ud.flashBurst.scale.setScalar(1.0 + Math.sin(flashT * Math.PI) * 1.8);
-                            ud.flashBurst.rotation.z = elapsed * 8.0;
+                            ud.flashBurst.material.opacity = Math.sin(flashT * Math.PI) * 0.92;
+                            ud.flashBurst.scale.setScalar(0.25 + Math.sin(flashT * Math.PI) * 0.85);
+                            ud.flashBurst.rotation.z = elapsed * 12.0;
                         }
-                        if (ud.flashGlow) {
-                            ud.flashGlow.visible = true;
-                            ud.flashGlow.material.opacity = 0.95;
-                        }
+                        if (ud.flashWindow) ud.flashWindow.material.color.setHex(0xffffff);
                     } else {
                         if (ud.flashLight) ud.flashLight.intensity = 0;
                         if (ud.flashBurst) {
                             ud.flashBurst.visible = false;
                             ud.flashBurst.material.opacity = 0;
+                            ud.flashBurst.scale.setScalar(0.001);
                         }
-                        if (ud.flashGlow) {
-                            ud.flashGlow.visible = false;
-                            ud.flashGlow.material.opacity = 0;
-                        }
+                        if (ud.flashGlow) ud.flashGlow.visible = false;
+                        if (ud.flashWindow) ud.flashWindow.material.color.setHex(0xfef08a);
+
                         if (photoCycle < 1.1) {
                             // 低頭查看相片成果
                             ud.armL.rotation.set(-1.08, 0.18, 0.10);
@@ -1684,11 +1714,10 @@
                     if (ud.flashBurst) {
                         ud.flashBurst.visible = false;
                         ud.flashBurst.material.opacity = 0;
+                        ud.flashBurst.scale.setScalar(0.001);
                     }
-                    if (ud.flashGlow) {
-                        ud.flashGlow.visible = false;
-                        ud.flashGlow.material.opacity = 0;
-                    }
+                    if (ud.flashGlow) ud.flashGlow.visible = false;
+                    if (ud.flashWindow) ud.flashWindow.material.color.setHex(0xfef08a);
                     if (activeQuirk === 3 || activeQuirk === 4) {
                         ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
                         ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;

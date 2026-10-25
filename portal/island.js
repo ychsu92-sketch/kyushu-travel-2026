@@ -2421,27 +2421,43 @@
                 if (roll < 0.26) {
                     travelMode = 'all_aboard';
                     stragglerRole = null;
-                    if (!activeSpeaker && banterTimers.length === 0) {
-                        const carScript = (Math.random() < 0.70)
-                            ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
-                            : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
-                        if (carScript) triggerCustomBanterScript(carScript, false);
+                    clearBanterQueue();
+                    activeSpeaker = null;
+                    const carScript = (Math.random() < 0.70)
+                        ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                        : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                    if (carScript) {
+                        const durSec = calcScriptDurationMs(carScript) / 1000;
+                        driveCooldown = Math.max(5.0, durSec + 1.2);
+                        triggerCustomBanterScript(carScript, false);
                     }
                 } else if (roll < 0.86) {
                     // 60% 機率由阿純 (飛碟)、阿姨 (掃帚)、阿嚕 (祥龍) 輪替被落下車追車
                     const candidates = ['achun', 'ayee', 'alu'];
                     stragglerRole = candidates[Math.floor(Math.random() * candidates.length)];
                     travelMode = 'straggler_' + stragglerRole;
-                    if (!activeSpeaker && banterTimers.length === 0) {
-                        const s = pickStragglerScript(stragglerRole);
-                        if (s) triggerCustomBanterScript(s, false);
+                    // 被車子落下是第一優先緊急突發事件：強制清除先前任何景點收尾對話，第一時間喊出被落下追車求救吐槽！
+                    clearBanterQueue();
+                    activeSpeaker = null;
+                    const s = pickStragglerScript(stragglerRole);
+                    if (s) {
+                        const scriptDurSec = calcScriptDurationMs(s) / 1000;
+                        // 延長公路巡航冷卻時間，確保追車台詞與載具演出能在下一站進站前從容講完，絕不被進站腰斬！
+                        driveCooldown = Math.max(14.0, scriptDurSec + 2.0);
+                        triggerCustomBanterScript(s, false);
+                    } else {
+                        driveCooldown = 12.0;
                     }
                 } else {
                     travelMode = 'everyone_walk';
                     stragglerRole = null;
-                    if (!activeSpeaker && banterTimers.length === 0) {
-                        const walkScript = pickWalkTogetherScript();
-                        if (walkScript) triggerCustomBanterScript(walkScript, false);
+                    clearBanterQueue();
+                    activeSpeaker = null;
+                    const walkScript = pickWalkTogetherScript();
+                    if (walkScript) {
+                        const durSec = calcScriptDurationMs(walkScript) / 1000;
+                        driveCooldown = Math.max(6.0, durSec + 1.2);
+                        triggerCustomBanterScript(walkScript, false);
                     }
                 }
             }
@@ -2549,7 +2565,8 @@
             }
         });
 
-        if (nearest && minDist < 0.68 && driveCooldown <= 0 && !visitedLandmarksInLap.has(nearest.id)) {
+        const isBanterBusy = (banterTimers.length > 0 || performance.now() < dialogBusyUntilMs);
+        if (nearest && minDist < 0.68 && driveCooldown <= 0 && !isBanterBusy && !visitedLandmarksInLap.has(nearest.id)) {
             currentLandmark = nearest;
             lastStopLandmarkId = nearest.id;
             visitedLandmarksInLap.add(nearest.id);
