@@ -2742,7 +2742,7 @@
         const x = (_tempBubblePos.x * 0.5 + 0.5) * canvas.clientWidth;
         const y = (-(_tempBubblePos.y * 0.5) + 0.5) * canvas.clientHeight;
 
-        const halfW = 136;
+        const halfW = Math.min(136, canvas.clientWidth / 2 - 6);
         const clampedX = Math.max(halfW, Math.min(canvas.clientWidth - halfW, x));
         const clampedY = Math.max(85, Math.min(canvas.clientHeight - 35, y));
 
@@ -2757,6 +2757,26 @@
         charAvatars = {};
         const oldDock = container.querySelector('#kyushu-avatar-dock');
         if (oldDock) oldDock.remove();
+
+        // 狀態列平時收合（僅顯示頭像，不遮擋 3D 畫面）；桌機 hover、手機點擊頭像時才展開便條紙
+        if (!document.getElementById('kyushu-avatar-dock-style')) {
+            const dockStyle = document.createElement('style');
+            dockStyle.id = 'kyushu-avatar-dock-style';
+            dockStyle.textContent = `
+                #kyushu-avatar-dock .ig-note-block { display:none; }
+                #kyushu-avatar-dock.expanded .ig-note-block { display:flex; animation: kyushuNoteIn 0.18s ease-out; }
+                #kyushu-avatar-dock .kyushu-avatar-btn.speaking { box-shadow:0 0 0 3px rgba(239,68,68,0.55), 0 2px 6px rgba(0,0,0,0.15) !important; animation: kyushuSpeakPulse 1.1s ease-in-out infinite; }
+                @keyframes kyushuNoteIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:none; } }
+                @keyframes kyushuSpeakPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.12); } }
+                @media (max-width: 640px) {
+                    #kyushu-avatar-dock { top:8px !important; left:8px !important; gap:5px !important; }
+                    #kyushu-avatar-dock .kyushu-avatar-btn { width:38px !important; height:38px !important; font-size:18px !important; }
+                    #kyushu-avatar-dock .ig-note-bubble { height:auto !important; min-height:26px; padding:4px 9px !important; max-width:52vw !important; }
+                    #kyushu-avatar-dock .ig-note-text { font-size:12px !important; max-width:48vw !important; }
+                }
+            `;
+            document.head.appendChild(dockStyle);
+        }
 
         const dock = document.createElement('div');
         dock.id = 'kyushu-avatar-dock';
@@ -2863,8 +2883,8 @@
 
             // 右側：狀態便條紙區塊 (Note Block: 包含向左指的小尾巴 + 便條紙氣泡)
             const noteBlock = document.createElement('div');
+            noteBlock.className = 'ig-note-block';
             noteBlock.style.cssText = [
-                'display:flex;',
                 'align-items:center;',
                 'position:relative;'
             ].join('');
@@ -2939,6 +2959,12 @@
             item.addEventListener('click', ev => {
                 ev.stopPropagation();
                 focusCharacter(role);
+                // 觸控裝置：點擊頭像同時展開便條紙 4 秒後自動收合
+                if (dock._isTouch) {
+                    dock.classList.add('expanded');
+                    clearTimeout(dock._collapseTimer);
+                    dock._collapseTimer = setTimeout(() => dock.classList.remove('expanded'), 4000);
+                }
             });
 
             dock.appendChild(item);
@@ -2951,6 +2977,14 @@
                 lockBadge,
                 borderCol: st.border
             };
+        });
+
+        dock.addEventListener('pointerdown', ev => { dock._isTouch = (ev.pointerType === 'touch' || ev.pointerType === 'pen'); });
+        dock.addEventListener('mouseenter', () => {
+            if (!dock._isTouch) dock.classList.add('expanded');
+        });
+        dock.addEventListener('mouseleave', () => {
+            if (!dock._isTouch) dock.classList.remove('expanded');
         });
 
         container.appendChild(dock);
@@ -2995,6 +3029,7 @@
                 }
             }
 
+            if (av.avatarBtn) av.avatarBtn.classList.toggle('speaking', isSpeaking);
             if (av.noteTextEl.textContent !== targetText) {
                 av.noteTextEl.textContent = targetText;
             }

@@ -173,8 +173,46 @@ def build_portal(release_mode: bool = False):
         }}
         @media (max-width: 640px) {{
             #island-canvas-container {{
-                height: 420px;
+                height: min(72vh, 560px);
+                min-height: 430px;
+                border-radius: 1.1rem;
             }}
+            /* 行動版：對話框固定貼齊畫布底部、全寬、字體放大，不再遮擋角色與景點 */
+            .island-speech-bubble {{
+                left: 8px !important;
+                right: 8px !important;
+                top: auto !important;
+                bottom: 8px;
+                transform: none !important;
+                max-width: none;
+                padding: 10px 14px;
+                font-size: 14px;
+                border-radius: 16px;
+            }}
+            .island-speech-bubble::after {{ display: none; }}
+            #bubble-speaker-text {{ font-size: 14px !important; line-height: 1.5 !important; }}
+            #bubble-speaker-name {{ font-size: 13px !important; }}
+            #bubble-spot-tag {{ font-size: 11px !important; }}
+            /* 操作按鈕列：單行橫向滑動，節省垂直空間 */
+            .island-ctrl-row {{
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding-bottom: 2px;
+            }}
+            .island-ctrl-row::-webkit-scrollbar {{ display: none; }}
+            .island-ctrl-row > * {{ flex-shrink: 0; white-space: nowrap; }}
+            .island-hint-desktop {{ display: none !important; }}
+            .island-hint-mobile {{ display: flex !important; }}
+        }}
+        .island-hint-mobile {{
+            display: none;
+            animation: islandHintFade 7s ease forwards;
+        }}
+        @keyframes islandHintFade {{
+            0%, 70% {{ opacity: 1; }}
+            100% {{ opacity: 0; visibility: hidden; }}
         }}
 
         /* 3D 角色即時對話氣泡浮動層 */
@@ -271,7 +309,7 @@ def build_portal(release_mode: bool = False):
                         <span>🗾</span> 2026 南九州冬日自駕島・阿純一家的聖誕冒險
                     </h2>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
+                <div class="island-ctrl-row flex flex-wrap items-center gap-2">
                     <button id="btn-unlock-char" onclick="unlockCharacter()" class="hidden px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white border border-red-700 text-xs font-black flex items-center gap-1 shadow-sm transition animate-pulse">
                         <span>🔓</span>
                         <span id="unlock-char-text">解除鎖定</span>
@@ -313,7 +351,10 @@ def build_portal(release_mode: bool = False):
                 </div>
 
                 <!-- 浮動在畫布角落的引導提示 -->
-                <div class="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
+                <div class="island-hint-mobile absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none items-center gap-1 z-25">
+                    <span>👆 單指旋轉・雙指縮放・點頭像看狀態</span>
+                </div>
+                <div class="island-hint-desktop absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
                     <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
                 </div>
             </div>
