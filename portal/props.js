@@ -232,6 +232,119 @@
         return g;
     }
 
+    // P21: JR 九州 800系「燕子號」新幹線 / 特急高速列車 (3 節流線型高架編組)
+    function buildP21_JRTrain() {
+        const trainGroup = new THREE.Group();
+        const whiteMat   = new THREE.MeshLambertMaterial({ color: 0xf8fafc, flatShading: true });
+        const crimsonMat = new THREE.MeshLambertMaterial({ color: 0xbe123c }); // JR 九州招牌朱紅腰線
+        const goldMat    = new THREE.MeshLambertMaterial({ color: 0xf59e0b }); // 燕子金色飾條
+        const glassMat   = new THREE.MeshBasicMaterial({ color: 0x0284c7 });   // 觀景深藍客室窗
+        const darkVisor  = new THREE.MeshBasicMaterial({ color: 0x0f172a });   // 駕駛座流線黑遮陽風擋
+        const roofMat    = new THREE.MeshLambertMaterial({ color: 0x475569 }); // 灰黑合金車頂空調
+        const bogieMat   = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // 轉向架
+        const headMat    = new THREE.MeshBasicMaterial({ color: 0xfef08a });   // 暖白 LED 車頭大燈
+        const tailMat    = new THREE.MeshBasicMaterial({ color: 0xef4444 });   // 寶石紅車尾燈
+
+        // 輔助函式：建立單節轉向架與排障輪軸
+        function createBogies(carLength) {
+            const bg = new THREE.Group();
+            [-carLength * 0.32, carLength * 0.32].forEach(bz => {
+                const bBox = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.05, 0.14), bogieMat);
+                bBox.position.set(0, 0.025, bz);
+                [-0.08, 0.08].forEach(wx => {
+                    [-0.05, 0.05].forEach(wz => {
+                        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.018, 8), darkVisor);
+                        wheel.rotation.z = Math.PI / 2;
+                        wheel.position.set(wx, 0.028, bz + wz);
+                        bg.add(wheel);
+                    });
+                });
+                bg.add(bBox);
+            });
+            return bg;
+        }
+
+        // 1. 先頭車 (Lead Cab Car)
+        const car1 = new THREE.Group();
+        const body1 = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.16, 0.44), whiteMat);
+        body1.position.set(0, 0.14, -0.04);
+        // 子彈型流線鴨嘴車頭
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.22, 8), whiteMat);
+        nose.rotation.x = -Math.PI / 2;
+        nose.scale.set(0.85, 1.2, 0.65);
+        nose.position.set(0, 0.11, 0.26);
+        // 黑色駕駛艙全景風擋
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.065, 0.09), darkVisor);
+        visor.position.set(0, 0.17, 0.19);
+        visor.rotation.x = -0.32;
+        // 朱紅腰線飾帶
+        const stripe1 = new THREE.Mesh(new THREE.BoxGeometry(0.208, 0.025, 0.48), crimsonMat);
+        stripe1.position.set(0, 0.11, 0);
+        // 金色燕子標誌飾條
+        const goldStripe = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.012, 0.32), goldMat);
+        goldStripe.position.set(0, 0.135, -0.02);
+        // 側車窗
+        const win1 = new THREE.Mesh(new THREE.BoxGeometry(0.212, 0.05, 0.34), glassMat);
+        win1.position.set(0, 0.16, -0.06);
+        // 雙眼 LED 探照大燈
+        [-0.045, 0.045].forEach(lx => {
+            const hl = new THREE.Mesh(new THREE.SphereGeometry(0.018, 6, 6), headMat);
+            hl.position.set(lx, 0.085, 0.34);
+            car1.add(hl);
+        });
+        const headLight = new THREE.PointLight(0xffedd5, 1.2, 2.5);
+        headLight.position.set(0, 0.14, 0.42);
+        car1.add(body1, nose, visor, stripe1, goldStripe, win1, headLight, createBogies(0.48));
+
+        // 2. 中間客車 (Middle Passenger Coach)
+        const car2 = new THREE.Group();
+        const body2 = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.16, 0.52), whiteMat);
+        body2.position.set(0, 0.14, 0);
+        const stripe2 = new THREE.Mesh(new THREE.BoxGeometry(0.208, 0.025, 0.52), crimsonMat);
+        stripe2.position.set(0, 0.11, 0);
+        const win2 = new THREE.Mesh(new THREE.BoxGeometry(0.212, 0.05, 0.44), glassMat);
+        win2.position.set(0, 0.16, 0);
+        const acUnit = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.035, 0.36), roofMat);
+        acUnit.position.set(0, 0.235, 0);
+        // 單臂高速集電弓 (Pantograph)
+        const pantoGroup = new THREE.Group();
+        pantoGroup.position.set(0, 0.24, -0.12);
+        const pArm1 = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.08, 4), crimsonMat);
+        pArm1.position.set(0, 0.035, 0);
+        pArm1.rotation.x = -0.55;
+        const pHead = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.006, 0.02), roofMat);
+        pHead.position.set(0, 0.07, -0.02);
+        pantoGroup.add(pArm1, pHead);
+        car2.add(body2, stripe2, win2, acUnit, pantoGroup, createBogies(0.52));
+
+        // 3. 後尾車 (Tail Cab Car)
+        const car3 = new THREE.Group();
+        const body3 = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.16, 0.44), whiteMat);
+        body3.position.set(0, 0.14, 0.04);
+        const nose3 = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.22, 8), whiteMat);
+        nose3.rotation.x = Math.PI / 2;
+        nose3.scale.set(0.85, 1.2, 0.65);
+        nose3.position.set(0, 0.11, -0.26);
+        const visor3 = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.065, 0.09), darkVisor);
+        visor3.position.set(0, 0.17, -0.19);
+        visor3.rotation.x = 0.32;
+        const stripe3 = new THREE.Mesh(new THREE.BoxGeometry(0.208, 0.025, 0.48), crimsonMat);
+        stripe3.position.set(0, 0.11, 0);
+        const win3 = new THREE.Mesh(new THREE.BoxGeometry(0.212, 0.05, 0.34), glassMat);
+        win3.position.set(0, 0.16, 0.06);
+        // 雙眼紅寶石車尾燈
+        [-0.045, 0.045].forEach(lx => {
+            const tl = new THREE.Mesh(new THREE.SphereGeometry(0.016, 6, 6), tailMat);
+            tl.position.set(lx, 0.085, -0.34);
+            car3.add(tl);
+        });
+        car3.add(body3, nose3, visor3, stripe3, win3, createBogies(0.48));
+
+        trainGroup.add(car1, car2, car3);
+        enableShadow(trainGroup);
+        return { trainGroup, car1, car2, car3 };
+    }
+
     // P03: 櫻島橫渡渡輪 (Sakurajima Ferry)
     function buildP03_SakurajimaFerry() {
         const g = new THREE.Group();
@@ -810,7 +923,8 @@
         { code: 'P17', name: '日式石燈籠與地藏小祠', badge: '🏮 古道守護', desc: '點綴在公路與溫泉古道的暖光石燈籠與紅色圍兜地藏菩薩。', build: buildP17_StoneLantern },
         { code: 'P18', name: '沿海風力發電機', badge: '💨 海岸風車', desc: '佇立於日向灘與日南海岸公路旁的旋轉白色大型風力發電機。', build: buildP18_WindTurbine },
         { code: 'P19', name: '鹿兒島灣彩色小漁船', badge: '⛵ 港灣船隻', desc: '停泊在錦江灣與日南海岸外海的日式近海彩色漁船。', build: () => buildP19_SmallFishingBoat(0x2563eb) },
-        { code: 'P20', name: '國道公路里程指示牌', badge: '🛣️ 國道路標', desc: '標示 R3、R57、R220 國道地名與里程的綠底白字公路標誌。', build: buildP20_RoadMileageSign }
+        { code: 'P20', name: '國道公路里程指示牌', badge: '🛣️ 國道路標', desc: '標示 R3、R57、R220 國道地名與里程的綠底白字公路標誌。', build: buildP20_RoadMileageSign },
+        { code: 'P21', name: 'JR 九州 800系「燕子號」新幹線', badge: '🚄 縱貫鐵道', desc: '行駛於九州新幹線與鹿兒島本線縱貫高架鐵道路廊的白色流線型特急列車，配備朱紅腰線、金色燕子飾條與全景觀景車窗。', build: () => buildP21_JRTrain().trainGroup }
     ];
 
     function createPropByCode(code) {
@@ -820,9 +934,9 @@
 
     // 在主島嶼上高密度布置所有放大後的動態載具、店家、聚落、牧場赤牛、貓狗、路人與森林
     // 並透過 sampleGroundY 與道路/地標避讓機制，確保所有物件緊貼地面且不阻擋車隊與人物動線
-    function populateIslandProps(parent, tramCurve, isMobile, sampleGroundY, roadCurve, landmarksData) {
+    function populateIslandProps(parent, tramCurve, isMobile, sampleGroundY, roadCurve, landmarksData, jrCurve) {
         const propsGroup = new THREE.Group();
-        const getGroundY = sampleGroundY || (() => 0.80);
+        const getGroundY = sampleGroundY || (() => 0.88);
         const sceneObstacles = [];
 
         // 預先取樣自駕道路中心線，供靜態道具與樹木避開行車與人物散步走廊
@@ -882,6 +996,10 @@
         const tram = buildP02_KumamotoTram();
         tram.scale.setScalar(1.12);
         propsGroup.add(tram);
+
+        // 2.5 JR 九州 800系「燕子號」新幹線 / 特急列車 (行駛於縱貫專用高架鐵道路廊)
+        const jrTrain = buildP21_JRTrain();
+        propsGroup.add(jrTrain.trainGroup);
 
         // 3. 櫻島渡輪 (放大為 1.18x，配合 1.2x 地圖座標)
         const ferry = buildP03_SakurajimaFerry();
@@ -1060,7 +1178,7 @@
             [6.24, -13.44, 0.96, 'snow'],   [5.52, -10.32, 0.96, 'snow'],   [2.88, -10.08, 1.02, 'snow'],
             [0.72, -15.84, 0.80, 'ginkgo'], [-3.12, -14.64,0.80, 'ginkgo'], [-0.96, -11.76,0.80, 'tree_only'],
             [-2.40, -16.20, 0.80, 'snow'],  [-1.68, -17.40, 0.80, 'ginkgo'], [0.12, -17.80, 0.82, 'snow'],
-            [4.08, -16.80, 0.96, 'snow'],   [4.92, -18.24, 0.96, 'snow'],   [6.84, -16.20, 0.96, 'snow'],
+            [4.08, -16.80, 0.96, 'snow'],   [4.92, -18.24, 0.96, 'snow'],   [5.76, -16.56, 0.96, 'snow'],
             [3.72, -13.20, 0.96, 'tree_only'],[1.20, -13.92, 0.82, 'snow'],[-0.48, -14.88, 0.80, 'ginkgo'],
             // 阿蘇至高千穗峽五瀨川溪谷沿線公路兩側
             [6.48, -11.40, 0.96, 'snow'],   [7.32, -12.96, 0.96, 'snow'],   [8.04, -11.76, 0.96, 'snow'],
@@ -1087,9 +1205,9 @@
             [8.88,  5.76,  0.80, 'ginkgo'], [9.36,  7.20,  0.80, 'tree_only'],[7.44,  6.72, 0.82, 'snow'],
             [8.16,  8.88,  0.80, 'ginkgo'], [6.96,  8.16,  0.82, 'tree_only'],[7.80, 10.32, 0.80, 'tree_only'],
             // 薩摩半島・指宿・櫻島・知覽・大隅半島
-            [-5.52, 11.28, 0.80, 'ginkgo'], [-4.56, 13.44, 0.80, 'tree_only'],[0.96, 11.76, 0.80, 'tree_only'],
-            [1.92,  9.84,  0.80, 'ginkgo'], [-0.24, 13.80, 0.80, 'tree_only'],[-3.84, 14.88, 0.80, 'tree_only'],
-            [-2.40, 12.24, 0.82, 'snow'],   [-1.44, 10.56, 0.82, 'tree_only'],[-0.84, 12.48, 0.80, 'ginkgo'],
+            [-5.52, 11.28, 0.80, 'ginkgo'], [-4.92, 12.60, 0.80, 'tree_only'],[0.96, 11.76, 0.80, 'tree_only'],
+            [1.92,  9.84,  0.80, 'ginkgo'], [-0.24, 13.80, 0.80, 'tree_only'],[-4.32, 14.16, 0.80, 'tree_only'],
+            [-2.40, 12.24, 0.82, 'snow'],   [-0.72, 11.28, 0.80, 'tree_only'],[-0.84, 12.48, 0.80, 'ginkgo'],
             [2.88,  8.64,  0.82, 'snow'],   [1.44,  13.44, 0.80, 'ginkgo'], [-6.24, 13.92, 0.80, 'tree_only'],
             // 西部熊本八代・水俁海濱沿線
             [-4.08, -8.16, 0.80, 'tree_only'],[-3.72, -3.12, 0.80, 'ginkgo'],[-4.32, 0.72,  0.80, 'tree_only'],
@@ -1241,11 +1359,11 @@
 
         window.KyushuIsland.Obstacles = sceneObstacles;
 
-        return { propsGroup, minivan, tram, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, trees, busStops, sampleGroundY: getGroundY };
+        return { propsGroup, minivan, tram, jrTrain, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, trees, busStops, sampleGroundY: getGroundY };
     }
 
-    function updatePropsAnimation(propState, tramCurve, elapsed) {
-        const getGroundY = (propState && propState.sampleGroundY) || (() => 0.80);
+    function updatePropsAnimation(propState, tramCurve, elapsed, jrCurve) {
+        const getGroundY = (propState && propState.sampleGroundY) || (() => 0.88);
 
         // 1. 熊本市電沿軌道平穩往返
         if (propState.tram && tramCurve) {
@@ -1254,6 +1372,25 @@
             const tan = tramCurve.getTangentAt(pingPong);
             propState.tram.position.set(pos.x, getGroundY(pos.x, pos.z) + 0.04, pos.z);
             propState.tram.rotation.y = Math.atan2(tan.x, tan.z);
+        }
+
+        // 1.5 JR 九州 800系「燕子號」新幹線 / 特急列車沿縱貫專用鐵道路廊奔馳巡航
+        if (propState.jrTrain && jrCurve) {
+            const loopSpeed = 0.042; // 流暢逼真奔馳速度
+            const baseT = (elapsed * loopSpeed) % 1.0;
+            const carSpacing = 0.016; // 3 節車廂關節間距
+
+            const cars = [propState.jrTrain.car1, propState.jrTrain.car2, propState.jrTrain.car3];
+            cars.forEach((car, idx) => {
+                if (!car) return;
+                const carT = (baseT + (2 - idx) * carSpacing + 1.0) % 1.0;
+                const p = jrCurve.getPointAt(carT);
+                const tan = jrCurve.getTangentAt(carT);
+                car.position.set(p.x, p.y + 0.035, p.z);
+                car.rotation.y = Math.atan2(tan.x, tan.z);
+                // 轉彎自然微幅過彎傾斜 (Tilting Car Body)
+                car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.018;
+            });
         }
 
         // 2. 櫻島渡輪橫越錦江灣往返鹿兒島港與櫻島 (1.2x 地圖座標)

@@ -802,10 +802,10 @@
             let lx = item.x;
             let lz = item.z;
 
-            // 將火山與景點統一退往車道北側後方（遠離鏡頭的 -Z 側），而阿蘇火山直接坐落於站點旁讓角色登上山頂！
+            // 將櫻島火山定位於櫻島島嶼真實中心，阿蘇火山坐落於站點旁
             if (item.code === 'L15') {
-                lx = -2.46;
-                lz = 9.60;
+                lx = -3.24;
+                lz = 10.15;
             } else if (item.code === 'L04') {
                 lx = item.x;
                 lz = item.z - 0.32;
@@ -836,7 +836,7 @@
 
             // 根據真實地形取樣高度貼合台地表面
             let baseY = sampleGroundY ? sampleGroundY(lx, lz) : 0.88;
-            if (item.code === 'L15') baseY = Math.max(0.72, baseY - 0.04);
+            if (item.code === 'L15') baseY = 0.88; // 櫻島火山基底精確坐落櫻島台地草皮 (y = 0.88)，杜絕懸空海面！
             else baseY += 0.012; // 微微墊高 1.2cm，確保地標基座、跑道、石垣永不被草地微凸起覆蓋
 
             meshGroup.position.set(lx, baseY, lz);

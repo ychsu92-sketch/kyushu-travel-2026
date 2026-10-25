@@ -239,16 +239,57 @@
         const darkFrameMat = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // 鋁合金折疊骨架
         const canvasMat = new THREE.MeshLambertMaterial({ color: 0x3f6212, flatShading: true }); // 戶外露營帆布
 
-        // 1. 折疊露營桌 (置於阿純身前)
+        // 1. 折疊露營桌 (大幅加大為 0.82x0.46 寬敞大木桌，擺放筆電、外帶熱咖啡與病歷板夾)
         const tableGroup = new THREE.Group();
-        tableGroup.position.set(0, 0, 0.28);
-        const tableTop = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.024, 0.32), woodMat);
+        tableGroup.position.set(0, 0, 0.35);
+        const tableTop = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.026, 0.46), woodMat);
         tableTop.position.y = 0.34;
-        [[-0.22, -0.12], [0.22, -0.12], [-0.22, 0.12], [0.22, 0.12]].forEach(p => {
-            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.34, 6), darkFrameMat);
+
+        // 蛋捲木紋凹槽裝飾
+        for (let ix = -3; ix <= 3; ix++) {
+            const groove = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.028, 0.45), darkFrameMat);
+            groove.position.set(ix * 0.11, 0.34, 0);
+            tableGroup.add(groove);
+        }
+
+        // 鋁合金四角支架
+        [[-0.35, -0.18], [0.35, -0.18], [-0.35, 0.18], [0.35, 0.18]].forEach(p => {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.34, 6), darkFrameMat);
             leg.position.set(p[0], 0.17, p[1]);
             tableGroup.add(leg);
         });
+
+        // 桌面配件 1: 銀色 MacBook 筆電 (發光天藍螢幕)
+        const laptop = new THREE.Group();
+        laptop.position.set(-0.16, 0.355, 0.02);
+        const lBase = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.012, 0.18), new THREE.MeshLambertMaterial({ color: 0x94a3b8 }));
+        const lScreen = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.012), new THREE.MeshLambertMaterial({ color: 0x64748b }));
+        lScreen.position.set(0, 0.08, -0.09);
+        lScreen.rotation.x = 0.18;
+        const lDisplay = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.13), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+        lDisplay.position.set(0, 0.08, -0.082);
+        lDisplay.rotation.x = 0.18;
+        laptop.add(lBase, lScreen, lDisplay);
+        tableGroup.add(laptop);
+
+        // 桌面配件 2: 外帶熱拿鐵 (牛皮紙隔熱套 + 黑色杯蓋)
+        const coffee = new THREE.Group();
+        coffee.position.set(0.25, 0.355, 0.08);
+        const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.030, 0.11, 10), new THREE.MeshLambertMaterial({ color: 0xfafaf9 }));
+        cup.position.y = 0.055;
+        const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.039, 0.035, 0.05, 10), new THREE.MeshLambertMaterial({ color: 0xb45309 }));
+        sleeve.position.y = 0.055;
+        const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.040, 0.040, 0.018, 10), new THREE.MeshLambertMaterial({ color: 0x1e293b }));
+        lid.position.y = 0.112;
+        coffee.add(cup, sleeve, lid);
+        tableGroup.add(coffee);
+
+        // 桌面配件 3: 物理治療 SOAP 評估病歷板夾
+        const clipboard = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.010, 0.14), new THREE.MeshLambertMaterial({ color: 0xfef08a }));
+        clipboard.position.set(0.16, 0.355, -0.08);
+        clipboard.rotation.y = 0.18;
+        tableGroup.add(clipboard);
+
         tableGroup.add(tableTop);
 
         // 2. 折疊露營椅 (置於阿純身下)

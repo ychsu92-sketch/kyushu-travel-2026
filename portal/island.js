@@ -1875,14 +1875,15 @@
             terrainState.roadCurve
         );
 
-        // 7. 建立小巴、熊本市電、櫻島渡輪、屋台、商店、貓狗、路人 (貼合地面並避讓車道與地標)
+        // 7. 建立小巴、熊本市電、JR 九州新幹線、櫻島渡輪、屋台、商店、貓狗、路人 (貼合地面並避讓車道與地標)
         propState = window.KyushuIsland.Props.populateIslandProps(
             islandRoot,
             terrainState.tramCurve,
             isMobile,
             terrainState.sampleGroundY,
             terrainState.roadCurve,
-            routeData.landmarks
+            routeData.landmarks,
+            terrainState.jrCurve
         );
 
         // 8. 建立 4 位家族角色 (阿純、姨丈、阿姨、阿嚕) - 放大至 0.96x 讓人物表情與道具一目了然
@@ -1982,7 +1983,7 @@
 
             Env.updateEnvironment(envState, elapsed, delta);
             window.KyushuIsland.Landmarks.updateLandmarks(landmarkState.animatedLandmarks, elapsed);
-            window.KyushuIsland.Props.updatePropsAnimation(propState, terrainState.tramCurve, elapsed);
+            window.KyushuIsland.Props.updatePropsAnimation(propState, terrainState.tramCurve, elapsed, terrainState.jrCurve);
             updateTourPositions(routeData, elapsed, delta);
             updateLockedCameraFollow();
 

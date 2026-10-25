@@ -105,26 +105,13 @@
         return (v00 * (1 - fx) + v10 * fx) * (1 - fz) + (v01 * (1 - fx) + v11 * fx) * fz;
     }
 
-    // 計算任一 (x, z) 在南九州地表上的基礎海拔高度 (供物件、景點與道路自動貼合高低起伏，已隨 1.2x 地圖比例擴展)
+    // 計算任一 (x, z) 在南九州地表上的真實物理高度 (嚴格貼合 3 層等高線階梯台地與櫻島島嶼，杜絕物件虛假懸空)
     function getTerrainElevation(x, z) {
-        let h = sampleTerraceBaseY(x, z);
-        const regions = [
-            { x: 3.94,  z: -15.53, r: 4.32, amp: 0.85 }, // 阿蘇高地
-            { x: 4.91,  z: -19.37, r: 3.84, amp: 0.75 }, // 黑川・九重高原
-            { x: 7.56,  z: -11.98, r: 4.08, amp: 0.70 }, // 高千穗山地
-            { x: 2.64,  z: -6.24,  r: 5.40, amp: 0.82 }, // 九州中央山地
-            { x: 0.35,  z: 4.79,   r: 3.60, amp: 0.72 }, // 霧島山塊
-            { x: -3.24, z: 10.20,  r: 1.44, amp: 0.55 }  // 櫻島台地
-        ];
-        for (let i = 0; i < regions.length; i++) {
-            const p = regions[i];
-            const d2 = (x - p.x) * (x - p.x) + (z - p.z) * (z - p.z);
-            const r2 = p.r * p.r;
-            if (d2 < r2 * 2.2) {
-                h += p.amp * Math.exp(-d2 / r2);
-            }
+        // 櫻島活火山島表面 (turfMesh1 基準高度 0.88)
+        if (x > -4.6 && x < -2.2 && z > 9.2 && z < 11.1) {
+            return 0.88;
         }
-        return h;
+        return sampleTerraceBaseY(x, z);
     }
 
     function createPolygonShape(pts, scaleFactor, centerOffset) {
@@ -520,7 +507,7 @@
                 mGroup.add(greenPeak);
             }
 
-            mGroup.position.set(m.x, 0.78, m.z);
+            mGroup.position.set(m.x, sampleTerraceBaseY(m.x, m.z), m.z);
             mGroup.traverse(c => {
                 if (c.isMesh) {
                     c.castShadow = true;
@@ -617,8 +604,89 @@
             roadGroup.add(rail);
         }
 
+        // 建立 JR 九州縱貫主幹線鐵道 (九州新幹線 / 鹿兒島本線 / 肥薩線立體路廊)
+        const jrCurvePoints = [
+            new THREE.Vector3(-4.65, (sampleGroundY ? sampleGroundY(-4.65, -17.20) : 0.88) + 0.05, -17.20), // 熊本北部荒尾
+            new THREE.Vector3(-4.85, (sampleGroundY ? sampleGroundY(-4.85, -14.90) : 1.06) + 0.05, -14.90), // 熊本車站
+            new THREE.Vector3(-4.55, (sampleGroundY ? sampleGroundY(-4.55, -12.50) : 1.06) + 0.05, -12.50), // 熊本市區南
+            new THREE.Vector3(-3.95, (sampleGroundY ? sampleGroundY(-3.95, -9.60) : 1.06) + 0.05,  -9.60),  // 宇土
+            new THREE.Vector3(-3.45, (sampleGroundY ? sampleGroundY(-3.45, -6.60) : 1.06) + 0.05,  -6.60),  // 八代 (球磨川高架鐵橋)
+            new THREE.Vector3(-3.70, (sampleGroundY ? sampleGroundY(-3.70, -3.20) : 1.06) + 0.05,  -3.20),  // 水俁不知火海岸
+            new THREE.Vector3(-4.20, (sampleGroundY ? sampleGroundY(-4.20,  0.60) : 1.06) + 0.05,   0.60),   // 出水 (野鶴之里)
+            new THREE.Vector3(-4.50, (sampleGroundY ? sampleGroundY(-4.50,  4.40) : 1.06) + 0.05,   4.40),   // 川內高架鐵橋
+            new THREE.Vector3(-4.75, (sampleGroundY ? sampleGroundY(-4.75,  7.20) : 1.06) + 0.05,   7.20),   // 伊集院
+            new THREE.Vector3(-4.95, (sampleGroundY ? sampleGroundY(-4.95,  8.80) : 1.06) + 0.05,   8.80),   // 鹿兒島中央站
+            // 複線迴圈返程線
+            new THREE.Vector3(-4.65, (sampleGroundY ? sampleGroundY(-4.65,  7.00) : 1.06) + 0.05,   7.00),
+            new THREE.Vector3(-4.35, (sampleGroundY ? sampleGroundY(-4.35,  4.20) : 1.06) + 0.05,   4.20),
+            new THREE.Vector3(-4.00, (sampleGroundY ? sampleGroundY(-4.00,  0.40) : 1.06) + 0.05,   0.40),
+            new THREE.Vector3(-3.50, (sampleGroundY ? sampleGroundY(-3.50, -3.40) : 1.06) + 0.05,  -3.40),
+            new THREE.Vector3(-3.25, (sampleGroundY ? sampleGroundY(-3.25, -6.80) : 1.06) + 0.05,  -6.80),
+            new THREE.Vector3(-3.75, (sampleGroundY ? sampleGroundY(-3.75, -9.80) : 1.06) + 0.05,  -9.80),
+            new THREE.Vector3(-4.40, (sampleGroundY ? sampleGroundY(-4.40, -12.70) : 1.06) + 0.05, -12.70),
+            new THREE.Vector3(-4.68, (sampleGroundY ? sampleGroundY(-4.68, -15.10) : 1.06) + 0.05, -15.10)
+        ];
+        const jrCurve = new THREE.CatmullRomCurve3(jrCurvePoints, true, 'catmullrom', 0.25);
+
+        // 鋪設 JR 九州高架鐵道路基、道碴、雙軌鋼軌與門型電車線鋼架
+        const ballastMat = new THREE.MeshLambertMaterial({ color: 0x334155 }); // 深灰玄武岩道碴
+        const jrSleeperMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }); // 淺灰預力混凝土枕木 (PC 枕木)
+        const jrRailMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });    // 銀灰高碳鋼鋼軌
+        const mastMat = new THREE.MeshLambertMaterial({ color: 0x475569 });      // 門型架空線支柱
+
+        const jrSamples = 220;
+        for (let i = 0; i < jrSamples; i++) {
+            const t = i / jrSamples;
+            const p = jrCurve.getPointAt(t);
+            const tan = jrCurve.getTangentAt(t);
+            const ang = Math.atan2(tan.x, tan.z);
+            const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
+            const railY = Math.max(p.y, gy + 0.04);
+
+            // 道碴道床
+            const ballast = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.16), ballastMat);
+            ballast.position.set(p.x, railY, p.z);
+            ballast.rotation.y = ang;
+            roadGroup.add(ballast);
+
+            // PC 混凝土枕木
+            const sleeper = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.025, 0.06), jrSleeperMat);
+            sleeper.position.set(p.x, railY + 0.02, p.z);
+            sleeper.rotation.y = ang;
+            roadGroup.add(sleeper);
+
+            // 雙軌鋼軌
+            [-0.09, 0.09].forEach(offX => {
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.035, 0.16), jrRailMat);
+                const rx = p.x + Math.cos(ang) * offX;
+                const rz = p.z - Math.sin(ang) * offX;
+                rail.position.set(rx, railY + 0.035, rz);
+                rail.rotation.y = ang;
+                roadGroup.add(rail);
+            });
+
+            // 每隔 14 節豎立一座 JR 日本經典門型高架電車線架 (Catenary Mast)
+            if (i % 14 === 0) {
+                const gantry = new THREE.Group();
+                const mastH = 0.42;
+                [-0.24, 0.24].forEach(mx => {
+                    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, mastH, 6), mastMat);
+                    post.position.set(mx, mastH * 0.5, 0);
+                    gantry.add(post);
+                });
+                const beam = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.022, 0.022), mastMat);
+                beam.position.set(0, mastH, 0);
+                const insul = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.05, 6), jrSleeperMat);
+                insul.position.set(0, mastH - 0.025, 0);
+                gantry.add(beam, insul);
+                gantry.position.set(p.x, railY + 0.02, p.z);
+                gantry.rotation.y = ang;
+                roadGroup.add(gantry);
+            }
+        }
+
         parent.add(roadGroup);
-        return { roadCurve, tramCurve, roadGroup };
+        return { roadCurve, tramCurve, jrCurve, roadGroup };
     }
 
     function buildSouthKyushuTerrain(scene, coastData, routeData) {
@@ -688,6 +756,7 @@
             sakurajimaMesh: sakurajima.foamMesh,
             roadCurve: roads.roadCurve,
             tramCurve: roads.tramCurve,
+            jrCurve: roads.jrCurve,
             sampleGroundY,
             foamMeshes: [mainland.foamMesh, sakurajima.foamMesh]
         };
