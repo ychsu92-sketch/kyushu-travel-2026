@@ -108,16 +108,16 @@ MAP_LANDMARKS = [
     {
         "id": "hotel_kurokawa",
         "shortName": "♨️ 黑川溫泉",
-        "name": "黑川溫泉-山彥旅館 (やまびこ) 一泊二食",
+        "name": "黑川溫泉-山彥旅館 (やまびこ) 含早餐",
         "labelPos": "right",
         "category": "hotel",
-        "categoryName": "第2晚一泊二食名湯",
+        "categoryName": "第2晚黑川仙人風呂秘湯 (含朝食)",
         "day": "Day 2 (12/23 三)",
         "icon": "♨️",
         "x": 545,
         "y": 250,
         "color": "#9333ea",
-        "desc": "沿著筑後川幽靜溪谷漫步，欣賞冬季限定竹燈祭「湯明」；入住仙人風呂享用道地會席料理。",
+        "desc": "沿著筑後川幽靜溪谷漫步，欣賞冬季限定竹燈祭「湯明」；入住仙人風呂享受日式晨光朝食。",
         "tips": "冬季山區道路可能有殘雪結冰，雪胎休旅車自駕最安心。"
     },
     {
@@ -1425,7 +1425,7 @@ def build():
                         </div>
                         <div class="text-[11px] font-bold text-emerald-700">費用 JPY 70,400 (約 NT$ 14,625)</div>
                         <p class="text-xs text-stone-700 leading-relaxed">
-                            冬季黑川竹燈祭超熱門，山彥旅館一泊二食會席料理與仙人露天風呂都訂好囉！
+                            冬季黑川竹燈祭超熱門，山彥旅館日式和室朝食方案與仙人露天風呂都訂好囉！晚餐可於黑川老街漫步享用在地居酒鄉土料理。
                         </p>
                     </div>
 
@@ -3082,7 +3082,7 @@ def build():
                     }} else if (resText.includes('免預約') || resText.includes('現場入座') || resText.includes('現場點餐') || resText.includes('現場排隊') || resText.includes('現場候位') || resText.includes('現場採買')) {{
                         badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
                         badgeIcon = '⚡';
-                    }} else if (resText.includes('房客') || resText.includes('住宿') || resText.includes('一泊二食')) {{
+                    }} else if (resText.includes('房客') || resText.includes('住宿') || resText.includes('朝食')) {{
                         badgeClass = 'bg-purple-50 text-purple-700 border-purple-200 font-bold';
                         badgeIcon = '🏨';
                     }}
@@ -3421,7 +3421,7 @@ def build():
 
         // ======================= 費用明細 ＆ 即時記帳與 Google Sheet 串接 =======================
         const BASE_SETTLEMENT = {{
-            '阿純': {{ basePaid: 47775, baseShould: 20575, color: 'text-red-600', icon: '🌸', note: '代墊華航機票 NT$ 33,150 ＋ 黑川山彥溫泉一泊二食。' }},
+            '阿純': {{ basePaid: 47775, baseShould: 20575, color: 'text-red-600', icon: '🌸', note: '代墊華航機票 NT$ 33,150 ＋ 黑川山彥溫泉旅館 (含早餐)。' }},
             '阿嚕': {{ basePaid: 23475, baseShould: 9525, color: 'text-sky-600', icon: '🐻', note: '代墊熊本 Via Inn、宮崎海景公寓、鹿兒島 Perch 與熊本 AMANEK。' }},
             '阿姨': {{ basePaid: 0, baseShould: 20575, color: 'text-amber-600', icon: '🌼', note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }},
             '姨丈': {{ basePaid: 0, baseShould: 20575, color: 'text-purple-600', icon: '🎩', note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }}

@@ -48,26 +48,6 @@ def get_trips():
         except Exception as e:
             print(f"Error loading Kyushu trip: {e}")
 
-    # 2. 2026 關西秋季楓紅漫旅
-    trips.append({
-        "id": "kansai-2026",
-        "folder": "2026 日本關西秋季楓紅慢旅",
-        "link": "#",
-        "title": "2026 日本關西秋季楓紅 7天6夜慢旅",
-        "subtitle": "大阪心齋橋・京都嵐山天龍寺・宇治平等院・清水寺夜楓",
-        "dates": "2026/11/20 ~ 2026/11/26",
-        "days_count": "7 天 6 夜",
-        "destination": "日本・大阪 / 京都 / 宇治",
-        "status": "planning",
-        "status_label": "🍁 籌備規劃中",
-        "badge_color": "amber",
-        "flight": "關西國際機場 (KIX) 航線評估中",
-        "tag": "🍁 古都秋楓・抹茶甜點散策",
-        "budget": "NT$ 85,000 (預估)",
-        "highlights": ["嵐山渡月橋", "東福寺通天橋", "清水寺夜間特別參拜", "道頓堀美食", "宇治中村藤吉"],
-        "color_theme": "from-amber-600 via-orange-500 to-rose-500"
-    })
-
     return trips
 
 def build_portal():
@@ -287,7 +267,7 @@ def build_portal():
                 <!-- 3D 浮動對話氣泡 -->
                 <div id="bubble-achun" class="island-speech-bubble">✈️ 華航 CI194 倒數出發！大家行李打包好了嗎～🎒</div>
                 <div id="bubble-yijhang" class="island-speech-bubble">🚗 8 人座雪胎休旅車交給我！九州公路看我的！🚙</div>
-                <div id="bubble-ayee" class="island-speech-bubble">🍱 人吉百年鰻魚飯＆黑川山彥溫泉會席，我等不及了！😋</div>
+                <div id="bubble-ayee" class="island-speech-bubble">🍱 人吉百年鰻魚飯＆黑川溫泉晨食，我等不及了！😋</div>
                 <div id="bubble-alu" class="island-speech-bubble">📸 記憶卡清出 256GB！準備狂拍櫻島火山大景～✨</div>
 
                 <!-- 浮動在畫布角落的引導提示 -->
@@ -370,7 +350,7 @@ def build_portal():
 
                         <div class="flex flex-wrap gap-1.5">
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold">🌋 阿蘇中岳火山口</span>
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-bold">♨️ 黑川山彥一泊二食</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-bold">♨️ 黑川山彥仙人風呂 (含早餐)</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 font-bold">🚣 高千穗峽划船</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">🍱 人吉百年碳火鰻魚</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 font-bold">🌋 櫻島活火山渡輪</span>
@@ -388,57 +368,8 @@ def build_portal():
                     </div>
                 </div>
 
-                <!-- 旅程卡片 2: 2026 日本關西秋季楓紅 (籌備中) -->
-                <div class="vault-card bg-white border-2 border-stone-200 p-6 sm:p-7 relative flex flex-col justify-between shadow-xs opacity-90 hover:opacity-100">
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="cute-pill bg-amber-100 text-amber-800 border border-amber-300">
-                                🍁 籌備規劃中
-                            </span>
-                            <span class="text-xs font-bold text-stone-400 font-mono">2026 秋季</span>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xl font-black text-stone-800 flex items-center gap-2">
-                                <span>🍂</span> 2026 日本關西秋季楓紅漫旅
-                            </h4>
-                            <p class="text-xs text-stone-500 mt-1 font-bold">
-                                📅 2026/11/20 (五) ~ 11/26 (四) ｜ 7 天 6 夜古都慢旅
-                            </p>
-                        </div>
-
-                        <div class="p-3 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1.5 text-xs">
-                            <div class="flex items-center gap-1.5 text-stone-700">
-                                <span>✈️</span> <strong>航線門戶：</strong>關西國際機場 (KIX) ⇄ 桃園機場
-                            </div>
-                            <div class="flex items-center gap-1.5 text-stone-700">
-                                <span>📍</span> <strong>慢遊路線：</strong>大阪難波心齋橋 ➔ 京都嵐山渡月橋 ➔ 宇治抹茶世界 ➔ 東福寺與清水寺夜楓
-                            </div>
-                            <div class="flex items-center gap-1.5 text-stone-700">
-                                <span>🍁</span> <strong>主題特色：</strong>日本第一秋季楓紅、百年町家古道散策
-                            </div>
-                        </div>
-
-                        <div class="flex flex-wrap gap-1.5">
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍁 嵐山常寂光寺</span>
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍵 宇治平等院鳳凰堂</span>
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🏮 清水寺夜間拜觀</span>
-                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🐙 道頓堀黑門市場</span>
-                        </div>
-                    </div>
-
-                    <div class="pt-6 mt-6 border-t border-stone-100 flex items-center justify-between gap-3">
-                        <div class="text-[11px] text-stone-400 font-bold">
-                            📂 未來資料夾：<code>旅行/2026 日本關西秋季楓紅漫旅/</code>
-                        </div>
-                        <span class="px-4 py-2 rounded-full bg-stone-100 text-stone-400 font-bold text-xs border border-stone-200 cursor-not-allowed">
-                            資料籌備中 🔒
-                        </span>
-                    </div>
-                </div>
-
                 <!-- 建立新旅程卡片 -->
-                <div class="vault-card bg-stone-50 border-2 border-dashed border-stone-300 p-6 sm:p-7 flex flex-col items-center justify-center text-center space-y-3 hover:border-red-400 transition cursor-pointer md:col-span-2">
+                <div class="vault-card bg-stone-50 border-2 border-dashed border-stone-300 p-6 sm:p-7 flex flex-col items-center justify-center text-center space-y-3 hover:border-red-400 transition cursor-pointer">
                     <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-center text-2xl text-stone-400">
                         ✨
                     </div>

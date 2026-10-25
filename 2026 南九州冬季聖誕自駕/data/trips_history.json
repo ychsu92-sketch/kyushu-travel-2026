@@ -10,17 +10,5 @@
     "cover_tag": "🚗 自駕溫泉",
     "budget": "NT$ 71,250 (已記)",
     "current": true
-  },
-  {
-    "id": "kansai-autumn-2026",
-    "title": "2026 日本關西秋季楓紅 7天6夜慢旅",
-    "destination": "日本・大阪 / 京都",
-    "dates": "2026-11-20 ~ 2026-11-26",
-    "status": "planning",
-    "status_label": "規劃中",
-    "badge_color": "blue",
-    "cover_tag": "🍁 楓紅季",
-    "budget": "NT$ 85,000",
-    "current": false
   }
 ]
