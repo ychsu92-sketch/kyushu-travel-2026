@@ -3069,22 +3069,58 @@ def build():
 
                 meals[mType].forEach(opt => {{
                     const row = document.createElement('div');
-                    row.className = 'bg-white p-3 rounded-xl border border-stone-200 space-y-1.5 shadow-sm hover:border-orange-300 transition';
-                    const isReserve = opt.reserve_type.includes('預約') || opt.reserve_type.includes('訂位');
+                    row.className = 'bg-white p-3 sm:p-3.5 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between gap-2';
+                    
+                    // 根據訂位類型區分標籤色彩與圖示
+                    const resText = (opt.reserve_type || '').trim();
+                    let badgeClass = 'bg-stone-100 text-stone-600 border-stone-200';
+                    let badgeIcon = '📋';
+                    
+                    if (resText.includes('預約') || resText.includes('訂位') || resText.includes('洽詢')) {{
+                        badgeClass = 'bg-rose-50 text-rose-700 border-rose-200 font-bold';
+                        badgeIcon = '📅';
+                    }} else if (resText.includes('免預約') || resText.includes('現場入座') || resText.includes('現場點餐') || resText.includes('現場排隊') || resText.includes('現場候位') || resText.includes('現場採買')) {{
+                        badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold';
+                        badgeIcon = '⚡';
+                    }} else if (resText.includes('房客') || resText.includes('住宿') || resText.includes('一泊二食')) {{
+                        badgeClass = 'bg-purple-50 text-purple-700 border-purple-200 font-bold';
+                        badgeIcon = '🏨';
+                    }}
 
                     row.innerHTML = `
-                        <div class="flex items-start justify-between gap-1">
-                            <div class="font-bold text-stone-800 text-xs">${{opt.name}}</div>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded-full ${{isReserve ? 'bg-red-100 text-red-700 font-bold' : 'bg-stone-100 text-stone-500'}} shrink-0">${{opt.reserve_type.split(' ')[0]}}</span>
+                        <div class="space-y-1.5">
+                            <!-- 頂部獨立資訊列：訂位狀態標籤獨立一行，絕不擠壓店名 -->
+                            <div class="flex items-center justify-between gap-1 flex-wrap">
+                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-lg border ${{badgeClass}} shrink-0 shadow-2xs">
+                                    <span>${{badgeIcon}}</span>
+                                    <span>${{resText.split('/')[0].trim()}}</span>
+                                </span>
+                                ${{opt.area ? `<span class="text-[10px] text-stone-400 font-medium truncate max-w-[80px]">📍 ${{opt.area.split(' ')[0]}}</span>` : ''}}
+                            </div>
+
+                            <!-- 店名享有 100% 橫向寬度，不再被壓縮成長條直列 -->
+                            <h5 class="font-black text-stone-800 text-xs sm:text-[13px] leading-snug tracking-tight hover:text-orange-600 transition cursor-pointer" onclick="jumpToRestaurant('${{opt.id}}')">
+                                ${{opt.name}}
+                            </h5>
+
+                            <!-- 必吃特色推薦小卡 -->
+                            <div class="bg-stone-50 rounded-lg px-2 py-1 text-[11px] text-stone-600 font-medium line-clamp-1 border border-stone-100">
+                                🍴 <span class="text-stone-700 font-bold">${{opt.must_eat}}</span>
+                            </div>
                         </div>
-                        <div class="text-[11px] text-stone-500 font-medium line-clamp-1">🍴 ${{opt.must_eat}}</div>
-                        <div class="flex items-center justify-between pt-1 border-t border-stone-100 text-[11px]">
-                            <span class="font-mono text-stone-600 font-bold">${{opt.price.split('~')[0]}}</span>
-                            <div class="flex items-center gap-1">
-                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="text-orange-700 hover:text-orange-900 font-bold flex items-center gap-0.5 hover:underline">
+
+                        <!-- 底部價格與操作區 (強制 whitespace-nowrap 防止折行) -->
+                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px]">
+                            <span class="font-mono text-stone-700 font-black tracking-tight shrink-0">
+                                ${{opt.price.split('~')[0].trim()}}
+                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[11px] font-bold flex items-center gap-0.5 transition active:scale-95 shadow-2xs">
                                     <span>訂位攻略</span> ↗
                                 </button>
-                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + opt.area)}}" target="_blank" class="text-sky-600 hover:text-sky-800 font-bold" title="導航">🗺️</a>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + opt.area)}}" target="_blank" class="w-6 h-6 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-xs font-bold transition active:scale-95 shadow-2xs" title="Google 地圖導航">
+                                    🗺️
+                                </a>
                             </div>
                         </div>
                     `;
