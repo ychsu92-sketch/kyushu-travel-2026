@@ -1904,9 +1904,36 @@
         // 8.6 建立畫面左上角人物大頭照 (點擊鎖定) 與 IG 便條紙 (Instagram Notes) 狀態列
         createTopLeftAvatarDock(container);
 
-        // 初始把小巴與角色放在「熊本機場 KMJ (L01)」作為旅程起點
-        routeProgress = 0.0;
-        currentLandmark = routeData.landmarks[0];
+        // 隨機選取 17 處特色景點之一作為本次啟程起點（不再每次都從熊本機場開始，隨機享受全新探索驚喜）
+        const randomStartIdx = Math.floor(Math.random() * routeData.landmarks.length);
+        const startLandmark = routeData.landmarks[randomStartIdx];
+        currentLandmark = startLandmark;
+
+        // 計算該起點景點在自駕環島公路曲線上的精確起點進度 t (0.0 ~ 1.0)
+        let startProgress = 0.0;
+        if (terrainState && terrainState.roadCurve) {
+            let bestT = 0;
+            let minD = 999;
+            for (let s = 0; s < 600; s++) {
+                const t = s / 600;
+                const pt = terrainState.roadCurve.getPointAt(t);
+                const d = Math.hypot(pt.x - startLandmark.x, pt.z - startLandmark.z);
+                if (d < minD) {
+                    minD = d;
+                    bestT = t;
+                }
+            }
+            startProgress = bestT;
+        }
+        routeProgress = startProgress;
+
+        // 鏡頭與焦點平滑對準本次隨機起點景點與小巴
+        if (controls && camera) {
+            controls.target.set(startLandmark.x, 0.75, startLandmark.z);
+            camera.position.set(startLandmark.x, 14.8, startLandmark.z + 18.5);
+            controls.update();
+        }
+
         updateLocationBanner(currentLandmark);
         updateTourPositions(routeData, 0, 0.016);
 
