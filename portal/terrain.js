@@ -416,19 +416,29 @@
         parent.add(strataGroup);
     }
 
-    // 建立立體感十足的九州連綿山脈與 12 月冬季覆雪高地群（嚴格退縮避開自駕路線與景點，杜絕穿模）
-    function buildMountainRanges(parent, roadCurve, landmarks) {
+    // 建立立體感十足的九州連綿山脈與 12 月冬季覆雪高地群（嚴格退縮避開自駕路線、景點與鐵道，杜絕穿模）
+    function buildMountainRanges(parent, roadCurve, landmarks, jrCurve, jrEastCurve) {
         const hillGroup = new THREE.Group();
         const winterOliveMat = new THREE.MeshLambertMaterial({ color: 0x658352, flatShading: true });
         const highlandMat    = new THREE.MeshLambertMaterial({ color: 0x7c9668, flatShading: true });
         const rockSlopeMat   = new THREE.MeshLambertMaterial({ color: 0x78685a, flatShading: true });
         const snowMat        = new THREE.MeshLambertMaterial({ color: 0xf8fafc, flatShading: true });
 
-        // 預先取樣自駕路線所有點，用來限制山腳半徑不壓到公路或景點
+        // 預先取樣自駕路線與專用鐵道路廊所有點，用來限制山腳半徑不壓到公路、鐵道或景點
         const routeSamples = [];
         if (roadCurve) {
             for (let i = 0; i < 200; i++) {
                 routeSamples.push(roadCurve.getPointAt(i / 200));
+            }
+        }
+        if (jrCurve) {
+            for (let i = 0; i < 150; i++) {
+                routeSamples.push(jrCurve.getPointAt(i / 150));
+            }
+        }
+        if (jrEastCurve) {
+            for (let i = 0; i < 150; i++) {
+                routeSamples.push(jrEastCurve.getPointAt(i / 150));
             }
         }
 
@@ -604,27 +614,25 @@
             roadGroup.add(rail);
         }
 
-        // 建立 JR 九州縱貫主幹線鐵道 (九州新幹線 / 鹿兒島本線 / 肥薩線立體路廊)
+        // 建立 JR 九州縱貫主幹線鐵道 (九州新幹線 / 鹿兒島本線專用立體高架路廊，嚴格避開家族公路與景點)
         const jrCurvePoints = [
-            new THREE.Vector3(-4.65, (sampleGroundY ? sampleGroundY(-4.65, -17.20) : 0.88) + 0.05, -17.20), // 熊本北部荒尾
-            new THREE.Vector3(-4.85, (sampleGroundY ? sampleGroundY(-4.85, -14.90) : 1.06) + 0.05, -14.90), // 熊本車站
-            new THREE.Vector3(-4.55, (sampleGroundY ? sampleGroundY(-4.55, -12.50) : 1.06) + 0.05, -12.50), // 熊本市區南
-            new THREE.Vector3(-3.95, (sampleGroundY ? sampleGroundY(-3.95, -9.60) : 1.06) + 0.05,  -9.60),  // 宇土
-            new THREE.Vector3(-3.45, (sampleGroundY ? sampleGroundY(-3.45, -6.60) : 1.06) + 0.05,  -6.60),  // 八代 (球磨川高架鐵橋)
-            new THREE.Vector3(-3.70, (sampleGroundY ? sampleGroundY(-3.70, -3.20) : 1.06) + 0.05,  -3.20),  // 水俁不知火海岸
-            new THREE.Vector3(-4.20, (sampleGroundY ? sampleGroundY(-4.20,  0.60) : 1.06) + 0.05,   0.60),   // 出水 (野鶴之里)
-            new THREE.Vector3(-4.50, (sampleGroundY ? sampleGroundY(-4.50,  4.40) : 1.06) + 0.05,   4.40),   // 川內高架鐵橋
-            new THREE.Vector3(-4.75, (sampleGroundY ? sampleGroundY(-4.75,  7.20) : 1.06) + 0.05,   7.20),   // 伊集院
-            new THREE.Vector3(-4.95, (sampleGroundY ? sampleGroundY(-4.95,  8.80) : 1.06) + 0.05,   8.80),   // 鹿兒島中央站
-            // 複線迴圈返程線
-            new THREE.Vector3(-4.65, (sampleGroundY ? sampleGroundY(-4.65,  7.00) : 1.06) + 0.05,   7.00),
-            new THREE.Vector3(-4.35, (sampleGroundY ? sampleGroundY(-4.35,  4.20) : 1.06) + 0.05,   4.20),
-            new THREE.Vector3(-4.00, (sampleGroundY ? sampleGroundY(-4.00,  0.40) : 1.06) + 0.05,   0.40),
-            new THREE.Vector3(-3.50, (sampleGroundY ? sampleGroundY(-3.50, -3.40) : 1.06) + 0.05,  -3.40),
-            new THREE.Vector3(-3.25, (sampleGroundY ? sampleGroundY(-3.25, -6.80) : 1.06) + 0.05,  -6.80),
-            new THREE.Vector3(-3.75, (sampleGroundY ? sampleGroundY(-3.75, -9.80) : 1.06) + 0.05,  -9.80),
-            new THREE.Vector3(-4.40, (sampleGroundY ? sampleGroundY(-4.40, -12.70) : 1.06) + 0.05, -12.70),
-            new THREE.Vector3(-4.68, (sampleGroundY ? sampleGroundY(-4.68, -15.10) : 1.06) + 0.05, -15.10)
+            new THREE.Vector3(-5.85, (sampleGroundY ? sampleGroundY(-5.85, -17.50) : 0.88) + 0.08, -17.50), // 熊本荒尾・玉名
+            new THREE.Vector3(-6.05, (sampleGroundY ? sampleGroundY(-6.05, -14.20) : 1.06) + 0.08, -14.20), // JR 熊本車站 (西側新幹線高架站)
+            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80, -11.50) : 1.06) + 0.08, -11.50), // 熊本南宇土西平原
+            new THREE.Vector3(-5.45, (sampleGroundY ? sampleGroundY(-5.45,  -8.20) : 1.06) + 0.08,  -8.20), // 八代球磨川高架鐵橋
+            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50,  -4.00) : 1.06) + 0.08,  -4.00), // 水俁不知火海岸
+            new THREE.Vector3(-6.10, (sampleGroundY ? sampleGroundY(-6.10,   0.80) : 1.06) + 0.08,   0.80), // 出水野鶴之里
+            new THREE.Vector3(-6.60, (sampleGroundY ? sampleGroundY(-6.60,   4.80) : 1.06) + 0.08,   4.80), // 川內高架鐵橋
+            new THREE.Vector3(-7.00, (sampleGroundY ? sampleGroundY(-7.00,   7.60) : 1.06) + 0.08,   7.60), // 薩摩伊集院
+            new THREE.Vector3(-7.25, (sampleGroundY ? sampleGroundY(-7.25,   9.60) : 1.06) + 0.08,   9.60), // JR 鹿兒島中央站 (新幹線終點高架月台)
+            // 雙軌返程線 (平行間距 ~0.35)
+            new THREE.Vector3(-6.95, (sampleGroundY ? sampleGroundY(-6.95,   7.80) : 1.06) + 0.08,   7.80),
+            new THREE.Vector3(-6.30, (sampleGroundY ? sampleGroundY(-6.30,   4.60) : 1.06) + 0.08,   4.60),
+            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80,   0.60) : 1.06) + 0.08,   0.60),
+            new THREE.Vector3(-5.20, (sampleGroundY ? sampleGroundY(-5.20,  -4.20) : 1.06) + 0.08,  -4.20),
+            new THREE.Vector3(-5.15, (sampleGroundY ? sampleGroundY(-5.15,  -8.40) : 1.06) + 0.08,  -8.40),
+            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50, -11.70) : 1.06) + 0.08, -11.70),
+            new THREE.Vector3(-5.75, (sampleGroundY ? sampleGroundY(-5.75, -14.40) : 1.06) + 0.08, -14.40)
         ];
         const jrCurve = new THREE.CatmullRomCurve3(jrCurvePoints, true, 'catmullrom', 0.25);
 
@@ -633,8 +641,9 @@
         const jrSleeperMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }); // 淺灰預力混凝土枕木 (PC 枕木)
         const jrRailMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });    // 銀灰高碳鋼鋼軌
         const mastMat = new THREE.MeshLambertMaterial({ color: 0x475569 });      // 門型架空線支柱
+        const pierMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });      // 高架橋墩混凝土材質
 
-        const jrSamples = 220;
+        const jrSamples = 240;
         for (let i = 0; i < jrSamples; i++) {
             const t = i / jrSamples;
             const p = jrCurve.getPointAt(t);
@@ -642,6 +651,15 @@
             const ang = Math.atan2(tan.x, tan.z);
             const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
             const railY = Math.max(p.y, gy + 0.04);
+
+            // 每隔 10 節在路基下方立一座扎實的混凝土高架橋墩 (Viaduct Piers)，徹底排除軌道懸空與穿模
+            if (i % 10 === 0) {
+                const pierH = Math.max(0.12, railY - (gy || 0.80));
+                const pier = new THREE.Mesh(new THREE.BoxGeometry(0.26, pierH, 0.22), pierMat);
+                pier.position.set(p.x, railY - pierH * 0.5, p.z);
+                pier.rotation.y = ang;
+                roadGroup.add(pier);
+            }
 
             // 道碴道床
             const ballast = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.16), ballastMat);
@@ -665,7 +683,7 @@
                 roadGroup.add(rail);
             });
 
-            // 每隔 14 節豎立一座 JR 日本經典門型高架電車線架 (Catenary Mast)
+            // 每隔 14 節豎立一座 JR 日本經典門型高架電車線架 (Catenary Mast，加寬立柱避免車體傾斜時擦撞)
             if (i % 14 === 0) {
                 const gantry = new THREE.Group();
                 const mastH = 0.42;
@@ -685,29 +703,28 @@
             }
         }
 
-        // 建立 JR 九州東海岸路廊（日豐本線・日南海岸線專用立體鐵道）
+        // 建立 JR 九州東海岸路廊（日豐本線・日南海岸專用立體海濱高架路廊，嚴格避開公路動線）
         const jrEastCurvePoints = [
-            // 延岡北部・日向灘海灣鐵橋
-            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20, -13.50) : 1.06) + 0.05, -13.50),
-            new THREE.Vector3(8.95, (sampleGroundY ? sampleGroundY(8.95,  -9.80) : 1.06) + 0.05,  -9.80), // 延岡市區
-            new THREE.Vector3(9.40, (sampleGroundY ? sampleGroundY(9.40,  -6.20) : 1.06) + 0.05,  -6.20), // 日向市・美美津高架鐵橋
-            new THREE.Vector3(9.85, (sampleGroundY ? sampleGroundY(9.85,  -2.20) : 0.88) + 0.05,  -2.20), // 高鍋海岸
-            new THREE.Vector3(10.05, (sampleGroundY ? sampleGroundY(10.05, 1.80) : 0.88) + 0.05,   1.80), // 宮崎站・大淀川鐵橋
-            new THREE.Vector3(9.60, (sampleGroundY ? sampleGroundY(9.60,   5.40) : 0.88) + 0.05,   5.40), // 青島・鬼之洗衣板海景鐵道
-            new THREE.Vector3(8.90, (sampleGroundY ? sampleGroundY(8.90,   8.80) : 0.88) + 0.05,   8.80), // 日南・摩艾石像外海鐵道
-            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20,  10.80) : 0.88) + 0.05,  10.80), // 油津・南鄉海崖隧道口
-            // 東側內陸返程線（經由日南與宮崎內陸平原，形成封閉式循環複線）
-            new THREE.Vector3(7.60, (sampleGroundY ? sampleGroundY(7.60,   9.20) : 0.88) + 0.05,   9.20),
-            new THREE.Vector3(8.10, (sampleGroundY ? sampleGroundY(8.10,   6.00) : 0.88) + 0.05,   6.00),
-            new THREE.Vector3(8.60, (sampleGroundY ? sampleGroundY(8.60,   2.20) : 0.88) + 0.05,   2.20),
-            new THREE.Vector3(8.50, (sampleGroundY ? sampleGroundY(8.50,  -2.00) : 0.88) + 0.05,  -2.00),
-            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20,  -6.00) : 1.06) + 0.05,  -6.00),
-            new THREE.Vector3(7.80, (sampleGroundY ? sampleGroundY(7.80,  -9.60) : 1.06) + 0.05,  -9.60),
-            new THREE.Vector3(7.50, (sampleGroundY ? sampleGroundY(7.50, -13.20) : 1.06) + 0.05, -13.20)
+            // 延岡海灣立體鐵道
+            new THREE.Vector3(12.20, (sampleGroundY ? sampleGroundY(12.20, -12.50) : 1.06) + 0.08, -12.50), // 延岡
+            new THREE.Vector3(11.80, (sampleGroundY ? sampleGroundY(11.80,  -8.50) : 1.06) + 0.08,  -8.50), // 日向灘美美津
+            new THREE.Vector3(11.60, (sampleGroundY ? sampleGroundY(11.60,  -4.50) : 1.06) + 0.08,  -4.50), // 都農・高鍋海岸
+            new THREE.Vector3(11.50, (sampleGroundY ? sampleGroundY(11.50,  -0.50) : 0.88) + 0.08,  -0.50), // JR 宮崎站
+            new THREE.Vector3(11.40, (sampleGroundY ? sampleGroundY(11.40,   3.50) : 0.88) + 0.08,   3.50), // 青島外海景觀線
+            new THREE.Vector3(11.00, (sampleGroundY ? sampleGroundY(11.00,   7.00) : 0.88) + 0.08,   7.00), // JR 日南海岸站
+            new THREE.Vector3(10.40, (sampleGroundY ? sampleGroundY(10.40,  10.00) : 0.88) + 0.08,  10.00), // 油津港海崖
+            // 東側返程線 (平行複線間距 ~0.35)
+            new THREE.Vector3(10.75, (sampleGroundY ? sampleGroundY(10.75,   9.80) : 0.88) + 0.08,   9.80),
+            new THREE.Vector3(11.35, (sampleGroundY ? sampleGroundY(11.35,   6.80) : 0.88) + 0.08,   6.80),
+            new THREE.Vector3(11.75, (sampleGroundY ? sampleGroundY(11.75,   3.30) : 0.88) + 0.08,   3.30),
+            new THREE.Vector3(11.85, (sampleGroundY ? sampleGroundY(11.85,  -0.70) : 0.88) + 0.08,  -0.70),
+            new THREE.Vector3(11.95, (sampleGroundY ? sampleGroundY(11.95,  -4.70) : 0.88) + 0.08,  -4.70),
+            new THREE.Vector3(12.15, (sampleGroundY ? sampleGroundY(12.15,  -8.70) : 1.06) + 0.08,  -8.70),
+            new THREE.Vector3(12.55, (sampleGroundY ? sampleGroundY(12.55, -12.70) : 1.06) + 0.08, -12.70)
         ];
         const jrEastCurve = new THREE.CatmullRomCurve3(jrEastCurvePoints, true, 'catmullrom', 0.25);
 
-        const jrEastSamples = 200;
+        const jrEastSamples = 220;
         for (let i = 0; i < jrEastSamples; i++) {
             const t = i / jrEastSamples;
             const p = jrEastCurve.getPointAt(t);
@@ -715,6 +732,15 @@
             const ang = Math.atan2(tan.x, tan.z);
             const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
             const railY = Math.max(p.y, gy + 0.04);
+
+            // 每隔 10 節建立一座穩固的混凝土海景高架橋墩
+            if (i % 10 === 0) {
+                const pierH = Math.max(0.12, railY - (gy || 0.80));
+                const pier = new THREE.Mesh(new THREE.BoxGeometry(0.26, pierH, 0.22), pierMat);
+                pier.position.set(p.x, railY - pierH * 0.5, p.z);
+                pier.rotation.y = ang;
+                roadGroup.add(pier);
+            }
 
             // 道碴
             const ballast = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.16), ballastMat);
@@ -818,9 +844,9 @@
         // 5. 環島自駕公路與路面電車軌道（先鋪設道路，再根據道路安全距離放山脈）
         const roads = buildRoadsAndTracks(root, routeData, sampleGroundY);
 
-        // 6. 北側浮空島斷面岩層與全島立體山脈群（自動避開道路與景點）
+        // 6. 北側浮空島斷面岩層與全島立體山脈群（自動避開道路、景點與鐵道路廊）
         buildNorthernStrataWall(root, coastData.mainland);
-        buildMountainRanges(root, roads.roadCurve, routeData.landmarks);
+        buildMountainRanges(root, roads.roadCurve, routeData.landmarks, roads.jrCurve, roads.jrEastCurve);
 
         scene.add(root);
         return {

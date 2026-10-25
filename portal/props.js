@@ -449,6 +449,177 @@
         return { trainGroup, car1, car2, car3 };
     }
 
+    // P23: JR 九州經典高架 / 海景特色車站 (Kumamoto, Kagoshima-Chūō, Miyazaki, Nichinan-Kaigan)
+    function buildP23_JRStation(cfg) {
+        const g = new THREE.Group();
+        const concreteMat = new THREE.MeshLambertMaterial({ color: 0xcfd8dc, flatShading: true }); // 月台高強度混凝土
+        const curbMat     = new THREE.MeshLambertMaterial({ color: 0x90a4ae });                    // 月台基座深灰混凝土
+        const roofMat     = new THREE.MeshLambertMaterial({ color: 0x374151 });                    // 現代風鋼構雨棚
+        const steelMat    = new THREE.MeshLambertMaterial({ color: 0x64748b });                    // 鋼構立柱與金屬欄杆
+        const warningMat  = new THREE.MeshBasicMaterial({ color: 0xfacc15 });                      // 亮黃色點字盲道防滑磚
+        const lineMat     = new THREE.MeshBasicMaterial({ color: 0xffffff });                      // 白色列車停靠安全警戒線
+        const woodMat     = new THREE.MeshLambertMaterial({ color: 0x92400e });                    // 月台木質候車椅
+        const metalMat    = new THREE.MeshLambertMaterial({ color: 0x1e293b });                    // 鑄鐵金屬腳架
+        const accentMat   = new THREE.MeshBasicMaterial({ color: cfg.themeColor || 0xbe123c });    // 站名標識別色 (JR九州紅 / 藍 / 綠)
+
+        const pLen = cfg.length || 1.45;
+        const pWid = 0.52;
+        const pH   = 0.09;
+
+        // 1. 月台甲板主體與下層支撐基台
+        const base = new THREE.Mesh(new THREE.BoxGeometry(pWid - 0.04, 0.16, pLen - 0.05), curbMat);
+        base.position.y = -0.08;
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(pWid, pH, pLen), concreteMat);
+        deck.position.y = 0;
+        g.add(base, deck);
+
+        // 2. 靠軌道側 (Local +X) 的亮黃色防滑點字盲道磚與白安全線 (正面迎接列車，杜絕穿模)
+        const trackSideX = pWid * 0.5 - 0.045;
+        const yellowStrip = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.012, pLen - 0.06), warningMat);
+        yellowStrip.position.set(trackSideX, pH * 0.5 + 0.006, 0);
+        const whiteLine = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.012, pLen - 0.06), lineMat);
+        whiteLine.position.set(trackSideX - 0.04, pH * 0.5 + 0.006, 0);
+        g.add(yellowStrip, whiteLine);
+
+        // 3. 背側 (Local -X) 安全防護不鏽鋼欄杆
+        const backSideX = -pWid * 0.5 + 0.025;
+        const railTop = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, pLen - 0.10), steelMat);
+        railTop.position.set(backSideX, pH * 0.5 + 0.14, 0);
+        const railMid = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.014, pLen - 0.10), steelMat);
+        railMid.position.set(backSideX, pH * 0.5 + 0.07, 0);
+        g.add(railTop, railMid);
+        const postCount = 6;
+        for (let i = 0; i < postCount; i++) {
+            const pz = - (pLen - 0.14) * 0.5 + (i / (postCount - 1)) * (pLen - 0.14);
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.15, 6), steelMat);
+            post.position.set(backSideX, pH * 0.5 + 0.075, pz);
+            g.add(post);
+        }
+
+        // 4. 月台現代風雙斜斜面鋼構雨棚 (Station Canopy)
+        const canopyLen = pLen * 0.88;
+        const canopyH = 0.44;
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(pWid + 0.08, 0.026, canopyLen), roofMat);
+        roof.position.set(0, canopyH, 0);
+        roof.rotation.x = 0.02; // 微傾斜排水
+        g.add(roof);
+
+        // 雨棚支撐圓柱
+        [-canopyLen * 0.32, 0, canopyLen * 0.32].forEach(cz => {
+            const col = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, canopyH - (pH * 0.5), 8), steelMat);
+            col.position.set(-0.04, canopyH * 0.5 + (pH * 0.25), cz);
+            g.add(col);
+        });
+
+        // 5. 雙面發光 JR 九州經典「駅名標」月台站牌 (Station Name Board with Canvas Texture)
+        if (typeof document !== 'undefined') {
+            const signCanvas = document.createElement('canvas');
+            signCanvas.width = 512;
+            signCanvas.height = 256;
+            const ctx = signCanvas.getContext('2d');
+            if (ctx) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 512, 256);
+                // 頂部 JR 九州識別色帶
+                ctx.fillStyle = cfg.themeHex || '#be123c';
+                ctx.fillRect(0, 0, 512, 42);
+                // JR 識別字樣
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('JR 九州', 18, 30);
+                // 車站漢字大名
+                ctx.fillStyle = '#1e293b';
+                ctx.font = '900 66px "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(cfg.nameZh || '熊 本', 256, 118);
+                // 羅馬拼音英文站名
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 26px sans-serif';
+                ctx.fillText(cfg.nameEn || 'KUMAMOTO', 256, 154);
+                // 日文平假名
+                ctx.fillStyle = '#475569';
+                ctx.font = '28px sans-serif';
+                ctx.fillText(cfg.subZh || 'くまもと', 256, 192);
+                // 底部鄰站指示線
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(30, 210);
+                ctx.lineTo(482, 210);
+                ctx.stroke();
+                // 鄰站小字
+                ctx.fillStyle = '#64748b';
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(cfg.prevStation || '◀ 前站', 36, 238);
+                ctx.textAlign = 'right';
+                ctx.fillText(cfg.nextStation || '次站 ▶', 476, 238);
+            }
+            const signTex = new THREE.CanvasTexture(signCanvas);
+            const signMat = new THREE.MeshBasicMaterial({ map: signTex });
+            const signMesh = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.18, 0.36), signMat);
+            signMesh.position.set(-0.04, canopyH - 0.12, 0);
+            [-0.14, 0.14].forEach(sz => {
+                const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.08, 4), metalMat);
+                wire.position.set(-0.04, canopyH - 0.04, sz);
+                g.add(wire);
+            });
+            g.add(signMesh);
+        }
+
+        // 6. 候車長椅 (Waiting Benches)
+        [-canopyLen * 0.20, canopyLen * 0.20].forEach(bz => {
+            const bench = new THREE.Group();
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.02, 0.28), woodMat);
+            seat.position.y = 0.07;
+            const back = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.10, 0.28), woodMat);
+            back.position.set(-0.05, 0.13, 0);
+            [-0.10, 0.10].forEach(lz => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6), metalMat);
+                leg.position.set(0, 0.035, lz);
+                bench.add(leg);
+            });
+            bench.add(seat, back);
+            bench.position.set(-0.12, pH * 0.5, bz);
+            g.add(bench);
+        });
+
+        // 7. 圓形雙面鐵道時鐘 (Station Clock)
+        const clockGroup = new THREE.Group();
+        const clockPost = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.32, 6), steelMat);
+        clockPost.position.y = 0.16;
+        const clockDial = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.016, 12), lineMat);
+        clockDial.rotation.z = Math.PI / 2;
+        clockDial.position.y = 0.30;
+        const clockRing = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.006, 6, 16), metalMat);
+        clockRing.rotation.y = Math.PI / 2;
+        clockRing.position.y = 0.30;
+        clockGroup.add(clockPost, clockDial, clockRing);
+        clockGroup.position.set(-0.04, pH * 0.5, -canopyLen * 0.38);
+        g.add(clockGroup);
+
+        // 8. 若為終點站（鹿兒島中央），在軌道盡頭追加標準紅色車擋止衝檔 (Buffer Stop)
+        if (cfg.isTerminal) {
+            const buffer = new THREE.Group();
+            const bufPost1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.16, 0.08), steelMat);
+            bufPost1.position.set(-0.08, 0.08, 0);
+            const bufPost2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.16, 0.08), steelMat);
+            bufPost2.position.set(0.08, 0.08, 0);
+            const bufCross = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.08, 0.06), accentMat);
+            bufCross.position.set(0, 0.12, 0.04);
+            const reflector = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.01, 8), warningMat);
+            reflector.rotation.x = Math.PI / 2;
+            reflector.position.set(0, 0.12, 0.08);
+            buffer.add(bufPost1, bufPost2, bufCross, reflector);
+            buffer.position.set(trackSideX + 0.14, 0, pLen * 0.48);
+            g.add(buffer);
+        }
+
+        enableShadow(g);
+        return g;
+    }
+
     // P03: 櫻島橫渡渡輪 (Sakurajima Ferry)
     function buildP03_SakurajimaFerry() {
         const g = new THREE.Group();
@@ -1110,6 +1281,85 @@
         const jrEastTrain = buildP22_SonicTrain();
         propsGroup.add(jrEastTrain.trainGroup);
 
+        // 2.7 JR 九州四大特色停靠車站物件 (熊本車站、鹿兒島中央站、宮崎車站、日南海岸小站)
+        const stationsList = [];
+        const stationDefs = [
+            {
+                id: 'kumamoto',
+                nameZh: '熊 本',
+                nameEn: 'KUMAMOTO',
+                subZh: 'くまもと',
+                prevStation: '◀ 新玉名',
+                nextStation: '新八代 ▶',
+                curve: jrCurve,
+                t: 0.065, // JR 熊本新幹線高架車站
+                themeHex: '#be123c',
+                themeColor: 0xbe123c,
+                isTerminal: false,
+                offsetSide: 0.38
+            },
+            {
+                id: 'kagoshima',
+                nameZh: '鹿兒島中央',
+                nameEn: 'KAGOSHIMA-CHŪŌ',
+                subZh: 'かごしまちゅうおう',
+                prevStation: '◀ 川 內',
+                nextStation: '終點站 終着 ▶',
+                curve: jrCurve,
+                t: 0.500, // JR 鹿兒島中央新幹線終點高架站
+                themeHex: '#be123c',
+                themeColor: 0xbe123c,
+                isTerminal: true,
+                offsetSide: 0.38
+            },
+            {
+                id: 'miyazaki',
+                nameZh: '宮 崎',
+                nameEn: 'MIYAZAKI',
+                subZh: 'みやざき',
+                prevStation: '◀ 日 向 市',
+                nextStation: '青 島 ▶',
+                curve: jrEastCurve,
+                t: 0.220, // JR 宮崎海濱高架車站
+                themeHex: '#0284c7',
+                themeColor: 0x0284c7,
+                isTerminal: false,
+                offsetSide: 0.38
+            },
+            {
+                id: 'nichinan',
+                nameZh: '日南海岸',
+                nameEn: 'NICHINAN-KAIGAN',
+                subZh: 'にちなんかいがん',
+                prevStation: '◀ 青 島',
+                nextStation: '油 津 ▶',
+                curve: jrEastCurve,
+                t: 0.380, // JR 日南海岸特色海景小站
+                themeHex: '#059669',
+                themeColor: 0x059669,
+                isTerminal: false,
+                offsetSide: 0.38
+            }
+        ];
+
+        stationDefs.forEach(s => {
+            if (!s.curve) return;
+            const p = s.curve.getPointAt(s.t);
+            const tan = s.curve.getTangentAt(s.t);
+            const ang = Math.atan2(tan.x, tan.z);
+            const normal = new THREE.Vector3(-Math.cos(ang), 0, Math.sin(ang));
+            const stGroup = buildP23_JRStation(s);
+            const stX = p.x + normal.x * s.offsetSide;
+            const stZ = p.z + normal.z * s.offsetSide;
+            const gy = getGroundY(stX, stZ);
+            const stY = Math.max(p.y, gy + 0.04);
+            stGroup.position.set(stX, stY, stZ);
+            stGroup.rotation.y = ang;
+            propsGroup.add(stGroup);
+            stationsList.push(stGroup);
+            sceneObstacles.push({ x: stX, z: stZ, r: 0.75 });
+        });
+
         // 3. 櫻島渡輪 (放大為 1.18x，配合 1.2x 地圖座標)
         const ferry = buildP03_SakurajimaFerry();
         ferry.scale.setScalar(1.18);
@@ -1468,7 +1718,7 @@
 
         window.KyushuIsland.Obstacles = sceneObstacles;
 
-        return { propsGroup, minivan, tram, jrTrain, jrEastTrain, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, trees, busStops, sampleGroundY: getGroundY };
+        return { propsGroup, minivan, tram, jrTrain, jrEastTrain, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, trees, busStops, stations: stationsList, sampleGroundY: getGroundY };
     }
 
     function updatePropsAnimation(propState, tramCurve, elapsed, jrCurve, jrEastCurve) {
@@ -1483,11 +1733,11 @@
             propState.tram.rotation.y = Math.atan2(tan.x, tan.z);
         }
 
-        // 1.5 JR 九州 800系「燕子號」新幹線 / 特急列車沿西海岸縱貫專用鐵道路廊奔馳巡航
+        // 1.5 JR 九州 800系「燕子號」新幹線 / 特急列車沿西海岸縱貫專用鐵道路廊奔馳巡航 (精確對齊軌面高度，杜絕穿模)
         if (propState.jrTrain && jrCurve) {
-            const loopSpeed = 0.042; // 流暢逼真奔馳速度
+            const loopSpeed = 0.038; // 流暢逼真奔馳速度
             const baseT = (elapsed * loopSpeed) % 1.0;
-            const carSpacing = 0.016; // 3 節車廂關節間距
+            const carSpacing = 0.0092; // 3 節車廂關節精密等弧長間距 (杜絕穿模重疊或脫節)
 
             const cars = [propState.jrTrain.car1, propState.jrTrain.car2, propState.jrTrain.car3];
             cars.forEach((car, idx) => {
@@ -1495,18 +1745,21 @@
                 const carT = (baseT + (2 - idx) * carSpacing + 1.0) % 1.0;
                 const p = jrCurve.getPointAt(carT);
                 const tan = jrCurve.getTangentAt(carT);
-                car.position.set(p.x, p.y + 0.035, p.z);
+                const gy = getGroundY(p.x, p.z);
+                const railSurfaceY = Math.max(p.y, gy + 0.04) + 0.038;
+                car.position.set(p.x, railSurfaceY, p.z);
                 car.rotation.y = Math.atan2(tan.x, tan.z);
+                car.rotation.x = -Math.atan2(tan.y, Math.hypot(tan.x, tan.z));
                 // 轉彎自然微幅過彎傾斜 (Tilting Car Body)
-                car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.018;
+                car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.016;
             });
         }
 
         // 1.6 JR 九州 883系「Sonic 音速號」特急列車沿東海岸日豐本線・日南海岸立體路廊奔馳巡航
         if (propState.jrEastTrain && jrEastCurve) {
-            const loopSpeed = 0.036; // 東海岸優雅高速巡航
+            const loopSpeed = 0.034; // 東海岸優雅高速巡航
             const baseT = (elapsed * loopSpeed) % 1.0;
-            const carSpacing = 0.017;
+            const carSpacing = 0.0105; // 3 節車廂關節精密等弧長間距
 
             const cars = [propState.jrEastTrain.car1, propState.jrEastTrain.car2, propState.jrEastTrain.car3];
             cars.forEach((car, idx) => {
@@ -1514,9 +1767,12 @@
                 const carT = (baseT + (2 - idx) * carSpacing + 1.0) % 1.0;
                 const p = jrEastCurve.getPointAt(carT);
                 const tan = jrEastCurve.getTangentAt(carT);
-                car.position.set(p.x, p.y + 0.035, p.z);
+                const gy = getGroundY(p.x, p.z);
+                const railSurfaceY = Math.max(p.y, gy + 0.04) + 0.038;
+                car.position.set(p.x, railSurfaceY, p.z);
                 car.rotation.y = Math.atan2(tan.x, tan.z);
-                car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.018;
+                car.rotation.x = -Math.atan2(tan.y, Math.hypot(tan.x, tan.z));
+                car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.016;
             });
         }
 
