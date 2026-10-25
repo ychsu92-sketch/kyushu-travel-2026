@@ -1394,13 +1394,13 @@ def build():
                         <div class="flex items-center gap-2">
                             <span class="cute-pill bg-red-100 text-red-800 font-black">🏮 御朱印風觀光巡禮</span>
                             <span class="cute-pill bg-amber-100 text-amber-800 font-bold">🎬 家族微電影鏡頭建議</span>
-                            <span class="text-xs text-stone-400">長輩自然不尷尬・創造一生難忘回憶</span>
+                            <span class="text-xs text-stone-400">溫馨自然留影・留下一生珍藏的家庭回憶</span>
                         </div>
                         <h3 class="text-xl font-black text-stone-800 mt-2 flex items-center gap-2">
                             <span>🎴</span> 南九州自駕集章巡禮 ＆ 家族回憶底片
                         </h3>
                         <p class="text-xs text-stone-500 mt-1">
-                            收集 12 處日式觀光印記・自然捕捉長輩最真實開心的電影感鏡頭・解鎖家族榮譽大師勳章！
+                            收集 12 處日式觀光印記・自然捕捉全家人最真實開心的電影感鏡頭・解鎖家族榮譽大師勳章！
                         </p>
                     </div>
 
@@ -1444,12 +1444,71 @@ def build():
                             <h4 class="text-base font-black text-stone-800 flex items-center gap-2">
                                 <span>🎖️</span> 家族專屬榮譽大師成就榜
                             </h4>
-                            <p class="text-xs text-stone-500 mt-0.5">晚餐居酒屋小酌時秀給長輩看，榮譽感爆棚的專屬頭銜！</p>
+                            <p class="text-xs text-stone-500 mt-0.5">晚餐居酒屋小酌時秀給全家人看，榮譽感爆棚的專屬頭銜！</p>
                         </div>
                         <span class="cute-pill bg-purple-100 text-purple-800 font-bold text-xs" id="badges-unlocked-count">已解鎖 0 / 6</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5" id="badges-grid-container"></div>
+                </div>
+
+                <!-- 家族旅行心情留言板 ＆ 拍立得時光牆 -->
+                <div class="pt-6 border-t-2 border-stone-100 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-base font-black text-stone-800 flex items-center gap-2">
+                                <span>💌</span> 家族旅行心情留言板 ＆ 拍立得時光牆
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-0.5">隨手寫下一句話、紀錄溫馨當下・全家人隨時都能回味感動！</p>
+                        </div>
+                        <span class="cute-pill bg-rose-100 text-rose-800 font-bold text-xs self-start sm:self-auto" id="family-notes-count">0 則心情紀錄</span>
+                    </div>
+
+                    <!-- 自由心情小便利貼發布區 -->
+                    <div class="bg-gradient-to-r from-amber-50/70 via-rose-50/50 to-orange-50/70 rounded-2xl p-4 border border-amber-200/80 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-stone-700">✍️ 留言身分：</span>
+                                <select id="family-msg-sender" onchange="toggleCustomSender(this.value)" class="bg-white border border-stone-200 rounded-xl px-2.5 py-1 text-xs font-bold text-stone-700 focus:outline-none focus:border-amber-400">
+                                    <option value="全家大家庭 🏠">全家大家庭 🏠</option>
+                                    <option value="司機兼導遊 🚗">司機兼導遊 🚗</option>
+                                    <option value="隨行攝影師 📷">隨行攝影師 📷</option>
+                                    <option value="美食部長 🍜">美食部長 🍜</option>
+                                    <option value="總務財務長 💰">總務財務長 💰</option>
+                                    <option value="開心果代表 🍓">開心果代表 🍓</option>
+                                    <option value="自訂稱呼 ✍️">自訂稱呼...</option>
+                                </select>
+                                <input type="text" id="family-msg-custom-sender" class="hidden bg-white border border-stone-200 rounded-xl px-2.5 py-1 text-xs text-stone-700 focus:outline-none focus:border-amber-400 w-28" placeholder="輸入您的稱呼">
+                            </div>
+
+                            <!-- 心情表情快捷選擇 -->
+                            <div class="flex items-center gap-1 bg-white/80 p-1 rounded-xl border border-stone-200">
+                                <button type="button" onclick="selectFamilyMood('😊')" data-emoji="😊" class="mood-emoji-btn text-sm px-1.5 py-0.5 rounded-lg transition active:scale-90 ring-2 ring-amber-400 bg-amber-100" title="開心感動">😊</button>
+                                <button type="button" onclick="selectFamilyMood('😋')" data-emoji="😋" class="mood-emoji-btn text-sm px-1.5 py-0.5 rounded-lg transition active:scale-90" title="大飽口福">😋</button>
+                                <button type="button" onclick="selectFamilyMood('♨️')" data-emoji="♨️" class="mood-emoji-btn text-sm px-1.5 py-0.5 rounded-lg transition active:scale-90" title="放鬆溫泉">♨️</button>
+                                <button type="button" onclick="selectFamilyMood('✨')" data-emoji="✨" class="mood-emoji-btn text-sm px-1.5 py-0.5 rounded-lg transition active:scale-90" title="美景震撼">✨</button>
+                                <button type="button" onclick="selectFamilyMood('🚗')" data-emoji="🚗" class="mood-emoji-btn text-sm px-1.5 py-0.5 rounded-lg transition active:scale-90" title="自駕順暢">🚗</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="family-msg-text" onkeydown="if(event.key==='Enter') addFamilyMessage()" class="flex-1 bg-white border border-stone-200 focus:border-amber-400 rounded-xl px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none transition shadow-2xs" placeholder="寫下一句話、想對全家說的暖心叮嚀或當下的心情（選填，長輩不寫也完全沒關係～）">
+                            <button type="button" onclick="addFamilyMessage()" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs rounded-xl shadow-2xs active:scale-95 transition shrink-0 flex items-center justify-center gap-1.5">
+                                <span>📌</span> <span>貼上留言</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 留言貼紙與拍立得回憶牆雙分頁/整合呈現 -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-1">
+                            <span class="text-xs font-bold text-stone-600 flex items-center gap-1.5">
+                                <span>📌</span> <span>家族便利貼 ＆ 各站回憶手記牆</span>
+                            </span>
+                            <span class="text-[11px] text-stone-400">點擊拍立得可查看大圖</span>
+                        </div>
+                        <div id="family-board-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"></div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1824,6 +1883,7 @@ def build():
                 initHandDrawnMap();
                 initCosts();
                 renderRestaurants();
+                initStamps();
                 updateTopClock();
                 setInterval(updateTopClock, 1000);
             }} catch (err) {{
@@ -4421,6 +4481,7 @@ function doGet(e) {{
 
         function initStamps() {{
             renderStamps();
+            renderFamilyBoard();
         }}
 
         function renderStamps() {{
@@ -4496,11 +4557,46 @@ function doGet(e) {{
                         <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-2.5 sm:p-3 text-xs text-stone-700 space-y-1">
                             <div class="font-black text-amber-800 flex items-center gap-1.5 text-[11px]">
                                 <span>🎥</span>
-                                <span>家族微電影・自然抓拍靈感（長輩不尷尬）</span>
+                                <span>家族微電影・自然抓拍靈感（捕捉最動人的瞬間）</span>
                             </div>
                             <p class="text-[11px] text-stone-600 leading-relaxed font-medium">
                                 ${{item.film_tip}}
                             </p>
+                        </div>
+
+                        <!-- ✍️ 這站的心情短語 / 家族金句 (選填) -->
+                        <div class="bg-stone-50/70 border border-stone-200/80 rounded-2xl p-2.5 space-y-1.5">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-bold text-stone-700 flex items-center gap-1">
+                                    <span>✍️</span> <span>這刻的心情短語 / 家族金句 (選填)</span>
+                                </span>
+                                ${{stampInfo?.note ? `
+                                    <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                        ✓ 已記錄
+                                    </span>
+                                ` : `
+                                    <span class="text-[10px] text-stone-400">長輩不想寫也沒關係～</span>
+                                `}}
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <input type="text"
+                                    class="flex-1 bg-white border border-stone-200 focus:border-amber-400 rounded-xl px-2.5 py-1 text-xs text-stone-800 placeholder-stone-400 focus:outline-none transition shadow-2xs"
+                                    placeholder="寫下一句當下的心情、爆笑金句或溫暖感動..."
+                                    value="${{escapeHtml(stampInfo?.note || '')}}"
+                                    id="stamp-note-input-${{item.id}}"
+                                    onchange="saveStampNote('${{item.id}}', this.value)"
+                                    onkeydown="if(event.key==='Enter') saveStampNote('${{item.id}}', this.value, true)"
+                                />
+                                <button type="button" onclick="saveStampNote('${{item.id}}', document.getElementById('stamp-note-input-${{item.id}}').value, true)" class="px-2.5 py-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold text-xs shrink-0 transition active:scale-95 shadow-2xs" title="保存文字">
+                                    儲存
+                                </button>
+                            </div>
+                            ${{stampInfo?.note ? `
+                                <div class="text-[11px] text-amber-950 bg-amber-50/80 border border-amber-200/80 rounded-xl px-2.5 py-1.5 italic font-medium flex items-start gap-1.5 shadow-2xs">
+                                    <span class="text-xs shrink-0">💬</span>
+                                    <span class="leading-relaxed whitespace-pre-wrap">${{escapeHtml(stampInfo.note)}}</span>
+                                </div>
+                            ` : ''}}
                         </div>
                     </div>
 
@@ -4562,8 +4658,9 @@ function doGet(e) {{
                 else hint.textContent = '🎊 12 處名勝全數制霸！家族微電影大圓滿！';
             }}
 
-            // 更新家族榮譽大師成就榜
+            // 更新家族榮譽大師成就榜與心情留言板
             renderBadges(progress, stampedCount);
+            renderFamilyBoard();
         }}
 
         function renderBadges(progress, stampedCount) {{
@@ -4791,10 +4888,239 @@ function doGet(e) {{
             showToast('已重設集章進度，歡迎隨時重新蓋印！⚪');
         }}
 
+        function escapeHtml(str) {{
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }}
+
+        function saveStampNote(stampId, text, showFeedback) {{
+            const progress = getStampsProgress();
+            if (!progress[stampId]) progress[stampId] = {{ stamped: false }};
+            progress[stampId].note = (text || '').trim();
+            saveStampsProgress(progress);
+            renderStamps();
+            renderFamilyBoard();
+            if (showFeedback) {{
+                showToast('已保存旅途心情手記！✍️✨');
+            }}
+        }}
+
+        function saveStampNoteFromModal(stampId) {{
+            const input = document.getElementById('modal-note-input');
+            if (!input) return;
+            saveStampNote(stampId, input.value, true);
+            showStampPhotoPreview(stampId);
+        }}
+
+        function getFamilyMessages() {{
+            try {{
+                const stored = localStorage.getItem('kyushu_trip_family_messages_v1');
+                if (stored) return JSON.parse(stored);
+            }} catch(e) {{}}
+            return [
+                {{
+                    id: 'msg_welcome',
+                    sender: '主辦導遊 🚗',
+                    text: '2026 南九州冬季聖誕自駕之旅出發！大家盡情拍照、享受溫泉與美食，隨時在這裡分享心情喔！❄️✨',
+                    mood: '😊',
+                    time: '2026/12/22 09:00',
+                    likes: 3
+                }}
+            ];
+        }}
+
+        function saveFamilyMessages(msgs) {{
+            try {{
+                localStorage.setItem('kyushu_trip_family_messages_v1', JSON.stringify(msgs));
+            }} catch(e) {{}}
+        }}
+
+        let activeFamilyMood = '😊';
+        function selectFamilyMood(emoji) {{
+            activeFamilyMood = emoji;
+            document.querySelectorAll('.mood-emoji-btn').forEach(btn => {{
+                if (btn.dataset.emoji === emoji) {{
+                    btn.classList.add('ring-2', 'ring-amber-400', 'bg-amber-100');
+                }} else {{
+                    btn.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-100');
+                }}
+            }});
+        }}
+
+        function toggleCustomSender(val) {{
+            const input = document.getElementById('family-msg-custom-sender');
+            if (!input) return;
+            if (val === '自訂稱呼 ✍️') {{
+                input.classList.remove('hidden');
+                input.focus();
+            }} else {{
+                input.classList.add('hidden');
+            }}
+        }}
+
+        function addFamilyMessage() {{
+            const senderSelect = document.getElementById('family-msg-sender');
+            const customSender = document.getElementById('family-msg-custom-sender');
+            const textInput = document.getElementById('family-msg-text');
+            if (!textInput) return;
+            
+            const text = textInput.value.trim();
+            if (!text) {{
+                showToast('請先輸入想分享的心情小語喔！✍️');
+                return;
+            }}
+            
+            let sender = senderSelect ? senderSelect.value : '全家大家庭 🏠';
+            if (sender === '自訂稱呼 ✍️' && customSender && customSender.value.trim()) {{
+                sender = customSender.value.trim();
+            }}
+            
+            const now = new Date();
+            const timeStr = `${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+            
+            const msgs = getFamilyMessages();
+            msgs.unshift({{
+                id: 'msg_' + Date.now(),
+                sender: sender,
+                text: text,
+                mood: activeFamilyMood,
+                time: timeStr,
+                likes: 0
+            }});
+            
+            saveFamilyMessages(msgs);
+            textInput.value = '';
+            renderFamilyBoard();
+            showToast('已成功貼上心情留言！💌✨');
+        }}
+
+        function likeFamilyMessage(msgId) {{
+            const msgs = getFamilyMessages();
+            const target = msgs.find(m => m.id === msgId);
+            if (target) {{
+                target.likes = (target.likes || 0) + 1;
+                saveFamilyMessages(msgs);
+                renderFamilyBoard();
+            }}
+        }}
+
+        function deleteFamilyMessage(msgId) {{
+            let msgs = getFamilyMessages();
+            msgs = msgs.filter(m => m.id !== msgId);
+            saveFamilyMessages(msgs);
+            renderFamilyBoard();
+            showToast('已移除該則留言。');
+        }}
+
+        function renderFamilyBoard() {{
+            const container = document.getElementById('family-board-container');
+            const countLabel = document.getElementById('family-notes-count');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const msgs = getFamilyMessages();
+            const progress = getStampsProgress();
+
+            const stampMemories = [];
+            STAMPS_DATA.forEach(item => {{
+                const sp = progress[item.id];
+                if (sp && (sp.note || sp.photo)) {{
+                    stampMemories.push({{
+                        item: item,
+                        note: sp.note,
+                        photo: sp.photo,
+                        time: sp.time || '2026/12'
+                    }});
+                }}
+            }});
+
+            const totalCount = msgs.length + stampMemories.length;
+            if (countLabel) countLabel.textContent = `${{totalCount}} 則心情紀錄`;
+
+            if (totalCount === 0) {{
+                container.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-stone-400 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200 text-xs">
+                        尚無心情留言或景點手記，出發後在各站打卡或輸入一句話，這裡就會自動編成一本專屬相簿手札！🌸
+                    </div>
+                `;
+                return;
+            }}
+
+            msgs.forEach(msg => {{
+                const card = document.createElement('div');
+                card.className = 'p-3.5 rounded-2xl border border-amber-200/90 bg-amber-50/60 shadow-2xs flex flex-col justify-between space-y-2 relative transition hover:border-amber-300';
+                card.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between pb-1 border-b border-amber-200/60">
+                            <span class="text-xs font-black text-amber-900 flex items-center gap-1">
+                                <span>${{msg.mood || '📌'}}</span>
+                                <span>${{escapeHtml(msg.sender)}}</span>
+                            </span>
+                            <span class="text-[10px] text-stone-400 font-mono">${{msg.time}}</span>
+                        </div>
+                        <p class="text-xs text-stone-800 leading-relaxed font-medium whitespace-pre-wrap">${{escapeHtml(msg.text)}}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 text-[10px] text-stone-400">
+                        <button type="button" onclick="likeFamilyMessage('${{msg.id}}')" class="flex items-center gap-1 text-rose-600 font-bold hover:scale-105 active:scale-95 transition">
+                            <span>❤️</span>
+                            <span>${{msg.likes || 0}}</span>
+                        </button>
+                        <button type="button" onclick="deleteFamilyMessage('${{msg.id}}')" class="hover:text-red-500 transition" title="刪除">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }});
+
+            stampMemories.forEach(mem => {{
+                const card = document.createElement('div');
+                card.className = 'p-3 rounded-2xl border border-red-200 bg-white shadow-2xs flex flex-col justify-between space-y-2 relative transition hover:border-red-300 hover:shadow-sm cursor-pointer';
+                card.onclick = () => showStampPhotoPreview(mem.item.id);
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between pb-1 border-b border-stone-100">
+                            <span class="text-[10px] text-red-700 bg-red-50 px-2 py-0.5 rounded-md font-black border border-red-200">
+                                ${{mem.item.icon}} ${{mem.item.name}}
+                            </span>
+                            <span class="text-[10px] text-stone-400 font-mono">${{mem.time}}</span>
+                        </div>
+                        ${{mem.photo ? `
+                            <div class="relative w-full h-28 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
+                                <img src="${{mem.photo}}" class="w-full h-full object-cover">
+                                <div class="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                                    📸 點擊放大
+                                </div>
+                            </div>
+                        ` : ''}}
+                        ${{mem.note ? `
+                            <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-2 text-[11px] text-stone-800 italic leading-snug">
+                                “${{escapeHtml(mem.note)}}”
+                            </div>
+                        ` : `
+                            <div class="text-[11px] text-stone-400 italic">已拍照蓋印留念 ✨</div>
+                        `}}
+                    </div>
+                    <div class="text-[10px] text-stone-400 text-right flex items-center justify-between pt-1 border-t border-stone-50">
+                        <span class="text-red-600 font-bold">🏮 ${{mem.item.stamp_title}}</span>
+                        <span class="text-amber-700 font-bold">查看拍立得 ➔</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            }});
+        }}
+
         function showStampPhotoPreview(stampId) {{
             const progress = getStampsProgress();
-            const photoUrl = progress[stampId]?.photo;
-            if (!photoUrl) return;
+            const stampInfo = progress[stampId] || {{}};
+            const photoUrl = stampInfo.photo;
+            const note = stampInfo.note || '';
+            const item = STAMPS_DATA.find(s => s.id === stampId);
 
             let modal = document.getElementById('stamp-photo-modal');
             if (!modal) {{
@@ -4802,23 +5128,59 @@ function doGet(e) {{
                 modal.id = 'stamp-photo-modal';
                 modal.className = 'fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs';
                 modal.onclick = function() {{ modal.classList.add('hidden'); }};
-                modal.innerHTML = `
-                    <div class="bg-white rounded-3xl p-4 max-w-md w-full space-y-3 text-center shadow-2xl border-4 border-amber-300" onclick="event.stopPropagation()">
-                        <div class="flex items-center justify-between pb-2 border-b">
-                            <span class="font-black text-sm text-stone-800" id="stamp-modal-title">景點回憶拍立得</span>
-                            <button onclick="document.getElementById('stamp-photo-modal').classList.add('hidden')" class="text-stone-400 hover:text-stone-600 text-lg font-bold">✕</button>
-                        </div>
-                        <img id="stamp-modal-img" src="" class="w-full max-h-[70vh] object-contain rounded-2xl border border-stone-200">
-                        <p class="text-xs text-stone-500 font-medium" id="stamp-modal-caption"></p>
-                    </div>
-                `;
                 document.body.appendChild(modal);
             }}
 
-            const item = STAMPS_DATA.find(s => s.id === stampId);
-            document.getElementById('stamp-modal-title').textContent = item ? `📸 ${{item.name}} 回憶` : '景點回憶';
-            document.getElementById('stamp-modal-img').src = photoUrl;
-            document.getElementById('stamp-modal-caption').textContent = item ? `📍 ${{item.area}} ｜ ${{item.stamp_title}}` : '';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl p-5 max-w-md w-full space-y-3.5 text-center shadow-2xl border-4 border-amber-300 relative max-h-[92vh] overflow-y-auto" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between pb-2 border-b">
+                        <div class="flex items-center gap-1.5 text-stone-800 font-black text-sm">
+                            <span>📸</span>
+                            <span>${{item ? item.name : '景點'}} 專屬拍立得</span>
+                        </div>
+                        <button onclick="document.getElementById('stamp-photo-modal').classList.add('hidden')" class="text-stone-400 hover:text-stone-600 text-lg font-bold">✕</button>
+                    </div>
+
+                    ${{photoUrl ? `
+                        <div class="relative bg-stone-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                            <img src="${{photoUrl}}" class="w-full max-h-[50vh] object-contain rounded-2xl">
+                            <div class="absolute bottom-2 right-2 px-2.5 py-1 bg-black/60 backdrop-blur-xs text-white text-[10px] rounded-full font-mono">
+                                ${{stampInfo.time || '2026/12'}}
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="py-8 bg-stone-50 rounded-2xl border-2 border-dashed border-stone-200 text-stone-400 text-xs">
+                            尚未上傳相片，可點擊卡片上的「📷 補存現場照片」隨時添加！
+                        </div>
+                    `}}
+
+                    <!-- 景點與紀念印章名稱 -->
+                    <div class="flex items-center justify-between px-1 text-xs text-stone-500 font-medium">
+                        <span>📍 ${{item ? item.area : ''}}</span>
+                        <span class="font-bold text-red-600">🏮 ${{item ? item.stamp_title : ''}}</span>
+                    </div>
+
+                    <!-- 心情筆記 / 金句 -->
+                    <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3 text-left space-y-2">
+                        <div class="flex items-center justify-between text-[11px] font-bold text-amber-900">
+                            <span class="flex items-center gap-1">
+                                <span>✍️</span> <span>這刻的心情手記 / 家族金句：</span>
+                            </span>
+                        </div>
+                        ${{note ? `
+                            <p class="text-xs text-stone-800 font-medium italic leading-relaxed whitespace-pre-wrap">“${{escapeHtml(note)}}”</p>
+                        ` : `
+                            <p class="text-xs text-stone-400 italic">尚無心情文字（完全選填，沒有文字也沒關係）</p>
+                        `}}
+                        <div class="pt-2 border-t border-amber-200/60 flex items-center gap-1.5">
+                            <input type="text" id="modal-note-input" class="flex-1 bg-white border border-stone-200 rounded-xl px-2.5 py-1 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-amber-400" placeholder="補充或修改這站的心情短語..." value="${{escapeHtml(note)}}">
+                            <button type="button" onclick="saveStampNoteFromModal('${{stampId}}')" class="px-3 py-1 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold text-xs rounded-xl shadow-2xs transition active:scale-95">
+                                儲存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
             modal.classList.remove('hidden');
         }}
 
