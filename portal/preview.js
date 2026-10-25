@@ -56,6 +56,8 @@
         inspectorRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         inspectorRenderer.shadowMap.enabled = true;
         inspectorRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        inspectorRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+        inspectorRenderer.toneMappingExposure = 1.14;
         stage.appendChild(inspectorRenderer.domElement);
 
         inspectorControls = new THREE.OrbitControls(inspectorCamera, inspectorRenderer.domElement);
@@ -64,17 +66,22 @@
         inspectorControls.autoRotate = true;
         inspectorControls.autoRotateSpeed = 1.6;
 
-        // 檢視台燈光與圓形木質展示底座
-        const amb = new THREE.AmbientLight(0xfff7ed, 0.72);
+        // 檢視台燈光與圓形木質展示底座 (提升立體陰影與暖陽輪廓光)
+        const amb = new THREE.AmbientLight(0xfff5ea, 0.50);
         inspectorScene.add(amb);
-        const hemi = new THREE.HemisphereLight(0xdbeafe, 0xd6c7b2, 0.45);
+        const hemi = new THREE.HemisphereLight(0xdbeafe, 0xd6c7b2, 0.38);
         inspectorScene.add(hemi);
-        const dir = new THREE.DirectionalLight(0xffe0b2, 1.15);
+        const dir = new THREE.DirectionalLight(0xffecd2, 1.25);
         dir.position.set(5, 8, 6);
         dir.castShadow = true;
         dir.shadow.mapSize.width = 1024;
         dir.shadow.mapSize.height = 1024;
+        dir.shadow.radius = 2.0;
+        dir.shadow.bias = -0.0005;
         inspectorScene.add(dir);
+        const rimLight = new THREE.DirectionalLight(0xfff6e6, 0.35);
+        rimLight.position.set(-5, 6, -5);
+        inspectorScene.add(rimLight);
 
         const pedestal = new THREE.Mesh(
             new THREE.CylinderGeometry(1.15, 1.25, 0.14, 32),

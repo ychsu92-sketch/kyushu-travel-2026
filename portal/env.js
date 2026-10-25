@@ -40,52 +40,61 @@
     }
 
     function setupWinterLights(scene) {
-        // 1. 柔和冬季環境光 (自然溫潤、明暗對比適度提升)
-        const ambient = new THREE.AmbientLight(0xfff7ed, 0.52);
+        // 1. 柔和冬季環境光 (維持日系暖調，適度提升明暗對比與陰影層次)
+        const ambient = new THREE.AmbientLight(0xfff5ea, 0.38);
         scene.add(ambient);
 
-        // 2. 天空與大地半球反射光 (清透天藍與溫暖大地)
-        const hemiLight = new THREE.HemisphereLight(0xd0e6ff, 0xc7b299, 0.46);
+        // 2. 天空與大地半球反射光 (清透天藍冷光與大地暖米色次環境反射)
+        const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0xcfbda8, 0.38);
         hemiLight.position.set(0, 35, 0);
         scene.add(hemiLight);
 
-        // 3. 12 月冬季低角度暖金陽光 (光影立體感微幅提升，色澤溫暖清透)
-        const sunLight = new THREE.DirectionalLight(0xffe2bf, 1.10);
+        // 3. 12 月冬季低角度暖金陽光 (提升亮部立體感與陰影銳利細緻度)
+        const sunLight = new THREE.DirectionalLight(0xffecd2, 1.30);
         sunLight.position.set(26, 22, 18);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
         sunLight.shadow.mapSize.height = 2048;
         sunLight.shadow.camera.near = 4;
         sunLight.shadow.camera.far = 95;
-        const d = 29;
+        const d = 25; // 緊湊貼合島嶼範圍，使 shadow map 像素密度提升 ~20%
         sunLight.shadow.camera.left = -d;
         sunLight.shadow.camera.right = d;
         sunLight.shadow.camera.top = d;
         sunLight.shadow.camera.bottom = -d;
-        sunLight.shadow.bias = -0.0006;
+        sunLight.shadow.bias = -0.00045;
+        sunLight.shadow.radius = 2.0; // PCFSoftShadowMap 柔和長陰影邊緣，去除生硬鋸齒
         scene.add(sunLight);
 
-        // 4. 背光側清透天光補光，加強陰影層次與通透感
-        const fillLight = new THREE.DirectionalLight(0xb8d4f0, 0.28);
+        // 4. 背光側清透天光補光，加強陰影內部層次與動漫風通透藍調
+        const fillLight = new THREE.DirectionalLight(0xb2d5f5, 0.28);
         fillLight.position.set(-22, 14, -18);
         scene.add(fillLight);
 
-        // 5. 可見的冬日太陽球體與光暈
+        // 5. 逆光輪廓光 (Rim Light / Backlight)：勾勒火山稜線、樹梢、神社瓦頂與敞篷車邊框金邊
+        const rimLight = new THREE.DirectionalLight(0xfff6e6, 0.32);
+        rimLight.position.set(-18, 22, -24);
+        scene.add(rimLight);
+
+        // 6. 可見的冬日太陽球體與多層大氣光暈
         const sunGroup = new THREE.Group();
         sunGroup.position.set(42, 34, -36);
         const sunCore = new THREE.Mesh(
-            new THREE.SphereGeometry(3.2, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xf7e6cc })
+            new THREE.SphereGeometry(3.4, 20, 20),
+            new THREE.MeshBasicMaterial({ color: 0xfffaea })
         );
         const sunHalo = new THREE.Mesh(
-            new THREE.SphereGeometry(5.2, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xeed6a4, transparent: true, opacity: 0.22 })
+            new THREE.SphereGeometry(5.8, 20, 20),
+            new THREE.MeshBasicMaterial({ color: 0xfde3a7, transparent: true, opacity: 0.26 })
         );
-        sunGroup.add(sunCore);
-        sunGroup.add(sunHalo);
+        const sunCorona = new THREE.Mesh(
+            new THREE.SphereGeometry(10.2, 20, 20),
+            new THREE.MeshBasicMaterial({ color: 0xffd8a8, transparent: true, opacity: 0.10 })
+        );
+        sunGroup.add(sunCore, sunHalo, sunCorona);
         scene.add(sunGroup);
 
-        return { ambient, hemiLight, sunLight, fillLight, sunGroup };
+        return { ambient, hemiLight, sunLight, fillLight, rimLight, sunGroup };
     }
 
     function createOcean(scene) {
@@ -94,18 +103,22 @@
         // 1. 深海襯底層
         const deepGeo = new THREE.CircleGeometry(98, 48);
         deepGeo.rotateX(-Math.PI / 2);
-        const deepMat = new THREE.MeshLambertMaterial({ color: 0x264b5e });
+        const deepMat = new THREE.MeshLambertMaterial({ color: 0x244658 });
         const deepMesh = new THREE.Mesh(deepGeo, deepMat);
         deepMesh.position.y = -1.65;
         oceanGroup.add(deepMesh);
 
-        // 2. 平靜溫潤的冬日海面 (清透海藍搭配白色線條波紋，符合插畫微縮模型風格)
+        // 2. 平靜溫潤的冬日海面 (清透海藍搭配白色線條波紋，具備陽光折射光澤)
         const seaGeo = new THREE.PlaneGeometry(130, 130, 32, 32);
         seaGeo.rotateX(-Math.PI / 2);
-        const seaMat = new THREE.MeshLambertMaterial({
-            color: 0x3d7ea0,
+        const seaMat = new THREE.MeshPhongMaterial({
+            color: 0x387898,
+            emissive: 0x081e2b,
+            specular: 0x6dbfe2,
+            shininess: 18,
             transparent: true,
-            opacity: 0.94
+            opacity: 0.94,
+            flatShading: true
         });
         const seaMesh = new THREE.Mesh(seaGeo, seaMat);
         seaMesh.position.y = -0.32;

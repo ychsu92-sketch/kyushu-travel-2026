@@ -1722,14 +1722,14 @@
         camera = new THREE.PerspectiveCamera(35, w / h, 0.5, 280);
         camera.position.set(0, 19.8, 26.2);
 
-        // 2. WebGL 渲染器與真實柔和陰影 + 電影感柔和色調映射 (維持溫潤不刺眼，僅微幅提升飽和度)
+        // 2. WebGL 渲染器與真實柔和陰影 + 電影感柔和色調映射 (提升通透光影層次與微縮立體感)
         renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         renderer.setSize(w, h);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.08;
+        renderer.toneMappingExposure = 1.15;
         container.appendChild(renderer.domElement);
 
         // 3. OrbitControls 鏡頭控制 (支援旋轉、縮放與全方向畫面拖曳平移 Panning)
