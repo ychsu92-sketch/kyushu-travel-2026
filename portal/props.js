@@ -1370,9 +1370,20 @@
             const stX = p.x + normal.x * s.offsetSide;
             const stZ = p.z + normal.z * s.offsetSide;
             const gy = getGroundY(stX, stZ);
-            const stY = Math.max(p.y, gy + 0.04);
+            const stY = Math.max(p.y, gy + 0.26);
             stGroup.position.set(stX, stY, stZ);
             stGroup.rotation.y = ang;
+
+            // 月台下方設置高架基樁柱延伸至地面，確保視覺穩固扎實
+            const pierH = Math.max(0.35, stY - gy + 0.12);
+            const pLen = s.length || 1.45;
+            const curbMat = new THREE.MeshLambertMaterial({ color: 0x90a4ae });
+            [-pLen * 0.32, pLen * 0.32].forEach(pz => {
+                const pier = new THREE.Mesh(new THREE.BoxGeometry(0.36, pierH, 0.30), curbMat);
+                pier.position.set(0, -pierH * 0.5, pz);
+                stGroup.add(pier);
+            });
+
             propsGroup.add(stGroup);
             stationsList.push(stGroup);
             sceneObstacles.push({ x: stX, z: stZ, r: 0.75 });
@@ -1745,17 +1756,27 @@
 
     function updatePropsAnimation(propState, tramCurve, elapsed, jrCurve, jrEastCurve) {
         const getGroundY = (propState && propState.sampleGroundY) || (() => 0.88);
+        const VIADUCT_CLEARANCE = 0.26;
+
+        // 計算鐵道實體高架軌面精確三維座標 (軌頂高於基底道碴 0.052)
+        function getTrackSurfacePos(curve, t) {
+            const wrapT = ((t % 1.0) + 1.0) % 1.0;
+            const pt = curve.getPointAt(wrapT);
+            const gy = getGroundY(pt.x, pt.z);
+            const y = Math.max(pt.y, gy + VIADUCT_CLEARANCE) + 0.052;
+            return new THREE.Vector3(pt.x, y, pt.z);
+        }
 
         // 1. 熊本市電沿軌道平穩往返
         if (propState.tram && tramCurve) {
             const pingPong = (Math.sin(elapsed * 0.45) + 1) * 0.5;
             const pos = tramCurve.getPointAt(pingPong);
             const tan = tramCurve.getTangentAt(pingPong);
-            propState.tram.position.set(pos.x, getGroundY(pos.x, pos.z) + 0.04, pos.z);
+            propState.tram.position.set(pos.x, getGroundY(pos.x, pos.z) + 0.068, pos.z);
             propState.tram.rotation.y = Math.atan2(tan.x, tan.z);
         }
 
-        // 1.5 JR 九州 800系「燕子號」新幹線 / 特急列車沿西海岸縱貫專用鐵道路廊奔馳巡航 (精確對齊軌面高度，杜絕穿模)
+        // 1.5 JR 九州 800系「燕子號」新幹線 / 特急列車沿西海岸縱貫專用鐵道路廊奔馳巡航 (精確對齊軌面高度與切線，徹底杜絕穿模與插地)
         if (propState.jrTrain && jrCurve) {
             const loopSpeed = 0.038; // 流暢逼真奔馳速度
             const baseT = (elapsed * loopSpeed) % 1.0;
@@ -1765,13 +1786,16 @@
             cars.forEach((car, idx) => {
                 if (!car) return;
                 const carT = (baseT + (2 - idx) * carSpacing + 1.0) % 1.0;
-                const p = jrCurve.getPointAt(carT);
-                const tan = jrCurve.getTangentAt(carT);
-                const gy = getGroundY(p.x, p.z);
-                const railSurfaceY = Math.max(p.y, gy + 0.04) + 0.038;
-                car.position.set(p.x, railSurfaceY, p.z);
-                car.rotation.y = Math.atan2(tan.x, tan.z);
-                car.rotation.x = -Math.atan2(tan.y, Math.hypot(tan.x, tan.z));
+                const pCur = getTrackSurfacePos(jrCurve, carT);
+                const pAhead = getTrackSurfacePos(jrCurve, (carT + 0.002) % 1.0);
+                const dx = pAhead.x - pCur.x;
+                const dy = pAhead.y - pCur.y;
+                const dz = pAhead.z - pCur.z;
+                const dHoriz = Math.hypot(dx, dz) || 0.001;
+
+                car.position.copy(pCur);
+                car.rotation.y = Math.atan2(dx, dz);
+                car.rotation.x = -Math.atan2(dy, dHoriz);
                 // 轉彎自然微幅過彎傾斜 (Tilting Car Body)
                 car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.016;
             });
@@ -1787,13 +1811,16 @@
             cars.forEach((car, idx) => {
                 if (!car) return;
                 const carT = (baseT + (2 - idx) * carSpacing + 1.0) % 1.0;
-                const p = jrEastCurve.getPointAt(carT);
-                const tan = jrEastCurve.getTangentAt(carT);
-                const gy = getGroundY(p.x, p.z);
-                const railSurfaceY = Math.max(p.y, gy + 0.04) + 0.038;
-                car.position.set(p.x, railSurfaceY, p.z);
-                car.rotation.y = Math.atan2(tan.x, tan.z);
-                car.rotation.x = -Math.atan2(tan.y, Math.hypot(tan.x, tan.z));
+                const pCur = getTrackSurfacePos(jrEastCurve, carT);
+                const pAhead = getTrackSurfacePos(jrEastCurve, (carT + 0.002) % 1.0);
+                const dx = pAhead.x - pCur.x;
+                const dy = pAhead.y - pCur.y;
+                const dz = pAhead.z - pCur.z;
+                const dHoriz = Math.hypot(dx, dz) || 0.001;
+
+                car.position.copy(pCur);
+                car.rotation.y = Math.atan2(dx, dz);
+                car.rotation.x = -Math.atan2(dy, dHoriz);
                 car.rotation.z = Math.sin(carT * Math.PI * 4) * 0.016;
             });
         }

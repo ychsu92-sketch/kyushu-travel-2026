@@ -633,35 +633,38 @@
             const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.80;
 
             const sleeper = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.05, 0.10), sleeperMat);
-            sleeper.position.set(p.x, gy + 0.025, p.z);
+            sleeper.position.set(p.x, gy + 0.038, p.z);
             sleeper.rotation.y = ang;
             roadGroup.add(sleeper);
 
             const rail = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.06, 0.16), railMat);
-            rail.position.set(p.x, gy + 0.035, p.z);
+            rail.position.set(p.x, gy + 0.058, p.z);
             rail.rotation.y = ang;
             roadGroup.add(rail);
         }
 
         // 建立 JR 九州縱貫主幹線鐵道 (九州新幹線 / 鹿兒島本線專用立體高架路廊，嚴格避開家族公路與景點)
+        const VIADUCT_CLEARANCE = 0.26;
         const jrCurvePoints = [
-            new THREE.Vector3(-5.85, (sampleGroundY ? sampleGroundY(-5.85, -17.50) : 0.88) + 0.08, -17.50), // 熊本荒尾・玉名
-            new THREE.Vector3(-6.05, (sampleGroundY ? sampleGroundY(-6.05, -14.20) : 1.06) + 0.08, -14.20), // JR 熊本車站 (西側新幹線高架站)
-            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80, -11.50) : 1.06) + 0.08, -11.50), // 熊本南宇土西平原
-            new THREE.Vector3(-5.45, (sampleGroundY ? sampleGroundY(-5.45,  -8.20) : 1.06) + 0.08,  -8.20), // 八代球磨川高架鐵橋
-            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50,  -4.00) : 1.06) + 0.08,  -4.00), // 水俁不知火海岸
-            new THREE.Vector3(-6.10, (sampleGroundY ? sampleGroundY(-6.10,   0.80) : 1.06) + 0.08,   0.80), // 出水野鶴之里
-            new THREE.Vector3(-6.60, (sampleGroundY ? sampleGroundY(-6.60,   4.80) : 1.06) + 0.08,   4.80), // 川內高架鐵橋
-            new THREE.Vector3(-7.00, (sampleGroundY ? sampleGroundY(-7.00,   7.60) : 1.06) + 0.08,   7.60), // 薩摩伊集院
-            new THREE.Vector3(-7.25, (sampleGroundY ? sampleGroundY(-7.25,   9.60) : 1.06) + 0.08,   9.60), // JR 鹿兒島中央站 (新幹線終點高架月台)
+            new THREE.Vector3(-5.85, (sampleGroundY ? sampleGroundY(-5.85, -17.50) : 0.88) + VIADUCT_CLEARANCE, -17.50), // 熊本荒尾・玉名
+            new THREE.Vector3(-6.05, (sampleGroundY ? sampleGroundY(-6.05, -14.20) : 1.06) + VIADUCT_CLEARANCE, -14.20), // JR 熊本車站 (西側新幹線高架站)
+            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80, -11.50) : 1.06) + VIADUCT_CLEARANCE, -11.50), // 熊本南宇土西平原
+            new THREE.Vector3(-5.45, (sampleGroundY ? sampleGroundY(-5.45,  -8.20) : 1.06) + VIADUCT_CLEARANCE,  -8.20), // 八代球磨川高架鐵橋
+            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50,  -4.00) : 1.06) + VIADUCT_CLEARANCE,  -4.00), // 水俁不知火海岸
+            new THREE.Vector3(-5.75, (sampleGroundY ? sampleGroundY(-5.75,  -1.80) : 1.06) + VIADUCT_CLEARANCE,  -1.80), // 出水北山谷過渡段
+            new THREE.Vector3(-6.10, (sampleGroundY ? sampleGroundY(-6.10,   0.80) : 1.06) + VIADUCT_CLEARANCE,   0.80), // 出水野鶴之里
+            new THREE.Vector3(-6.60, (sampleGroundY ? sampleGroundY(-6.60,   4.80) : 1.06) + VIADUCT_CLEARANCE,   4.80), // 川內高架鐵橋
+            new THREE.Vector3(-7.00, (sampleGroundY ? sampleGroundY(-7.00,   7.60) : 1.06) + VIADUCT_CLEARANCE,   7.60), // 薩摩伊集院
+            new THREE.Vector3(-7.25, (sampleGroundY ? sampleGroundY(-7.25,   9.60) : 1.06) + VIADUCT_CLEARANCE,   9.60), // JR 鹿兒島中央站 (新幹線終點高架月台)
             // 雙軌返程線 (平行間距 ~0.35)
-            new THREE.Vector3(-6.95, (sampleGroundY ? sampleGroundY(-6.95,   7.80) : 1.06) + 0.08,   7.80),
-            new THREE.Vector3(-6.30, (sampleGroundY ? sampleGroundY(-6.30,   4.60) : 1.06) + 0.08,   4.60),
-            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80,   0.60) : 1.06) + 0.08,   0.60),
-            new THREE.Vector3(-5.20, (sampleGroundY ? sampleGroundY(-5.20,  -4.20) : 1.06) + 0.08,  -4.20),
-            new THREE.Vector3(-5.15, (sampleGroundY ? sampleGroundY(-5.15,  -8.40) : 1.06) + 0.08,  -8.40),
-            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50, -11.70) : 1.06) + 0.08, -11.70),
-            new THREE.Vector3(-5.75, (sampleGroundY ? sampleGroundY(-5.75, -14.40) : 1.06) + 0.08, -14.40)
+            new THREE.Vector3(-6.95, (sampleGroundY ? sampleGroundY(-6.95,   7.80) : 1.06) + VIADUCT_CLEARANCE,   7.80),
+            new THREE.Vector3(-6.30, (sampleGroundY ? sampleGroundY(-6.30,   4.60) : 1.06) + VIADUCT_CLEARANCE,   4.60),
+            new THREE.Vector3(-5.80, (sampleGroundY ? sampleGroundY(-5.80,   0.60) : 1.06) + VIADUCT_CLEARANCE,   0.60),
+            new THREE.Vector3(-5.45, (sampleGroundY ? sampleGroundY(-5.45,  -1.80) : 1.06) + VIADUCT_CLEARANCE,  -1.80),
+            new THREE.Vector3(-5.20, (sampleGroundY ? sampleGroundY(-5.20,  -4.20) : 1.06) + VIADUCT_CLEARANCE,  -4.20),
+            new THREE.Vector3(-5.15, (sampleGroundY ? sampleGroundY(-5.15,  -8.40) : 1.06) + VIADUCT_CLEARANCE,  -8.40),
+            new THREE.Vector3(-5.50, (sampleGroundY ? sampleGroundY(-5.50, -11.70) : 1.06) + VIADUCT_CLEARANCE, -11.70),
+            new THREE.Vector3(-5.75, (sampleGroundY ? sampleGroundY(-5.75, -14.40) : 1.06) + VIADUCT_CLEARANCE, -14.40)
         ];
         const jrCurve = new THREE.CatmullRomCurve3(jrCurvePoints, true, 'catmullrom', 0.25);
 
@@ -679,11 +682,11 @@
             const tan = jrCurve.getTangentAt(t);
             const ang = Math.atan2(tan.x, tan.z);
             const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
-            const railY = Math.max(p.y, gy + 0.04);
+            const railY = Math.max(p.y, gy + VIADUCT_CLEARANCE);
 
-            // 每隔 10 節在路基下方立一座扎實的混凝土高架橋墩 (Viaduct Piers)，徹底排除軌道懸空與穿模
-            if (i % 10 === 0) {
-                const pierH = Math.max(0.12, railY - (gy || 0.80));
+            // 每隔 8 節在路基下方立一座扎實的混凝土高架橋墩 (Viaduct Piers)，徹底排除軌道懸空與穿模
+            if (i % 8 === 0) {
+                const pierH = Math.max(0.35, railY - (gy || 0.80) + 0.12);
                 const pier = new THREE.Mesh(new THREE.BoxGeometry(0.26, pierH, 0.22), pierMat);
                 pier.position.set(p.x, railY - pierH * 0.5, p.z);
                 pier.rotation.y = ang;
@@ -735,21 +738,21 @@
         // 建立 JR 九州東海岸路廊（日豐本線・日南海岸專用立體海濱高架路廊，嚴格避開公路動線）
         const jrEastCurvePoints = [
             // 延岡海灣立體鐵道
-            new THREE.Vector3(12.20, (sampleGroundY ? sampleGroundY(12.20, -12.50) : 1.06) + 0.08, -12.50), // 延岡
-            new THREE.Vector3(11.80, (sampleGroundY ? sampleGroundY(11.80,  -8.50) : 1.06) + 0.08,  -8.50), // 日向灘美美津
-            new THREE.Vector3(11.60, (sampleGroundY ? sampleGroundY(11.60,  -4.50) : 1.06) + 0.08,  -4.50), // 都農・高鍋海岸
-            new THREE.Vector3(11.50, (sampleGroundY ? sampleGroundY(11.50,  -0.50) : 0.88) + 0.08,  -0.50), // JR 宮崎站
-            new THREE.Vector3(11.40, (sampleGroundY ? sampleGroundY(11.40,   3.50) : 0.88) + 0.08,   3.50), // 青島外海景觀線
-            new THREE.Vector3(11.00, (sampleGroundY ? sampleGroundY(11.00,   7.00) : 0.88) + 0.08,   7.00), // JR 日南海岸站
-            new THREE.Vector3(10.40, (sampleGroundY ? sampleGroundY(10.40,  10.00) : 0.88) + 0.08,  10.00), // 油津港海崖
+            new THREE.Vector3(12.20, (sampleGroundY ? sampleGroundY(12.20, -12.50) : 1.06) + VIADUCT_CLEARANCE, -12.50), // 延岡
+            new THREE.Vector3(11.80, (sampleGroundY ? sampleGroundY(11.80,  -8.50) : 1.06) + VIADUCT_CLEARANCE,  -8.50), // 日向灘美美津
+            new THREE.Vector3(11.60, (sampleGroundY ? sampleGroundY(11.60,  -4.50) : 1.06) + VIADUCT_CLEARANCE,  -4.50), // 都農・高鍋海岸
+            new THREE.Vector3(11.50, (sampleGroundY ? sampleGroundY(11.50,  -0.50) : 0.88) + VIADUCT_CLEARANCE,  -0.50), // JR 宮崎站
+            new THREE.Vector3(11.40, (sampleGroundY ? sampleGroundY(11.40,   3.50) : 0.88) + VIADUCT_CLEARANCE,   3.50), // 青島外海景觀線
+            new THREE.Vector3(11.00, (sampleGroundY ? sampleGroundY(11.00,   7.00) : 0.88) + VIADUCT_CLEARANCE,   7.00), // JR 日南海岸站
+            new THREE.Vector3(10.40, (sampleGroundY ? sampleGroundY(10.40,  10.00) : 0.88) + VIADUCT_CLEARANCE,  10.00), // 油津港海崖
             // 東側返程線 (平行複線間距 ~0.35)
-            new THREE.Vector3(10.75, (sampleGroundY ? sampleGroundY(10.75,   9.80) : 0.88) + 0.08,   9.80),
-            new THREE.Vector3(11.35, (sampleGroundY ? sampleGroundY(11.35,   6.80) : 0.88) + 0.08,   6.80),
-            new THREE.Vector3(11.75, (sampleGroundY ? sampleGroundY(11.75,   3.30) : 0.88) + 0.08,   3.30),
-            new THREE.Vector3(11.85, (sampleGroundY ? sampleGroundY(11.85,  -0.70) : 0.88) + 0.08,  -0.70),
-            new THREE.Vector3(11.95, (sampleGroundY ? sampleGroundY(11.95,  -4.70) : 0.88) + 0.08,  -4.70),
-            new THREE.Vector3(12.15, (sampleGroundY ? sampleGroundY(12.15,  -8.70) : 1.06) + 0.08,  -8.70),
-            new THREE.Vector3(12.55, (sampleGroundY ? sampleGroundY(12.55, -12.70) : 1.06) + 0.08, -12.70)
+            new THREE.Vector3(10.75, (sampleGroundY ? sampleGroundY(10.75,   9.80) : 0.88) + VIADUCT_CLEARANCE,   9.80),
+            new THREE.Vector3(11.35, (sampleGroundY ? sampleGroundY(11.35,   6.80) : 0.88) + VIADUCT_CLEARANCE,   6.80),
+            new THREE.Vector3(11.75, (sampleGroundY ? sampleGroundY(11.75,   3.30) : 0.88) + VIADUCT_CLEARANCE,   3.30),
+            new THREE.Vector3(11.85, (sampleGroundY ? sampleGroundY(11.85,  -0.70) : 0.88) + VIADUCT_CLEARANCE,  -0.70),
+            new THREE.Vector3(11.95, (sampleGroundY ? sampleGroundY(11.95,  -4.70) : 0.88) + VIADUCT_CLEARANCE,  -4.70),
+            new THREE.Vector3(12.15, (sampleGroundY ? sampleGroundY(12.15,  -8.70) : 1.06) + VIADUCT_CLEARANCE,  -8.70),
+            new THREE.Vector3(12.55, (sampleGroundY ? sampleGroundY(12.55, -12.70) : 1.06) + VIADUCT_CLEARANCE, -12.70)
         ];
         const jrEastCurve = new THREE.CatmullRomCurve3(jrEastCurvePoints, true, 'catmullrom', 0.25);
 
@@ -760,11 +763,11 @@
             const tan = jrEastCurve.getTangentAt(t);
             const ang = Math.atan2(tan.x, tan.z);
             const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
-            const railY = Math.max(p.y, gy + 0.04);
+            const railY = Math.max(p.y, gy + VIADUCT_CLEARANCE);
 
-            // 每隔 10 節建立一座穩固的混凝土海景高架橋墩
-            if (i % 10 === 0) {
-                const pierH = Math.max(0.12, railY - (gy || 0.80));
+            // 每隔 8 節建立一座穩固的混凝土海景高架橋墩
+            if (i % 8 === 0) {
+                const pierH = Math.max(0.35, railY - (gy || 0.80) + 0.12);
                 const pier = new THREE.Mesh(new THREE.BoxGeometry(0.26, pierH, 0.22), pierMat);
                 pier.position.set(p.x, railY - pierH * 0.5, p.z);
                 pier.rotation.y = ang;
