@@ -2516,15 +2516,17 @@
             'left:12px;',
             'z-index:32;',
             'display:flex;',
-            'align-items:flex-end;',
-            'gap:8px;',
+            'flex-direction:column;',
+            'align-items:flex-start;',
+            'gap:6px;',
             'pointer-events:none;',
             'user-select:none;'
         ].join('');
 
-        const roleOrder = ['achun', 'yijhang', 'ayee', 'alu'];
-        const roleEmojis = { achun: '🧶', yijhang: '🕶️', ayee: '🍡', alu: '🐻' };
-        const roleShortNames = { achun: '阿純', yijhang: '姨丈', ayee: '阿姨', alu: '阿嚕' };
+        // 排序嚴格遵循：阿純 ➔ 阿姨 ➔ 姨丈 ➔ 啊嚕
+        const roleOrder = ['achun', 'ayee', 'yijhang', 'alu'];
+        const roleEmojis = { achun: '🧶', ayee: '🍡', yijhang: '🕶️', alu: '🐻' };
+        const roleShortNames = { achun: '阿純', ayee: '阿姨', yijhang: '姨丈', alu: '啊嚕' };
 
         roleOrder.forEach(role => {
             const st = ROLE_MARKER_STYLES[role];
@@ -2533,80 +2535,44 @@
             item.dataset.role = role;
             item.style.cssText = [
                 'display:flex;',
-                'flex-direction:column;',
+                'flex-direction:row;',
                 'align-items:center;',
-                'position:relative;',
+                'gap:4px;',
                 'pointer-events:auto;',
                 'cursor:pointer;',
-                'transition:transform 0.18s ease;'
+                'transition:transform 0.16s ease;'
             ].join('');
 
-            // 1. 類似 IG 便條紙 (Instagram Notes) 浮動氣泡
-            const noteBubble = document.createElement('div');
-            noteBubble.className = 'ig-note-bubble';
-            noteBubble.style.cssText = [
-                'background:#ffffff;',
-                `border:1.5px solid ${st.border};`,
-                'border-radius:12px;',
-                'padding:3px 7px;',
-                'box-shadow:0 4px 12px rgba(0,0,0,0.14);',
-                'max-width:108px;',
-                'min-width:62px;',
-                'margin-bottom:2px;',
+            // 左側頭像與名字直列包裝 (Avatar Block)
+            const avatarBlock = document.createElement('div');
+            avatarBlock.style.cssText = [
                 'display:flex;',
                 'flex-direction:column;',
                 'align-items:center;',
-                'transition:all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);'
+                'position:relative;',
+                'flex-shrink:0;'
             ].join('');
 
-            const noteTextEl = document.createElement('span');
-            noteTextEl.className = 'ig-note-text';
-            noteTextEl.style.cssText = [
-                'font-size:10px;',
-                'font-weight:800;',
-                'color:#1e293b;',
-                'line-height:1.2;',
-                'white-space:nowrap;',
-                'overflow:hidden;',
-                'text-overflow:ellipsis;',
-                'max-width:98px;',
-                'display:block;',
-                'text-align:center;'
-            ].join('');
-            noteTextEl.textContent = '…';
-            noteBubble.appendChild(noteTextEl);
-
-            const noteTail = document.createElement('div');
-            noteTail.className = 'ig-note-tail';
-            noteTail.style.cssText = [
-                'width:0;height:0;',
-                'border-left:4px solid transparent;',
-                'border-right:4px solid transparent;',
-                `border-top:5px solid ${st.border};`,
-                'margin-top:-1px;',
-                'margin-bottom:2px;'
-            ].join('');
-
-            // 2. 圓形大頭照按鈕 (點擊切換鎖定)
+            // 圓形大頭照按鈕 (縮小至 34px × 34px)
             const avatarBtn = document.createElement('div');
             avatarBtn.className = 'kyushu-avatar-btn';
             avatarBtn.style.cssText = [
-                'width:42px;',
-                'height:42px;',
+                'width:34px;',
+                'height:34px;',
                 'border-radius:9999px;',
                 `background:${st.bg};`,
-                `border:2.5px solid ${st.border};`,
+                `border:2px solid ${st.border};`,
                 'display:flex;',
                 'align-items:center;',
                 'justify-content:center;',
-                'font-size:20px;',
-                'box-shadow:0 3px 8px rgba(0,0,0,0.12);',
+                'font-size:16px;',
+                'box-shadow:0 2px 6px rgba(0,0,0,0.10);',
                 'position:relative;',
-                'transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;'
+                'transition:transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;'
             ].join('');
             avatarBtn.textContent = roleEmojis[role] || '👤';
 
-            // 鎖定狀態角標 🔒
+            // 鎖定角標 🔒
             const lockBadge = document.createElement('span');
             lockBadge.className = 'ig-avatar-lock-badge';
             lockBadge.style.cssText = [
@@ -2615,46 +2581,109 @@
                 'right:-2px;',
                 'background:#ef4444;',
                 'color:#ffffff;',
-                'font-size:8px;',
+                'font-size:7.5px;',
                 'font-weight:900;',
                 'border-radius:999px;',
-                'padding:1px 3.5px;',
-                'border:1.5px solid #ffffff;',
+                'padding:0.5px 3px;',
+                'border:1.2px solid #ffffff;',
                 'box-shadow:0 1px 3px rgba(0,0,0,0.3);',
                 'display:none;'
             ].join('');
             lockBadge.textContent = '🔒';
             avatarBtn.appendChild(lockBadge);
 
-            // 3. 角色名字膠囊標籤
+            // 角色名字膠囊標籤 (精巧 8.5px)
             const nameBadge = document.createElement('div');
             nameBadge.style.cssText = [
                 'background:rgba(255,255,255,0.92);',
                 'border:1px solid rgba(0,0,0,0.08);',
                 'border-radius:999px;',
-                'padding:0.5px 6px;',
-                'font-size:9.5px;',
+                'padding:0.5px 4.5px;',
+                'font-size:8.5px;',
                 'font-weight:900;',
                 'color:#1e293b;',
-                'margin-top:2px;',
-                'box-shadow:0 1px 3px rgba(0,0,0,0.08);',
+                'margin-top:1px;',
+                'box-shadow:0 1px 2px rgba(0,0,0,0.06);',
                 'white-space:nowrap;'
             ].join('');
             nameBadge.textContent = roleShortNames[role] || role;
 
-            item.appendChild(noteBubble);
-            item.appendChild(noteTail);
-            item.appendChild(avatarBtn);
-            item.appendChild(nameBadge);
+            avatarBlock.appendChild(avatarBtn);
+            avatarBlock.appendChild(nameBadge);
+
+            // 右側：狀態便條紙區塊 (Note Block: 包含向左指的小尾巴 + 便條紙氣泡)
+            const noteBlock = document.createElement('div');
+            noteBlock.style.cssText = [
+                'display:flex;',
+                'align-items:center;',
+                'position:relative;'
+            ].join('');
+
+            // 向左指的小尾巴 (Left-pointing Triangle Tail)
+            const noteTail = document.createElement('div');
+            noteTail.className = 'ig-note-tail';
+            noteTail.style.cssText = [
+                'width:0;',
+                'height:0;',
+                'border-top:4px solid transparent;',
+                'border-bottom:4px solid transparent;',
+                `border-right:5px solid ${st.border};`,
+                'margin-right:-1px;',
+                'flex-shrink:0;',
+                'transition:border-color 0.16s ease;'
+            ].join('');
+
+            // 便條紙氣泡 (精緻小巧，高度 23px)
+            const noteBubble = document.createElement('div');
+            noteBubble.className = 'ig-note-bubble';
+            noteBubble.style.cssText = [
+                'background:#ffffff;',
+                `border:1.5px solid ${st.border};`,
+                'border-radius:10px;',
+                'padding:2.5px 7px;',
+                'box-shadow:0 2px 8px rgba(0,0,0,0.10);',
+                'max-width:145px;',
+                'min-width:54px;',
+                'height:23px;',
+                'display:flex;',
+                'align-items:center;',
+                'justify-content:center;',
+                'box-sizing:border-box;',
+                'transition:border-color 0.16s ease, box-shadow 0.16s ease;'
+            ].join('');
+
+            const noteTextEl = document.createElement('span');
+            noteTextEl.className = 'ig-note-text';
+            noteTextEl.style.cssText = [
+                'font-size:9.5px;',
+                'font-weight:800;',
+                'color:#1e293b;',
+                'line-height:1.2;',
+                'white-space:nowrap;',
+                'overflow:hidden;',
+                'text-overflow:ellipsis;',
+                'max-width:130px;',
+                'display:block;'
+            ].join('');
+            noteTextEl.textContent = '…';
+            noteBubble.appendChild(noteTextEl);
+
+            noteBlock.appendChild(noteTail);
+            noteBlock.appendChild(noteBubble);
+
+            item.appendChild(avatarBlock);
+            item.appendChild(noteBlock);
 
             item.addEventListener('mouseenter', () => {
                 if (lockedRole !== role) {
                     avatarBtn.style.transform = 'scale(1.08)';
+                    noteBubble.style.transform = 'translateX(2px)';
                 }
             });
             item.addEventListener('mouseleave', () => {
                 if (lockedRole !== role) {
                     avatarBtn.style.transform = 'scale(1)';
+                    noteBubble.style.transform = 'translateX(0)';
                 }
             });
             item.addEventListener('click', ev => {
@@ -2874,19 +2903,19 @@
             if (av) {
                 const isLocked = (lockedRole === r);
                 if (isLocked) {
-                    av.avatarBtn.style.boxShadow = '0 0 0 3.5px #ef4444, 0 4px 14px rgba(239, 68, 68, 0.45)';
+                    av.avatarBtn.style.boxShadow = '0 0 0 3px #ef4444, 0 3px 10px rgba(239, 68, 68, 0.45)';
                     av.avatarBtn.style.transform = 'scale(1.08)';
                     av.lockBadge.style.display = 'inline-block';
                     av.noteBubble.style.borderColor = '#ef4444';
-                    av.noteBubble.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.25)';
-                    av.noteTail.style.borderTopColor = '#ef4444';
+                    av.noteBubble.style.boxShadow = '0 3px 10px rgba(239, 68, 68, 0.25)';
+                    av.noteTail.style.borderRightColor = '#ef4444';
                 } else {
-                    av.avatarBtn.style.boxShadow = '0 3px 8px rgba(0,0,0,0.12)';
+                    av.avatarBtn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.10)';
                     av.avatarBtn.style.transform = 'scale(1)';
                     av.lockBadge.style.display = 'none';
                     av.noteBubble.style.borderColor = av.borderCol;
-                    av.noteBubble.style.boxShadow = '0 4px 12px rgba(0,0,0,0.14)';
-                    av.noteTail.style.borderTopColor = av.borderCol;
+                    av.noteBubble.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+                    av.noteTail.style.borderRightColor = av.borderCol;
                 }
             }
 

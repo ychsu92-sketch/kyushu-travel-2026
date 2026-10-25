@@ -178,22 +178,23 @@ def build_portal(release_mode: bool = False):
             #kyushu-avatar-dock {{
                 top: 8px !important;
                 left: 8px !important;
-                gap: 5px !important;
+                gap: 4px !important;
             }}
             .kyushu-avatar-btn {{
-                width: 35px !important;
-                height: 35px !important;
-                font-size: 16px !important;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 14px !important;
             }}
             .ig-note-bubble {{
-                padding: 2px 4px !important;
-                max-width: 72px !important;
-                min-width: 50px !important;
-                border-radius: 9px !important;
+                padding: 2px 5px !important;
+                max-width: 115px !important;
+                min-width: 46px !important;
+                height: 20px !important;
+                border-radius: 8px !important;
             }}
             .ig-note-text {{
                 font-size: 8.5px !important;
-                max-width: 66px !important;
+                max-width: 105px !important;
             }}
         }}
 
@@ -606,22 +607,23 @@ def build_preview_page():
             #kyushu-avatar-dock {
                 top: 8px !important;
                 left: 8px !important;
-                gap: 5px !important;
+                gap: 4px !important;
             }
             .kyushu-avatar-btn {
-                width: 35px !important;
-                height: 35px !important;
-                font-size: 16px !important;
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 14px !important;
             }
             .ig-note-bubble {
-                padding: 2px 4px !important;
-                max-width: 72px !important;
-                min-width: 50px !important;
-                border-radius: 9px !important;
+                padding: 2px 5px !important;
+                max-width: 115px !important;
+                min-width: 46px !important;
+                height: 20px !important;
+                border-radius: 8px !important;
             }
             .ig-note-text {
                 font-size: 8.5px !important;
-                max-width: 66px !important;
+                max-width: 105px !important;
             }
         }
     </style>
