@@ -603,25 +603,13 @@
         // 4. 田園/茶園/枯草原拼布與球磨川等三大水系
         buildBiomePatchesAndRivers(root);
 
-        // 建立垂直向下 Raycaster 地面高度取樣器（確保道路、小巴、4位家人、貓狗路人與景點永遠貼合真實等高線台地表面，絕不陷入地表！）
-        root.updateMatrixWorld(true);
-        const groundRaycaster = new THREE.Raycaster();
-        const downDir = new THREE.Vector3(0, -1, 0);
-        const rayOrigin = new THREE.Vector3();
-        const groundTargets = [mainland.group, sakurajima.group];
-
+        // 建立高效地面高度取樣器（採用解析數學公式 getTerrainElevation，0 毫秒極速計算，徹底杜絕每幀 Raycaster 遍歷導致的畫面卡頓）
         function sampleGroundY(x, z) {
             // 錦江灣渡輪水道 (1.2x 地圖座標)
             if (x > -4.56 && x < -3.06 && z > 9.78 && z < 10.62) {
                 return 0.12;
             }
-            rayOrigin.set(x, 12.0, z);
-            groundRaycaster.set(rayOrigin, downDir);
-            const hits = groundRaycaster.intersectObjects(groundTargets, true);
-            if (hits.length > 0) {
-                return Math.max(0.76, hits[0].point.y);
-            }
-            return 0.78;
+            return getTerrainElevation(x, z);
         }
 
         // 5. 環島自駕公路與路面電車軌道（先鋪設道路，再根據道路安全距離放山脈）

@@ -1844,7 +1844,8 @@
         // 啟動渲染迴圈
         function loop() {
             requestAnimationFrame(loop);
-            const delta = Math.min(clock.getDelta(), 0.1);
+            // 步長嚴格限制在 33ms 內，避免切換分頁或瞬間卡頓時發生巨幅時間步長跳躍 (Hitch Stutter)
+            const delta = Math.min(clock.getDelta(), 0.033);
             const elapsed = clock.getElapsedTime();
 
             Env.updateEnvironment(envState, elapsed, delta);
@@ -1870,10 +1871,10 @@
 
         if (isStoppedAtLandmark) {
             stopTimer = Math.max(0, stopTimer - delta);
-            // 當景點專屬單句台詞講完 (或停留滿上限 6.5 秒) 即可立即出發，不會因為長篇碎嘴劇本而在同一景點卡太久！
+            // 景點停留明快舒適 (~6-7.5秒)，欣賞完動作與台詞後順暢啟程，避免整座島頻繁原地停滯
             if (stopTimer <= 0) {
                 isStoppedAtLandmark = false;
-                driveCooldown = 3.2; // 剛上車出發後至少行駛 3.2 秒才允許再次靠站下車
+                driveCooldown = 7.2; // 剛出發後至少暢快行駛 7.2 秒巡航賞景，才允許再次靠站
                 // 離開景點準備啟程時，大幅提高有人被落下車的機率（60% 落單追車、26% 全員坐車、14% 全家散步）：
                 // 其中阿純被落下車時會直接開飛碟 (UFO) 在後面狂追！
                 const roll = Math.random();
@@ -1992,9 +1993,9 @@
             }
 
             if (remainTransitMs > 120) {
-                const handoffDelayMs = remainTransitMs + 300;
-                // 停留秒數充裕延長：景點對話結束後額外保留 7.5 秒自由漫步與專屬動作時間
-                stopTimer = ((handoffDelayMs + spotDurationMs) / 1000) + 7.5;
+                const handoffDelayMs = remainTransitMs + 200;
+                // 停留節奏明快（約 6.5~7.5 秒）：既能讀完台詞並欣賞便條紙動作，又不會讓自駕巡航停頓太久
+                stopTimer = Math.min(8.5, ((handoffDelayMs + spotDurationMs) / 1000) + 2.2);
                 stopTotalDuration = stopTimer;
                 dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
                 spotArrivalQueueTimer = setTimeout(() => {
@@ -2002,7 +2003,7 @@
                     triggerCustomBanterScript(spotScript, true);
                 }, handoffDelayMs);
             } else {
-                stopTimer = (spotDurationMs / 1000) + 7.5;
+                stopTimer = Math.min(7.5, Math.max(5.5, (spotDurationMs / 1000) + 2.0));
                 stopTotalDuration = stopTimer;
                 triggerCustomBanterScript(spotScript, true);
             }
@@ -2145,9 +2146,9 @@
                 cRotY = Math.atan2(tanChar.x, tanChar.z);
             }
 
-            // 核心優化：若角色正在說話 (activeSpeaker === role)，原地停止走動，對話框不漂移，專注呈現肢體與表情
+            // 核心優化：僅在「景點停靠自由散步」且正在說話時，平緩定點避免氣泡大幅漂移；在公路上行走時持續等速並行，絕不定格或瞬間跳躍！
             const isSpeakingNow = (activeSpeaker === role);
-            if (isSpeakingNow && charGroup.userData.prevX !== undefined) {
+            if (isStoppedAtLandmark && isSpeakingNow && charGroup.userData.prevX !== undefined) {
                 cx = charGroup.userData.prevX;
                 cz = charGroup.userData.prevZ;
                 isMovingOutside = false;
@@ -2286,7 +2287,7 @@
             const moveSpd = Math.hypot(vx, vz);
             let moving = moveSpd > 0.08;
 
-            if (c.isSpeakingNow) {
+            if (c.isSpeakingNow && c.isStoppedAtLandmark) {
                 moving = false;
                 c.cRotY = Math.sin(elapsed * 0.9 + c.idx) * 0.25;
             } else if (c.isStoppedAtLandmark) {
@@ -2475,20 +2476,21 @@
         }
     }
 
+    const _tempBubblePos = new THREE.Vector3();
+
     function updateBubbleScreenPosition() {
         if (!activeSpeaker || !characters[activeSpeaker] || !camera || !renderer) return;
         const bubble = document.getElementById('char-speech-bubble');
         if (!bubble) return;
 
         const charGroup = characters[activeSpeaker];
-        const pos = new THREE.Vector3();
-        charGroup.getWorldPosition(pos);
-        pos.y += 1.95;
-        pos.project(camera);
+        charGroup.getWorldPosition(_tempBubblePos);
+        _tempBubblePos.y += 1.95;
+        _tempBubblePos.project(camera);
 
         const canvas = renderer.domElement;
-        const x = (pos.x * 0.5 + 0.5) * canvas.clientWidth;
-        const y = (-(pos.y * 0.5) + 0.5) * canvas.clientHeight;
+        const x = (_tempBubblePos.x * 0.5 + 0.5) * canvas.clientWidth;
+        const y = (-(_tempBubblePos.y * 0.5) + 0.5) * canvas.clientHeight;
 
         const halfW = 136;
         const clampedX = Math.max(halfW, Math.min(canvas.clientWidth - halfW, x));

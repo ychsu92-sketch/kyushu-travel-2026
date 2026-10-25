@@ -1337,14 +1337,15 @@
             });
         }
 
-        // 8. 全島 92 棵覆雪杉木與銀杏樹隨冬日微風自然輕柔搖擺 (輕量化高效單軸微風，維持 60 FPS)
+        // 8. 全島 92 棵覆雪杉木與銀杏樹隨冬日微風自然輕柔搖擺 (奇偶幀分批平滑更新，極致輕盈維持 60 FPS)
         if (propState.trees) {
-            const windTime = elapsed * 1.6;
-            for (let i = 0; i < propState.trees.length; i++) {
+            const windTime = elapsed * 1.5;
+            const startIdx = (Math.floor(elapsed * 60) % 2 === 0) ? 0 : 1;
+            for (let i = startIdx; i < propState.trees.length; i += 2) {
                 const t = propState.trees[i];
                 const phase = windTime + (t.userData.windPhase || 0);
                 const target = t.userData.foliageGroup || t;
-                target.rotation.z = Math.sin(phase) * 0.042;
+                target.rotation.z = Math.sin(phase) * 0.038;
             }
         }
 
