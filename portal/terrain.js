@@ -685,8 +685,81 @@
             }
         }
 
+        // 建立 JR 九州東海岸路廊（日豐本線・日南海岸線專用立體鐵道）
+        const jrEastCurvePoints = [
+            // 延岡北部・日向灘海灣鐵橋
+            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20, -13.50) : 1.06) + 0.05, -13.50),
+            new THREE.Vector3(8.95, (sampleGroundY ? sampleGroundY(8.95,  -9.80) : 1.06) + 0.05,  -9.80), // 延岡市區
+            new THREE.Vector3(9.40, (sampleGroundY ? sampleGroundY(9.40,  -6.20) : 1.06) + 0.05,  -6.20), // 日向市・美美津高架鐵橋
+            new THREE.Vector3(9.85, (sampleGroundY ? sampleGroundY(9.85,  -2.20) : 0.88) + 0.05,  -2.20), // 高鍋海岸
+            new THREE.Vector3(10.05, (sampleGroundY ? sampleGroundY(10.05, 1.80) : 0.88) + 0.05,   1.80), // 宮崎站・大淀川鐵橋
+            new THREE.Vector3(9.60, (sampleGroundY ? sampleGroundY(9.60,   5.40) : 0.88) + 0.05,   5.40), // 青島・鬼之洗衣板海景鐵道
+            new THREE.Vector3(8.90, (sampleGroundY ? sampleGroundY(8.90,   8.80) : 0.88) + 0.05,   8.80), // 日南・摩艾石像外海鐵道
+            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20,  10.80) : 0.88) + 0.05,  10.80), // 油津・南鄉海崖隧道口
+            // 東側內陸返程線（經由日南與宮崎內陸平原，形成封閉式循環複線）
+            new THREE.Vector3(7.60, (sampleGroundY ? sampleGroundY(7.60,   9.20) : 0.88) + 0.05,   9.20),
+            new THREE.Vector3(8.10, (sampleGroundY ? sampleGroundY(8.10,   6.00) : 0.88) + 0.05,   6.00),
+            new THREE.Vector3(8.60, (sampleGroundY ? sampleGroundY(8.60,   2.20) : 0.88) + 0.05,   2.20),
+            new THREE.Vector3(8.50, (sampleGroundY ? sampleGroundY(8.50,  -2.00) : 0.88) + 0.05,  -2.00),
+            new THREE.Vector3(8.20, (sampleGroundY ? sampleGroundY(8.20,  -6.00) : 1.06) + 0.05,  -6.00),
+            new THREE.Vector3(7.80, (sampleGroundY ? sampleGroundY(7.80,  -9.60) : 1.06) + 0.05,  -9.60),
+            new THREE.Vector3(7.50, (sampleGroundY ? sampleGroundY(7.50, -13.20) : 1.06) + 0.05, -13.20)
+        ];
+        const jrEastCurve = new THREE.CatmullRomCurve3(jrEastCurvePoints, true, 'catmullrom', 0.25);
+
+        const jrEastSamples = 200;
+        for (let i = 0; i < jrEastSamples; i++) {
+            const t = i / jrEastSamples;
+            const p = jrEastCurve.getPointAt(t);
+            const tan = jrEastCurve.getTangentAt(t);
+            const ang = Math.atan2(tan.x, tan.z);
+            const gy = sampleGroundY ? sampleGroundY(p.x, p.z) : 0.88;
+            const railY = Math.max(p.y, gy + 0.04);
+
+            // 道碴
+            const ballast = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.16), ballastMat);
+            ballast.position.set(p.x, railY, p.z);
+            ballast.rotation.y = ang;
+            roadGroup.add(ballast);
+
+            // PC 枕木
+            const sleeper = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.025, 0.06), jrSleeperMat);
+            sleeper.position.set(p.x, railY + 0.02, p.z);
+            sleeper.rotation.y = ang;
+            roadGroup.add(sleeper);
+
+            // 雙軌
+            [-0.09, 0.09].forEach(offX => {
+                const rail = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.035, 0.16), jrRailMat);
+                const rx = p.x + Math.cos(ang) * offX;
+                const rz = p.z - Math.sin(ang) * offX;
+                rail.position.set(rx, railY + 0.035, rz);
+                rail.rotation.y = ang;
+                roadGroup.add(rail);
+            });
+
+            // 門型電車線鋼架
+            if (i % 14 === 0) {
+                const gantry = new THREE.Group();
+                const mastH = 0.42;
+                [-0.24, 0.24].forEach(mx => {
+                    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, mastH, 6), mastMat);
+                    post.position.set(mx, mastH * 0.5, 0);
+                    gantry.add(post);
+                });
+                const beam = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.022, 0.022), mastMat);
+                beam.position.set(0, mastH, 0);
+                const insul = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.05, 6), jrSleeperMat);
+                insul.position.set(0, mastH - 0.025, 0);
+                gantry.add(beam, insul);
+                gantry.position.set(p.x, railY + 0.02, p.z);
+                gantry.rotation.y = ang;
+                roadGroup.add(gantry);
+            }
+        }
+
         parent.add(roadGroup);
-        return { roadCurve, tramCurve, jrCurve, roadGroup };
+        return { roadCurve, tramCurve, jrCurve, jrEastCurve, roadGroup };
     }
 
     function buildSouthKyushuTerrain(scene, coastData, routeData) {
@@ -757,6 +830,7 @@
             roadCurve: roads.roadCurve,
             tramCurve: roads.tramCurve,
             jrCurve: roads.jrCurve,
+            jrEastCurve: roads.jrEastCurve,
             sampleGroundY,
             foamMeshes: [mainland.foamMesh, sakurajima.foamMesh]
         };
