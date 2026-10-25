@@ -175,6 +175,26 @@ def build_portal(release_mode: bool = False):
             #island-canvas-container {{
                 height: 420px;
             }}
+            #kyushu-avatar-dock {{
+                top: 8px !important;
+                left: 8px !important;
+                gap: 5px !important;
+            }}
+            .kyushu-avatar-btn {{
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 16px !important;
+            }}
+            .ig-note-bubble {{
+                padding: 2px 4px !important;
+                max-width: 72px !important;
+                min-width: 50px !important;
+                border-radius: 9px !important;
+            }}
+            .ig-note-text {{
+                font-size: 8.5px !important;
+                max-width: 66px !important;
+            }}
         }}
 
         /* 3D 角色即時對話氣泡浮動層 (高透光毛玻璃感・固定寬度不隨位置縮放變形) */
@@ -323,7 +343,7 @@ def build_portal(release_mode: bool = False):
 
                 <!-- 浮動在畫布角落的引導提示 -->
                 <div class="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
-                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
+                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊「左上角大頭照」或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
                 </div>
             </div>
 
@@ -581,6 +601,28 @@ def build_preview_page():
         .island-speech-bubble.active {
             opacity: 1;
             transform: translate(-50%, -110%);
+        }
+        @media (max-width: 640px) {
+            #kyushu-avatar-dock {
+                top: 8px !important;
+                left: 8px !important;
+                gap: 5px !important;
+            }
+            .kyushu-avatar-btn {
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 16px !important;
+            }
+            .ig-note-bubble {
+                padding: 2px 4px !important;
+                max-width: 72px !important;
+                min-width: 50px !important;
+                border-radius: 9px !important;
+            }
+            .ig-note-text {
+                font-size: 8.5px !important;
+                max-width: 66px !important;
+            }
         }
     </style>
 </head>

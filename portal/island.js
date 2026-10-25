@@ -77,6 +77,33 @@
         ]
     };
 
+    const ROLE_DRIVE_STATUSES = {
+        achun: [
+            '💤 副駕補眠做美夢…',
+            '💻 車上敲物治病歷…',
+            '🍙 偷吃熊本小泡芙…',
+            '☕ 喝熱拿鐵看窗外…'
+        ],
+        yijhang: [
+            '🚗 沉穩駕駛巡航中…',
+            '🛣️ 專心盯著導航儀…',
+            '😎 戴墨鏡順暢過彎…',
+            '📻 調收音機路況…'
+        ],
+        ayee: [
+            '🍊 剝多汁蜜柑分食…',
+            '💬 話匣子聊下一站…',
+            '🍵 倒溫暖熱焙茶…',
+            '📸 拍沿途公路美景…'
+        ],
+        alu: [
+            '🗺️ 後座研究等高線…',
+            '🎧 戴降噪耳機賞景…',
+            '🤖 計算抵達時間…',
+            '📸 望遠鏡頭追櫻島…'
+        ]
+    };
+
     const FALLBACK_QUOTES = {
         "achun": [
                 "剛在車上打完兩份物治紀錄就睡著了，下一站吃什麼？💻😴",
@@ -1767,8 +1794,11 @@
             characters[role] = c;
         });
 
-        // 8.5 建立人物頭頂專屬位置指標 (Floating Overhead Character Pins) 與鎖定狀態列
+        // 8.5 建立人物頭頂專屬位置指標 (Floating Overhead Character Pins)
         createCharacterOverheadMarkers(container);
+
+        // 8.6 建立畫面左上角人物大頭照 (點擊鎖定) 與 IG 便條紙 (Instagram Notes) 狀態列
+        createTopLeftAvatarDock(container);
 
         // 初始把小巴與角色放在「熊本機場 KMJ (L01)」作為旅程起點
         routeProgress = 0.0;
@@ -1826,6 +1856,7 @@
             controls.update();
             updateBubbleScreenPosition();
             updateCharacterMarkersPosition();
+            updateAvatarDockNotes(elapsed);
             renderer.render(scene, camera);
         }
         loop();
@@ -2467,7 +2498,224 @@
         bubble.style.top = `${clampedY}px`;
     }
 
-    // 建立 4 位家族角色頭頂的浮動位置指標 (Overhead Character Pins) 與鎖定狀態徽章
+    // 畫面左上角人物大頭照 (點擊切換鎖定) 與 IG 便條紙 (Instagram Notes) 狀態列管理器
+    let charAvatars = {};
+
+    function createTopLeftAvatarDock(container) {
+        charAvatars = {};
+        const oldDock = container.querySelector('#kyushu-avatar-dock');
+        if (oldDock) oldDock.remove();
+
+        const dock = document.createElement('div');
+        dock.id = 'kyushu-avatar-dock';
+        dock.style.cssText = [
+            'position:absolute;',
+            'top:12px;',
+            'left:12px;',
+            'z-index:32;',
+            'display:flex;',
+            'align-items:flex-end;',
+            'gap:8px;',
+            'pointer-events:none;',
+            'user-select:none;'
+        ].join('');
+
+        const roleOrder = ['achun', 'yijhang', 'ayee', 'alu'];
+        const roleEmojis = { achun: '🧶', yijhang: '🕶️', ayee: '🍡', alu: '🐻' };
+        const roleShortNames = { achun: '阿純', yijhang: '姨丈', ayee: '阿姨', alu: '阿嚕' };
+
+        roleOrder.forEach(role => {
+            const st = ROLE_MARKER_STYLES[role];
+            const item = document.createElement('div');
+            item.className = 'kyushu-avatar-item';
+            item.dataset.role = role;
+            item.style.cssText = [
+                'display:flex;',
+                'flex-direction:column;',
+                'align-items:center;',
+                'position:relative;',
+                'pointer-events:auto;',
+                'cursor:pointer;',
+                'transition:transform 0.18s ease;'
+            ].join('');
+
+            // 1. 類似 IG 便條紙 (Instagram Notes) 浮動氣泡
+            const noteBubble = document.createElement('div');
+            noteBubble.className = 'ig-note-bubble';
+            noteBubble.style.cssText = [
+                'background:#ffffff;',
+                `border:1.5px solid ${st.border};`,
+                'border-radius:12px;',
+                'padding:3px 7px;',
+                'box-shadow:0 4px 12px rgba(0,0,0,0.14);',
+                'max-width:108px;',
+                'min-width:62px;',
+                'margin-bottom:2px;',
+                'display:flex;',
+                'flex-direction:column;',
+                'align-items:center;',
+                'transition:all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);'
+            ].join('');
+
+            const noteTextEl = document.createElement('span');
+            noteTextEl.className = 'ig-note-text';
+            noteTextEl.style.cssText = [
+                'font-size:10px;',
+                'font-weight:800;',
+                'color:#1e293b;',
+                'line-height:1.2;',
+                'white-space:nowrap;',
+                'overflow:hidden;',
+                'text-overflow:ellipsis;',
+                'max-width:98px;',
+                'display:block;',
+                'text-align:center;'
+            ].join('');
+            noteTextEl.textContent = '…';
+            noteBubble.appendChild(noteTextEl);
+
+            const noteTail = document.createElement('div');
+            noteTail.className = 'ig-note-tail';
+            noteTail.style.cssText = [
+                'width:0;height:0;',
+                'border-left:4px solid transparent;',
+                'border-right:4px solid transparent;',
+                `border-top:5px solid ${st.border};`,
+                'margin-top:-1px;',
+                'margin-bottom:2px;'
+            ].join('');
+
+            // 2. 圓形大頭照按鈕 (點擊切換鎖定)
+            const avatarBtn = document.createElement('div');
+            avatarBtn.className = 'kyushu-avatar-btn';
+            avatarBtn.style.cssText = [
+                'width:42px;',
+                'height:42px;',
+                'border-radius:9999px;',
+                `background:${st.bg};`,
+                `border:2.5px solid ${st.border};`,
+                'display:flex;',
+                'align-items:center;',
+                'justify-content:center;',
+                'font-size:20px;',
+                'box-shadow:0 3px 8px rgba(0,0,0,0.12);',
+                'position:relative;',
+                'transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;'
+            ].join('');
+            avatarBtn.textContent = roleEmojis[role] || '👤';
+
+            // 鎖定狀態角標 🔒
+            const lockBadge = document.createElement('span');
+            lockBadge.className = 'ig-avatar-lock-badge';
+            lockBadge.style.cssText = [
+                'position:absolute;',
+                'bottom:-2px;',
+                'right:-2px;',
+                'background:#ef4444;',
+                'color:#ffffff;',
+                'font-size:8px;',
+                'font-weight:900;',
+                'border-radius:999px;',
+                'padding:1px 3.5px;',
+                'border:1.5px solid #ffffff;',
+                'box-shadow:0 1px 3px rgba(0,0,0,0.3);',
+                'display:none;'
+            ].join('');
+            lockBadge.textContent = '🔒';
+            avatarBtn.appendChild(lockBadge);
+
+            // 3. 角色名字膠囊標籤
+            const nameBadge = document.createElement('div');
+            nameBadge.style.cssText = [
+                'background:rgba(255,255,255,0.92);',
+                'border:1px solid rgba(0,0,0,0.08);',
+                'border-radius:999px;',
+                'padding:0.5px 6px;',
+                'font-size:9.5px;',
+                'font-weight:900;',
+                'color:#1e293b;',
+                'margin-top:2px;',
+                'box-shadow:0 1px 3px rgba(0,0,0,0.08);',
+                'white-space:nowrap;'
+            ].join('');
+            nameBadge.textContent = roleShortNames[role] || role;
+
+            item.appendChild(noteBubble);
+            item.appendChild(noteTail);
+            item.appendChild(avatarBtn);
+            item.appendChild(nameBadge);
+
+            item.addEventListener('mouseenter', () => {
+                if (lockedRole !== role) {
+                    avatarBtn.style.transform = 'scale(1.08)';
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                if (lockedRole !== role) {
+                    avatarBtn.style.transform = 'scale(1)';
+                }
+            });
+            item.addEventListener('click', ev => {
+                ev.stopPropagation();
+                focusCharacter(role);
+            });
+
+            dock.appendChild(item);
+            charAvatars[role] = {
+                item,
+                noteBubble,
+                noteTextEl,
+                noteTail,
+                avatarBtn,
+                lockBadge,
+                borderCol: st.border
+            };
+        });
+
+        container.appendChild(dock);
+    }
+
+    // 動態更新左上角大頭照旁的 IG 便條紙狀態文字（支援景點專屬個性動作、行車打瞌睡/手遊、追車狂奔與發言狀態）
+    function updateAvatarDockNotes(elapsed) {
+        const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+        for (let i = 0; i < roles.length; i++) {
+            const role = roles[i];
+            const av = charAvatars[role];
+            if (!av) continue;
+
+            const cg = characters[role];
+            const isSpeaking = (activeSpeaker === role);
+            let targetText = '';
+
+            if (isSpeaking) {
+                targetText = '💬 發言中…';
+            } else if (isStoppedAtLandmark) {
+                if (stopTimer < 1.50) {
+                    targetText = '🚗 回車旁準備…';
+                } else {
+                    const list = ROLE_SPOT_STATUSES[role] || [];
+                    const sIdx = Math.floor(elapsed * 0.30) % (list.length || 1);
+                    targetText = list[sIdx] || '';
+                }
+            } else {
+                if (role === stragglerRole) {
+                    targetText = (role === 'achun') ? '🛸 飛碟追車！' : '🏃 狂奔追車中！';
+                } else if (cg && cg.userData && cg.userData.isAboard) {
+                    const list = ROLE_DRIVE_STATUSES[role] || [];
+                    const dIdx = Math.floor(elapsed * 0.22) % (list.length || 1);
+                    targetText = list[dIdx] || '🚗 乘車賞景中';
+                } else {
+                    targetText = '🚶 沿途賞景漫步';
+                }
+            }
+
+            if (av.noteTextEl.textContent !== targetText) {
+                av.noteTextEl.textContent = targetText;
+            }
+        }
+    }
+
+    // 建立 4 位家族角色頭頂的浮動位置指標 (Overhead Character Pins) - 畫面中純淨無多餘狀態列干擾
     function createCharacterOverheadMarkers(container) {
         charMarkers = {};
         const markerLayer = document.createElement('div');
@@ -2495,35 +2743,6 @@
             ].join('');
 
             el.innerHTML = `
-                <div class="char-action-status" style="
-                    display:none;
-                    background:#0f172a;
-                    border:1.5px solid ${st.border};
-                    color:#ffffff;
-                    font-size:9.5px;
-                    font-weight:800;
-                    padding:2px 8px;
-                    border-radius:9999px;
-                    white-space:nowrap;
-                    box-shadow:0 3px 10px rgba(0,0,0,0.38);
-                    margin-bottom:3px;
-                    align-items:center;
-                    gap:4px;
-                    line-height:1.2;
-                    letter-spacing:0.02em;
-                    pointer-events:none;
-                ">
-                    <span class="action-dot" style="
-                        width:6px;
-                        height:6px;
-                        border-radius:999px;
-                        background:${st.pin};
-                        box-shadow:0 0 6px ${st.pin};
-                        display:inline-block;
-                        flex-shrink:0;
-                    "></span>
-                    <span class="action-text"></span>
-                </div>
                 <div class="char-pin-badge" style="
                     background:${st.bg};
                     border:2px solid ${st.border};
@@ -2552,11 +2771,8 @@
                 "></div>
             `;
 
-            // 快取 DOM 節點引用，避免每一幀在 60 FPS 迴圈中重覆 querySelector
+            // 快取 DOM 節點引用
             el._modeSpan = el.querySelector('.mode-icon');
-            el._actionEl = el.querySelector('.char-action-status');
-            el._actionText = el.querySelector('.action-text');
-            el._isActionVisible = false;
 
             el.addEventListener('pointerdown', ev => {
                 ev.stopPropagation();
@@ -2608,38 +2824,6 @@
                 }
             }
 
-            // 景點專屬個性動作頭頂狀態列（除當前發言者顯示大氣泡外，其餘作動作的家人頭頂一律清晰顯示正在做什麼）
-            const isSpeaking = (activeSpeaker === role);
-            const actionEl = el._actionEl;
-            const actionText = el._actionText;
-
-            if (actionEl && actionText) {
-                if (isStoppedAtLandmark && !isSpeaking) {
-                    if (!el._isActionVisible) {
-                        actionEl.style.display = 'inline-flex';
-                        el._isActionVisible = true;
-                    }
-                    let newText = '';
-                    if (stopTimer < 1.50) {
-                        // 開車前 1.5 秒走回車門旁準備出發
-                        newText = '🚗 走回車旁準備出發…';
-                    } else {
-                        // 景點自由活動階段：輪播各自的專屬活動描寫
-                        const list = ROLE_SPOT_STATUSES[role] || [];
-                        const sIdx = Math.floor(elapsed * 0.30) % (list.length || 1);
-                        newText = list[sIdx] || '';
-                    }
-                    if (actionText.textContent !== newText) {
-                        actionText.textContent = newText;
-                    }
-                } else {
-                    if (el._isActionVisible) {
-                        actionEl.style.display = 'none';
-                        el._isActionVisible = false;
-                    }
-                }
-            }
-
             cg.getWorldPosition(_reusableMarkerPos);
             _reusableMarkerPos.y += cg.userData.isAboard ? 0.90 : 1.05;
             _reusableMarkerPos.project(camera);
@@ -2683,7 +2867,28 @@
     function updateLockUI() {
         const roles = ['achun', 'yijhang', 'ayee', 'alu'];
         roles.forEach(r => {
-            // 更新頭頂指標上的 🔒 標籤
+            // 1. 更新畫面左上角大頭照 dock (IG 便條紙與鎖定光圈)
+            const av = charAvatars[r];
+            if (av) {
+                const isLocked = (lockedRole === r);
+                if (isLocked) {
+                    av.avatarBtn.style.boxShadow = '0 0 0 3.5px #ef4444, 0 4px 14px rgba(239, 68, 68, 0.45)';
+                    av.avatarBtn.style.transform = 'scale(1.08)';
+                    av.lockBadge.style.display = 'inline-block';
+                    av.noteBubble.style.borderColor = '#ef4444';
+                    av.noteBubble.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.25)';
+                    av.noteTail.style.borderTopColor = '#ef4444';
+                } else {
+                    av.avatarBtn.style.boxShadow = '0 3px 8px rgba(0,0,0,0.12)';
+                    av.avatarBtn.style.transform = 'scale(1)';
+                    av.lockBadge.style.display = 'none';
+                    av.noteBubble.style.borderColor = av.borderCol;
+                    av.noteBubble.style.boxShadow = '0 4px 12px rgba(0,0,0,0.14)';
+                    av.noteTail.style.borderTopColor = av.borderCol;
+                }
+            }
+
+            // 2. 更新頭頂指標上的 🔒 標籤
             const markerEl = charMarkers[r];
             if (markerEl) {
                 const lockSpan = markerEl.querySelector('.lock-icon');
@@ -2691,7 +2896,7 @@
                     lockSpan.style.display = (lockedRole === r) ? 'inline-block' : 'none';
                 }
             }
-            // 更新下方角色按鈕鎖定狀態文字與外框高亮
+            // 3. 更新下方角色按鈕鎖定狀態文字與外框高亮
             const cardBtn = document.getElementById(`char-btn-${r}`);
             const statusSpan = document.getElementById(`char-lock-status-${r}`);
             if (statusSpan) {
