@@ -4105,11 +4105,11 @@ function doGet(e) {{
             jpyInput.value = Math.round(parseFloat(val) / rate);
         }}
 
-        // ======================= 🎴 南九州自駕集章巡禮 ＆ 家族微電影靈感 =======================
+        // ======================= 🎴 南九州自駕集章巡禮 ＆ 家族微電影靈感 (實境雙軌解鎖) =======================
         const STAMPS_DATA = [
             {{
                 id: 'kumamoto_castle',
-                day: 'Day 1~2',
+                day: 'Day 7',
                 name: '熊本城 ＆ 櫻之馬場城彩苑',
                 area: '熊本市中央區',
                 icon: '🏯',
@@ -4118,7 +4118,13 @@ function doGet(e) {{
                 stamp_sub: '熊本城天守',
                 film_tip: '捕捉長輩漫步城彩苑老街，咬下第一口熱呼呼芥末蓮藕餅的驚奇笑容（自然側拍 5 秒）。',
                 photo_spot: '天守閣仰角大合照、城彩苑古風燈籠前',
-                badge_tag: 'history'
+                badge_tag: 'history',
+                quiz: {{
+                    question: '熊本城別名為「銀杏城」，相傳是因為當年加藤清正親手在天守閣前種下了哪種象徵樹木？',
+                    options: ['金黃大銀杏樹 (親手種植)', '百年垂枝櫻花樹', '京都大紅槭樹'],
+                    answer: 0,
+                    explain: '答對了！加藤清正建城時親手種下大銀杏，故熊本城又稱銀杏城！'
+                }}
             }},
             {{
                 id: 'aso_volcano',
@@ -4131,20 +4137,70 @@ function doGet(e) {{
                 stamp_sub: '阿蘇大火口',
                 film_tip: '長輩手捧熱呼呼咖啡，站在草千里遠眺冒著白煙的活火山，海風吹過頭髮的悠閒側影。',
                 photo_spot: '草千里大草原背影、阿蘇火山口冒煙同框',
-                badge_tag: 'drive'
+                badge_tag: 'drive',
+                quiz: {{
+                    question: '在阿蘇中岳第一火口觀景步道旁，現場設立了許多防範火山突發噴發的堅固圓形避難建築叫什麼？',
+                    options: ['退避壕 (堅固混凝土碉堡)', '地下防空坑道', '火山觀測木屋'],
+                    answer: 0,
+                    explain: '答對了！火口步道周圍的圓形厚實退避壕，是阿蘇火山獨特的安全象徵！'
+                }}
+            }},
+            {{
+                id: 'daikanbo',
+                day: 'Day 2',
+                name: '大觀峰展望台 ＆ 牛奶之路',
+                area: '阿蘇市山田',
+                icon: '⛰️',
+                category: '絕景展望',
+                stamp_title: '阿蘇雄姿',
+                stamp_sub: '大觀峰頂',
+                film_tip: '全員走在通往大觀峰頂端石碑的突出山岬上，360度大景環繞，長輩張開雙手的豪氣側錄。',
+                photo_spot: '展望台最高石碑、遠眺阿蘇五岳「釋迦涅槃佛」全景',
+                badge_tag: 'drive',
+                quiz: {{
+                    question: '從大觀峰向南遠眺阿蘇五岳，其起伏連綿的山巒輪廓在當地傳說中看起來最像什麼神聖形態？',
+                    options: ['安祥仰臥的「釋迦涅槃佛」', '奔馳的草原神駒', '展翅的金色鳳凰'],
+                    answer: 0,
+                    explain: '答對了！阿蘇五岳遠望宛如一位仰臥朝天的釋迦佛陀，被譽為涅槃釋迦像！'
+                }}
             }},
             {{
                 id: 'kurokawa_onsen',
                 day: 'Day 2',
-                name: '黑川溫泉街 ＆ 地藏堂',
+                name: '黑川溫泉街 ＆ 冬季竹燈祭',
                 area: '南小國町黑川',
                 icon: '♨️',
-                category: '秘湯老街',
+                category: '秘湯街町',
                 stamp_title: '秘湯黑川',
-                stamp_sub: '竹林露天湯',
+                stamp_sub: '湯明竹燈祭',
                 film_tip: '黃昏時長輩穿著日式花浴衣、踩著木屐漫步在竹燈籠點綴的石板斜坡上，提燈漫步的背影步態。',
-                photo_spot: '丸鈴橋竹燈祭、山彥旅館仙人風呂',
-                badge_tag: 'onsen'
+                photo_spot: '丸鈴橋竹燈祭（湯あかり）、山彥旅館仙人風呂',
+                badge_tag: 'onsen',
+                quiz: {{
+                    question: '黑川溫泉冬季每晚於溪流與川端通點亮的夢幻「湯明 (湯あかり)」祭典，主要的透光燈球是用什麼天然材料手工編織？',
+                    options: ['在地竹子 (鏤空竹球與竹筒)', '日本石州和紙', '彩色吹製玻璃'],
+                    answer: 0,
+                    explain: '答對了！黑川居民利用當地疏伐的竹子手工編織成鏤空竹球，在溪面上散發溫暖幽光！'
+                }}
+            }},
+            {{
+                id: 'kamishikimi',
+                day: 'Day 3',
+                name: '上色見熊野座神社',
+                area: '高森町上色見',
+                icon: '⛩️',
+                category: '神隱之森',
+                stamp_title: '神隱之森',
+                stamp_sub: '上色見熊野',
+                film_tip: '穿梭在長滿青苔的百座石燈籠參道之間，晨光穿透杉樹林灑在長輩緩步向上的幽靜鏡頭。',
+                photo_spot: '青苔石燈籠深邃參道、穿磐岩巨大被踢破的岩洞',
+                badge_tag: 'shrine',
+                quiz: {{
+                    question: '沿著神社石階穿過本殿後方，會看到傳說被鬼八法師一腳踢穿的巨大破岩風洞叫什麼？',
+                    options: ['穿磐岩 (穿戸岩)', '風穴天石', '天狗神窟'],
+                    answer: 0,
+                    explain: '答對了！巨大岩洞「穿磐岩」象徵打破一切障礙、必勝祈願，是這裡最震撼的能量景點！'
+                }}
             }},
             {{
                 id: 'takachiho_gorge',
@@ -4154,49 +4210,73 @@ function doGet(e) {{
                 icon: '🚣',
                 category: '神話峽谷',
                 stamp_title: '神話飛瀑',
-                stamp_sub: '高千穗泛舟',
+                stamp_sub: '真名井泛舟',
                 film_tip: '划船破水前行時，從船尾低角度抓拍長輩仰望 17 公尺飛瀑水氣飄過臉龐的震撼讚嘆神情。',
                 photo_spot: '小船穿過瀑布旁、峽谷御橋向下俯瞰視角',
-                badge_tag: 'shrine'
+                badge_tag: 'shrine',
+                quiz: {{
+                    question: '划木船穿行於柱狀節理玄武岩峭壁之間，最著名的這座落差 17 公尺日本百選名瀑叫什麼名字？',
+                    options: ['真名井瀑布', '白絲飛瀑', '音無之瀧'],
+                    answer: 0,
+                    explain: '答對了！真名井瀑布相傳是天孫降臨神明引水所形成，是高千穗最經典的代表性地標！'
+                }}
             }},
             {{
-                id: 'amano_yasugawara',
-                day: 'Day 3',
-                name: '天岩戶神社 ＆ 天安河原',
-                area: '高千穗町岩戶',
-                icon: '⛩️',
-                category: '神話源流',
-                stamp_title: '神話源流',
-                stamp_sub: '天安疊石印',
-                film_tip: '在清涼寧靜的溪谷巨大洞窟中，拍長輩專注地在石堆上疊上一顆祈福小圓石的平靜特寫。',
-                photo_spot: '大洞窟千萬疊石鳥居前、岩戶溪流步道綠意',
-                badge_tag: 'shrine'
-            }},
-            {{
-                id: 'kirishima_shrine',
+                id: 'aoshima_shrine',
                 day: 'Day 4',
-                name: '霧島神宮 ＆ 千年神木',
-                area: '鹿兒島縣霧島',
-                icon: '⛩️',
-                category: '朱紅神宮',
-                stamp_title: '天孫降臨',
-                stamp_sub: '霧島神宮',
-                film_tip: '穿梭在參天古杉林蔭參道中，冬日陽光穿過樹稍灑在長輩肩頭，長輩漫步的慢動作鏡頭。',
-                photo_spot: '鮮紅大鳥居階梯、800年巨杉前仰望',
-                badge_tag: 'shrine'
+                name: '青島神社 ＆ 鬼之洗濯板',
+                area: '宮崎市青島',
+                icon: '🌊',
+                category: '海洋奇岩',
+                stamp_title: '鬼之洗濯',
+                stamp_sub: '青島海神宮',
+                film_tip: '走過青島彌生橋，長輩低頭好奇觀察腳下一層一層整齊如洗衣板奇岩海蝕地貌的驚嘆神情。',
+                photo_spot: '鬼之洗濯板天然波浪石階、島內熱帶蒲葵樹林中的朱紅鳥居',
+                badge_tag: 'shrine',
+                quiz: {{
+                    question: '青島周圍退潮時，砂岩與泥岩互層經數百萬年海浪侵蝕，形成一圈一圈整齊宛如洗衣板的天然奇景被稱為什麼？',
+                    options: ['鬼之洗濯板 (鬼の洗濯板)', '龍宮仙階', '海神浪階'],
+                    answer: 0,
+                    explain: '答對了！國家天然紀念物「鬼之洗濯板」，幾何條紋從空中看宛如大自然神奇的洗衣板！'
+                }}
             }},
             {{
-                id: 'shiroyama_observatory',
+                id: 'sunmesse_nichinan',
                 day: 'Day 4',
-                name: '城山公園展望台（櫻島全景）',
-                area: '鹿兒島市城山町',
-                icon: '🗻',
-                category: '海灣火山',
-                stamp_title: '錦江櫻島',
-                stamp_sub: '城山展望雄姿',
-                film_tip: '全員倚靠在城山觀景台欄杆，背景是壯麗的櫻島活火山與海灣，四人一邊聊天一邊指著火山的側錄。',
-                photo_spot: '遠眺櫻島全景家庭合照、鹿兒島市街夕照',
-                badge_tag: 'drive'
+                name: 'Sun Messe 日南（摩艾石像）',
+                area: '宮崎縣日南市',
+                icon: '🗿',
+                category: '太平洋岸',
+                stamp_title: '日南摩艾',
+                stamp_sub: '復活節巨石',
+                film_tip: '以 7 尊巨大摩艾石像為背景，全員戴上墨鏡或遮陽帽並肩站立、吹著太平洋海風的公路巨星感背影！',
+                photo_spot: '7 尊巨大摩艾石像合照、面向太平洋斜坡上的鮮豔打卡長椅',
+                badge_tag: 'drive',
+                quiz: {{
+                    question: '日南山坡上面向浩瀚太平洋的 7 尊巨大摩艾石像，是世界上唯一獲得哪裡官方授權完全復刻的？',
+                    options: ['智利 復活節島 (Easter Island)', '夏威夷歐胡島', '南太平洋大溪地'],
+                    answer: 0,
+                    explain: '答對了！日本團隊曾協助修復智利復活節島石像，特獲長老會全球唯一授權復刻！'
+                }}
+            }},
+            {{
+                id: 'udo_shrine',
+                day: 'Day 4',
+                name: '鵜戶神宮 ＆ 龜石運玉投擲',
+                area: '宮崎縣日南市',
+                icon: '⛩️',
+                category: '海崖洞穴',
+                stamp_title: '開運神玉',
+                stamp_sub: '鵜戶海蝕洞',
+                film_tip: '長輩站在崖邊，左手拿著小陶球『運玉』，全神貫注揮臂丟向海中龜石凹洞的熱血神情（必開慢動作！）。',
+                photo_spot: '巨大海蝕洞窟內的朱紅本殿、崖邊驚濤拍岸投運玉處',
+                badge_tag: 'udo',
+                quiz: {{
+                    question: '在鵜戶神宮懸崖邊，男生用左手、女生用右手將黏土燒製的「運玉」投向海中哪種形狀的奇石背上凹槽以祈求好運？',
+                    options: ['靈龜石 (神龜背上的凹槽)', '錦鯉石', '海豚奇岩'],
+                    answer: 0,
+                    explain: '答對了！將運玉精準丟進海中「靈龜石」背上的黃色方繩圈凹洞中，象徵心願必能成真！'
+                }}
             }},
             {{
                 id: 'sakurajima_ferry',
@@ -4204,64 +4284,56 @@ function doGet(e) {{
                 name: '櫻島渡輪 ＆ 溶岩海濱足湯',
                 area: '鹿兒島港～櫻島',
                 icon: '⛴️',
-                category: '航海足湯',
+                category: '航海火山',
                 stamp_title: '航海足湯',
-                stamp_sub: '櫻島渡輪航行',
+                stamp_sub: '櫻島渡輪',
                 film_tip: '在渡輪頂層甲板上，一邊吹著海風吃熱騰騰的藪金烏龍麵，看海鷗飛過海面的滿足吃相。',
-                photo_spot: '錦江灣甲板海風吹拂照、櫻島熔岩海濱公園足湯',
-                badge_tag: 'drive'
+                photo_spot: '錦江灣甲板海風吹拂照、櫻島熔岩海濱公園日本最長足湯',
+                badge_tag: 'drive',
+                quiz: {{
+                    question: '搭乘櫻島渡輪 15 分鐘的航程中，甲板上全日本饕客口耳相傳、即使再趕也一定要搶吃一碗的靈魂美食是什麼？',
+                    options: ['藪金 (やぶ金) 天婦羅烏龍麵', '黑豚濃湯拉麵', '薩摩甜甜圈'],
+                    answer: 0,
+                    explain: '答對了！「やぶ金」烏龍麵是櫻島渡輪傳奇美味，上船第一件事就是衝去點一碗！'
+                }}
             }},
             {{
-                id: 'ibusuki_sand_bath',
+                id: 'senganen',
                 day: 'Day 5',
-                name: '指宿天然砂蒸溫泉',
-                area: '指宿市砂樂',
-                icon: '♨️',
-                category: '天然黑砂浴',
-                stamp_title: '砂蒸名湯',
-                stamp_sub: '指宿天然黑砂',
-                film_tip: '長輩被溫熱海砂整個埋住、頭戴日式毛巾、只露出一顆頭看著海浪滾滾的無奈又好笑放鬆表情！',
-                photo_spot: '砂堆中四顆頭一字排開的經典合照（全家最珍貴笑料）',
-                badge_tag: 'onsen'
+                name: '薩摩大名庭園 仙巖園',
+                area: '鹿兒島市吉野町',
+                icon: '🏯',
+                category: '薩摩名園',
+                stamp_title: '薩摩名園',
+                stamp_sub: '仙巖園借景',
+                film_tip: '信步在仙巖園御殿迴廊前，以櫻島火山為背景，抓拍長輩一邊品嚐現烤兩棒餅 (ぢゃんぼ餅) 一邊談笑的溫馨鏡頭。',
+                photo_spot: '借景櫻島的池泉回遊式庭園全景、望嶽樓、兩棒餅茶屋',
+                badge_tag: 'history',
+                quiz: {{
+                    question: '仙巖園是薩摩藩主島津氏的別邸，其最精妙的日本傳統「借景」造園手法，是將哪一座大自然奇景借來當作庭園假山？',
+                    options: ['櫻島活火山 (錦江灣當作水池)', '薩摩富士 開聞岳', '富士山'],
+                    answer: 0,
+                    explain: '答對了！仙巖園以雄偉的櫻島火山為假山、錦江灣為池塘，構成了全日本最氣勢磅礴的世界文化遺產大名庭園！'
+                }}
             }},
             {{
-                id: 'chiran_samurai',
-                day: 'Day 5',
-                name: '知覽武家屋敷庭園',
-                area: '南九州市知覽町',
-                icon: '🏡',
-                category: '薩摩小京都',
-                stamp_title: '薩摩古韻',
-                stamp_sub: '知覽武家屋敷',
-                film_tip: '信步在整齊古樸的生垣石牆與枯山水青苔庭園之間，拍下長輩駐足欣賞百年石燈籠的文雅背影。',
-                photo_spot: '江戶風石垣巷弄深邃景深、枯山水名園',
-                badge_tag: 'history'
-            }},
-            {{
-                id: 'udo_shrine',
+                id: 'kirishima_shrine',
                 day: 'Day 6',
-                name: '鵜戶神宮 ＆ 龜石運玉投擲',
-                area: '宮崎縣日南市',
-                icon: '🌊',
-                category: '海崖奇觀',
-                stamp_title: '開運神玉',
-                stamp_sub: '鵜戶神宮龜石',
-                film_tip: '長輩站在崖邊，左手拿著小陶球『運玉』，全神貫注揮臂丟向海中龜石凹洞的熱血神情（必開慢動作！）。',
-                photo_spot: '海蝕洞窟朱紅神殿、崖邊驚濤拍岸投運玉處',
-                badge_tag: 'shrine'
-            }},
-            {{
-                id: 'sunmesse_aoshima',
-                day: 'Day 6~7',
-                name: '日南摩艾石像 ＆ 青島神社',
-                area: '宮崎日南與青島',
-                icon: '🗿',
-                category: '太平洋海岸',
-                stamp_title: '太平洋岸',
-                stamp_sub: '日南摩艾青島',
-                film_tip: '以 7 尊巨大摩艾石像為背景，全員戴上墨鏡或遮陽帽並肩站立、吹著太平洋海風的公路巨星感背影！',
-                photo_spot: '摩艾石像下牽手剪影、鬼之洗衣板玄武岩地質',
-                badge_tag: 'drive'
+                name: '國寶 霧島神宮 ＆ 千年神木',
+                area: '鹿兒島縣霧島市',
+                icon: '⛩️',
+                category: '國寶神殿',
+                stamp_title: '天孫降臨',
+                stamp_sub: '國寶霧島神宮',
+                film_tip: '穿梭在參天古杉林蔭參道中，冬日陽光穿過樹稍灑在長輩肩頭，長輩漫步欣賞朱紅國寶雕樑畫棟的悠閒鏡頭。',
+                photo_spot: '鮮紅大鳥居階梯、800年巨杉神木前仰望合影',
+                badge_tag: 'shrine',
+                quiz: {{
+                    question: '霧島神宮祭祀著日本神話中天孫降臨的主角「瓊瓊杵尊」，殿前參道旁矗立著一棵象徵長壽平安的神木是什麼樹？',
+                    options: ['樹齡 800 年的挺拔巨大古杉 (杉木)', '千年樟樹名木', '古銀杏神木'],
+                    answer: 0,
+                    explain: '答對了！霧島神宮御神木是一株高達 38 公尺、樹齡 800 年的挺拔古杉，是南九州極具靈氣的國寶神木！'
+                }}
             }}
         ];
 
@@ -4272,23 +4344,23 @@ function doGet(e) {{
                 icon: '🚗',
                 tag: 'drive',
                 desc: '無論山路彎道或濱海公路，穩健帶領全家平安暢遊九州！',
-                req: '完成阿蘇火山、櫻島渡輪、日南海岸等公路探索 (滿 2 處解鎖)'
+                req: '解鎖阿蘇火山、大觀峰、櫻島渡輪或日南摩艾 (滿 2 處解鎖)'
             }},
             {{
                 id: 'onsen',
-                name: '南九州名湯特級鑒定師',
+                name: '黑川仙人秘湯鑒定師',
                 icon: '♨️',
                 tag: 'onsen',
-                desc: '從黑川仙人露天風呂到指宿黑砂蒸熱泉，精通南九州各大泉質名湯！',
-                req: '解鎖黑川溫泉與指宿砂浴名湯'
+                desc: '漫步黑川溫泉街與冬季竹燈祭，精通南九州頂級名湯與旅宿美學！',
+                req: '解鎖黑川溫泉街與竹燈祭'
             }},
             {{
                 id: 'shrine',
-                name: '神話大地福祿全收大師',
+                name: '神話大地全方位庇佑者',
                 icon: '⛩️',
                 tag: 'shrine',
-                desc: '走遍八百萬神明聚會所，天孫降臨神宮與海崖神社福氣招好招滿！',
-                req: '解鎖高千穗峽、天安河原、霧島神宮與鵜戶神宮 (滿 2 處解鎖)'
+                desc: '走遍八百萬神明聚會所，天孫降臨神宮與幽靜神隱古社福氣招好招滿！',
+                req: '解鎖上色見熊野座、高千穗峽、青島神社或霧島神宮 (滿 2 處解鎖)'
             }},
             {{
                 id: 'luck',
@@ -4300,11 +4372,11 @@ function doGet(e) {{
             }},
             {{
                 id: 'food',
-                name: '九州究極美食品鑑委員會長',
-                icon: '🥩',
+                name: '薩摩大名與熊本古城巡禮者',
+                icon: '🏯',
                 tag: 'history',
-                desc: '挑剔的味蕾只為最道地的滋味點讚，全家公認最懂吃的靈魂人物！',
-                req: '解鎖熊本城彩苑、知覽古町等名勝印記'
+                desc: '登熊本天守閣、賞仙巖園借景櫻島，沉浸於最深厚迷人的九州歷史風華！',
+                req: '解鎖熊本城與仙巖園大名庭園'
             }},
             {{
                 id: 'movie',
@@ -4324,7 +4396,7 @@ function doGet(e) {{
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(140, ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.setValueAtTime(0.35, ctx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.12);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -4367,6 +4439,8 @@ function doGet(e) {{
                 const card = document.createElement('div');
                 card.className = `cute-card p-4 sm:p-5 relative border-2 ${{isStamped ? 'border-red-300 bg-red-50/20' : 'border-stone-200 bg-white'}} hover:border-red-300 transition-all flex flex-col justify-between space-y-3.5 shadow-2xs`;
 
+                const unlockMethodText = stampInfo?.method === 'photo' ? '📸 照片驗證蓋印' : stampInfo?.method === 'quiz' ? '🧩 實地訪查答對' : '✅ 蓋印完成';
+
                 card.innerHTML = `
                     <div class="space-y-3">
                         <!-- 頂部標籤與天數 -->
@@ -4390,30 +4464,32 @@ function doGet(e) {{
                                 </p>
                                 ${{isStamped ? `
                                     <div class="inline-flex items-center gap-1 mt-2 text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 shadow-2xs">
-                                        <span>✅</span> 蓋印於 ${{stampInfo.time || '南九州自駕之旅'}}
+                                        <span>${{unlockMethodText}}</span>
+                                        <span>•</span>
+                                        <span>${{stampInfo.time || '2026/12'}}</span>
                                     </div>
                                 ` : `
-                                    <div class="text-[10px] text-stone-400 mt-2 font-medium">
-                                        ⚪ 尚未蓋印（抵達現場即可點擊蓋印）
+                                    <div class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 mt-2 font-bold inline-flex items-center gap-1">
+                                        <span>🔒</span> 拍照片 或 答對問題 解鎖蓋印
                                     </div>
                                 `}}
                             </div>
 
-                            <!-- 戳印本體 (點擊即蓋印) -->
-                            <button type="button" onclick="toggleStamp('${{item.id}}')" class="shrink-0 group focus:outline-none transition-transform" title="點擊蓋印/取消">
+                            <!-- 戳印本體 -->
+                            <div class="shrink-0">
                                 ${{isStamped ? `
-                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-3 border-double border-red-600 bg-red-50 text-red-700 flex flex-col items-center justify-center p-1 shadow-md rotate-[-8deg] group-hover:rotate-0 transition-transform active:scale-90">
+                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-3 border-double border-red-600 bg-red-50 text-red-700 flex flex-col items-center justify-center p-1 shadow-md rotate-[-8deg] hover:rotate-0 transition-transform cursor-pointer" onclick="showStampPhotoPreview('${{item.id}}')" title="已蓋印！點擊查看大圖">
                                         <span class="text-[9px] font-black tracking-widest text-red-600 border-b border-red-400 pb-0.5 leading-none">${{item.stamp_title}}</span>
                                         <span class="text-[11px] font-black tracking-tighter my-0.5 text-red-700 leading-tight">${{item.stamp_sub}}</span>
                                         <span class="text-[8px] font-mono font-bold text-red-500 scale-90">2026 XMAS</span>
                                     </div>
                                 ` : `
-                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-dashed border-stone-300 hover:border-red-400 bg-stone-50/70 text-stone-400 hover:text-red-600 flex flex-col items-center justify-center p-1 transition-all group-hover:scale-105 active:scale-95 shadow-2xs">
+                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-dashed border-stone-300 bg-stone-50/70 text-stone-400 flex flex-col items-center justify-center p-1 shadow-2xs">
                                         <span class="text-xl">🏮</span>
-                                        <span class="text-[10px] font-bold mt-1">點擊蓋印</span>
+                                        <span class="text-[9px] font-bold mt-1 text-stone-400">待解鎖</span>
                                     </div>
                                 `}}
-                            </button>
+                            </div>
                         </div>
 
                         <!-- 🎥 給掌鏡者的電影感短片鏡頭建議 -->
@@ -4428,23 +4504,40 @@ function doGet(e) {{
                         </div>
                     </div>
 
-                    <!-- 照片記錄欄 -->
-                    <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
-                        ${{stampInfo && stampInfo.photo ? `
-                            <div class="flex items-center gap-2">
-                                <img src="${{stampInfo.photo}}" class="w-9 h-9 rounded-lg object-cover border border-stone-200 shadow-2xs cursor-pointer" onclick="showStampPhotoPreview('${{item.id}}')" title="點擊放大相片">
-                                <span class="text-[10px] text-emerald-700 font-bold">已保存現場回憶照 ✨</span>
+                    <!-- 解鎖按鈕區 (實境雙軌驗證：拍照驗證 OR 實地小問答) -->
+                    <div class="pt-2 border-t border-stone-100">
+                        ${{isStamped ? `
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    ${{stampInfo && stampInfo.photo ? `
+                                        <img src="${{stampInfo.photo}}" class="w-9 h-9 rounded-lg object-cover border border-stone-200 shadow-2xs cursor-pointer" onclick="showStampPhotoPreview('${{item.id}}')" title="點擊放大相片">
+                                        <span class="text-[10px] text-emerald-700 font-bold">已保存現場照 ✨</span>
+                                    ` : `
+                                        <label class="cursor-pointer text-[10px] font-bold text-stone-600 hover:text-red-600 flex items-center gap-1">
+                                            <span>📷 補存現場照片</span>
+                                            <input type="file" accept="image/*" class="hidden" onchange="handleStampPhotoUpload('${{item.id}}', event)">
+                                        </label>
+                                    `}}
+                                </div>
+                                <button type="button" onclick="resetSingleStamp('${{item.id}}')" class="text-[10px] text-stone-400 hover:text-red-500 font-medium transition" title="重新解鎖挑戰">
+                                    重置此站 ↺
+                                </button>
                             </div>
-                            <button type="button" onclick="removeStampPhoto('${{item.id}}', event)" class="text-[10px] text-stone-400 hover:text-red-500 font-medium transition">
-                                移除相片
-                            </button>
                         ` : `
-                            <label class="cursor-pointer text-[11px] font-bold text-stone-600 hover:text-red-600 flex items-center gap-1 transition">
-                                <span>📷</span>
-                                <span>存入這站的相簿照片</span>
-                                <input type="file" accept="image/*" class="hidden" onchange="handleStampPhotoUpload('${{item.id}}', event)">
-                            </label>
-                            <span class="text-[10px] text-stone-400">可選拍立得照片</span>
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <!-- 方式 1: 拍照驗證解鎖 -->
+                                <label class="flex-1 cursor-pointer py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition">
+                                    <span>📸</span>
+                                    <span>拍照驗證解鎖</span>
+                                    <input type="file" accept="image/*" class="hidden" onchange="handleStampPhotoUpload('${{item.id}}', event)">
+                                </label>
+
+                                <!-- 方式 2: 實地訪查小問答解鎖 -->
+                                <button type="button" onclick="openStampQuizModal('${{item.id}}')" class="flex-1 py-1.5 px-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold text-xs flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition">
+                                    <span>🧩</span>
+                                    <span>實地訪查解鎖</span>
+                                </button>
+                            </div>
                         `}}
                     </div>
                 `;
@@ -4463,8 +4556,8 @@ function doGet(e) {{
             if (pctLabel) pctLabel.textContent = `${{pct}}%`;
             if (bar) bar.style.width = `${{pct}}%`;
             if (hint) {{
-                if (stampedCount === 0) hint.textContent = '準備啟程出發 ❄️';
-                else if (stampedCount < 6) hint.textContent = `南九州熱血探索中（已解鎖 ${{stampedCount}} 處）✨`;
+                if (stampedCount === 0) hint.textContent = '拍照片或回答現場題目即可蓋印 ❄️';
+                else if (stampedCount < 6) hint.textContent = `實境探索中（已認證解鎖 ${{stampedCount}} 處）✨`;
                 else if (stampedCount < 12) hint.textContent = `集章進度過半！家族回憶大豐收（${{stampedCount}}/12）🎉`;
                 else hint.textContent = '🎊 12 處名勝全數制霸！家族微電影大圓滿！';
             }}
@@ -4484,15 +4577,15 @@ function doGet(e) {{
             BADGES_DATA.forEach(badge => {{
                 let isUnlocked = false;
                 if (badge.id === 'driver') {{
-                    isUnlocked = !!(progress['aso_volcano']?.stamped || progress['sakurajima_ferry']?.stamped);
+                    isUnlocked = !!(progress['aso_volcano']?.stamped || progress['daikanbo']?.stamped || progress['sakurajima_ferry']?.stamped);
                 }} else if (badge.id === 'onsen') {{
-                    isUnlocked = !!(progress['kurokawa_onsen']?.stamped && progress['ibusuki_sand_bath']?.stamped);
+                    isUnlocked = !!(progress['kurokawa_onsen']?.stamped);
                 }} else if (badge.id === 'shrine') {{
-                    isUnlocked = !!(progress['takachiho_gorge']?.stamped || progress['kirishima_shrine']?.stamped);
+                    isUnlocked = !!((progress['kamishikimi']?.stamped ? 1 : 0) + (progress['takachiho_gorge']?.stamped ? 1 : 0) + (progress['aoshima_shrine']?.stamped ? 1 : 0) + (progress['kirishima_shrine']?.stamped ? 1 : 0) >= 2);
                 }} else if (badge.id === 'luck') {{
                     isUnlocked = !!(progress['udo_shrine']?.stamped);
                 }} else if (badge.id === 'food') {{
-                    isUnlocked = !!(progress['kumamoto_castle']?.stamped || progress['chiran_samurai']?.stamped);
+                    isUnlocked = !!(progress['kumamoto_castle']?.stamped || progress['senganen']?.stamped);
                 }} else if (badge.id === 'movie') {{
                     isUnlocked = stampedCount === STAMPS_DATA.length;
                 }}
@@ -4527,50 +4620,94 @@ function doGet(e) {{
             if (countBadge) countBadge.textContent = `已解鎖 ${{unlockedCount}} / ${{BADGES_DATA.length}}`;
         }}
 
-        function toggleStamp(stampId) {{
-            playStampSound();
-            const progress = getStampsProgress();
-            if (!progress[stampId]) progress[stampId] = {{}};
+        // ======================= 實地訪查小問答 Modal 互動邏輯 =======================
+        let activeQuizStampId = null;
 
-            if (progress[stampId].stamped) {{
-                progress[stampId].stamped = false;
-                showToast('已取消蓋印標記。⚪');
-            }} else {{
-                progress[stampId].stamped = true;
-                const now = new Date();
-                progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
-                const item = STAMPS_DATA.find(s => s.id === stampId);
-                showToast(`已成功蓋上【${{item ? item.stamp_title : '景點'}}】日式紀念戳章！🏮`);
+        function openStampQuizModal(stampId) {{
+            const item = STAMPS_DATA.find(s => s.id === stampId);
+            if (!item || !item.quiz) return;
+            activeQuizStampId = stampId;
+
+            const modal = document.getElementById('stamp-quiz-modal');
+            const spotNameEl = document.getElementById('quiz-modal-spot-name');
+            const questionEl = document.getElementById('quiz-modal-question');
+            const hintEl = document.getElementById('quiz-modal-hint');
+            const optionsEl = document.getElementById('quiz-modal-options');
+            const feedbackEl = document.getElementById('quiz-modal-feedback');
+
+            if (spotNameEl) spotNameEl.textContent = `${{item.icon}} ${{item.name}} 實地訪查`;
+            if (questionEl) questionEl.textContent = item.quiz.question;
+            if (hintEl) hintEl.textContent = '💡 答案就在現場招牌、景點說明或眼前景致中！';
+            if (feedbackEl) {{
+                feedbackEl.className = 'hidden text-xs font-bold py-2 px-3 rounded-xl';
+                feedbackEl.textContent = '';
             }}
 
-            saveStampsProgress(progress);
-            renderStamps();
+            if (optionsEl) {{
+                optionsEl.innerHTML = '';
+                item.quiz.options.forEach((optText, optIdx) => {{
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full p-3 rounded-2xl bg-white hover:bg-amber-50 border-2 border-stone-200 hover:border-amber-400 text-stone-800 font-bold text-xs text-left transition flex items-center justify-between group active:scale-98';
+                    btn.innerHTML = `
+                        <span class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-xs font-black group-hover:bg-amber-200 shrink-0">
+                                ${{String.fromCharCode(65 + optIdx)}}
+                            </span>
+                            <span>${{optText}}</span>
+                        </span>
+                        <span class="text-stone-300 group-hover:text-amber-500 font-bold">➔</span>
+                    `;
+                    btn.onclick = () => submitStampQuiz(stampId, optIdx);
+                    optionsEl.appendChild(btn);
+                }});
+            }}
 
-            // 如果全滿且剛蓋下最後一枚，慶祝聖誕動效
-            const allDone = STAMPS_DATA.every(s => progress[s.id] && progress[s.id].stamped);
-            if (allDone) fireChristmasCheer();
+            if (modal) modal.classList.remove('hidden');
         }}
 
-        function unlockAllStamps() {{
-            playStampSound();
-            const progress = getStampsProgress();
-            const now = new Date();
-            const timeStr = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
-            STAMPS_DATA.forEach(item => {{
-                if (!progress[item.id]) progress[item.id] = {{}};
-                progress[item.id].stamped = true;
-                progress[item.id].time = timeStr;
-            }});
-            saveStampsProgress(progress);
-            renderStamps();
-            fireChristmasCheer();
-            showToast('已為您一鍵點亮全部 12 枚南九州日式紀念戳章！🎉');
+        function closeStampQuizModal() {{
+            const modal = document.getElementById('stamp-quiz-modal');
+            if (modal) modal.classList.add('hidden');
+            activeQuizStampId = null;
         }}
 
-        function resetAllStamps() {{
-            localStorage.removeItem('kyushu_trip_stamps_v1');
-            renderStamps();
-            showToast('已重設集章進度，歡迎隨時重新蓋印！⚪');
+        function submitStampQuiz(stampId, chosenIdx) {{
+            const item = STAMPS_DATA.find(s => s.id === stampId);
+            if (!item || !item.quiz) return;
+
+            const feedbackEl = document.getElementById('quiz-modal-feedback');
+
+            if (chosenIdx === item.quiz.answer) {{
+                // 答對了！
+                playStampSound();
+                const progress = getStampsProgress();
+                if (!progress[stampId]) progress[stampId] = {{}};
+                progress[stampId].stamped = true;
+                progress[stampId].method = 'quiz';
+                const now = new Date();
+                progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+                saveStampsProgress(progress);
+
+                if (feedbackEl) {{
+                    feedbackEl.className = 'block text-xs font-bold py-2.5 px-3.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300';
+                    feedbackEl.innerHTML = `🎉 ${{item.quiz.explain}}`;
+                }}
+
+                setTimeout(() => {{
+                    closeStampQuizModal();
+                    renderStamps();
+                    showToast(`🎉 答對了！恭喜成功解鎖【${{item.stamp_title}}】紀念印章！🏮`);
+                    const allDone = STAMPS_DATA.every(s => progress[s.id] && progress[s.id].stamped);
+                    if (allDone) fireChristmasCheer();
+                }}, 1100);
+            }} else {{
+                // 答錯
+                if (feedbackEl) {{
+                    feedbackEl.className = 'block text-xs font-bold py-2 px-3 rounded-xl bg-rose-100 text-rose-800 border border-rose-300';
+                    feedbackEl.textContent = '哎呀差一點點！仔細看一下現場景觀或再猜一次看看～💡';
+                }}
+            }}
         }}
 
         function handleStampPhotoUpload(stampId, event) {{
@@ -4581,7 +4718,6 @@ function doGet(e) {{
             reader.onload = function(e) {{
                 const img = new Image();
                 img.onload = function() {{
-                    // 使用 Canvas 壓縮至最大邊 480px，確保 localStorage 容量安全
                     const maxSide = 480;
                     let w = img.width;
                     let h = img.height;
@@ -4600,32 +4736,59 @@ function doGet(e) {{
                     ctx.drawImage(img, 0, 0, w, h);
                     const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
 
+                    playStampSound();
                     const progress = getStampsProgress();
                     if (!progress[stampId]) progress[stampId] = {{}};
+                    progress[stampId].stamped = true;
+                    progress[stampId].method = 'photo';
                     progress[stampId].photo = compressedDataUrl;
-                    if (!progress[stampId].stamped) {{
-                        progress[stampId].stamped = true;
-                        const now = new Date();
-                        progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
-                    }}
+                    const now = new Date();
+                    progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+
                     saveStampsProgress(progress);
                     renderStamps();
-                    showToast('已成功為此景點存入家族回憶相片！📷✨');
+                    const item = STAMPS_DATA.find(s => s.id === stampId);
+                    showToast(`📷 拍照認證成功！已蓋上【${{item ? item.stamp_title : '景點'}}】日式紀念戳章！🏮✨`);
+
+                    const allDone = STAMPS_DATA.every(s => progress[s.id] && progress[s.id].stamped);
+                    if (allDone) fireChristmasCheer();
                 }};
                 img.src = e.target.result;
             }};
             reader.readAsDataURL(file);
         }}
 
-        function removeStampPhoto(stampId, event) {{
-            event.stopPropagation();
+        function resetSingleStamp(stampId) {{
             const progress = getStampsProgress();
             if (progress[stampId]) {{
-                delete progress[stampId].photo;
+                delete progress[stampId];
                 saveStampsProgress(progress);
                 renderStamps();
-                showToast('已移除此站的相片！');
+                showToast('已重設此站進度，可隨時重新拍照或答題！⚪');
             }}
+        }}
+
+        function unlockAllStamps() {{
+            playStampSound();
+            const progress = getStampsProgress();
+            const now = new Date();
+            const timeStr = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+            STAMPS_DATA.forEach(item => {{
+                if (!progress[item.id]) progress[item.id] = {{}};
+                progress[item.id].stamped = true;
+                progress[item.id].method = progress[item.id].method || 'photo';
+                progress[item.id].time = timeStr;
+            }});
+            saveStampsProgress(progress);
+            renderStamps();
+            fireChristmasCheer();
+            showToast('已為您一鍵點亮全部 12 枚南九州日式紀念戳章！🎉');
+        }}
+
+        function resetAllStamps() {{
+            localStorage.removeItem('kyushu_trip_stamps_v1');
+            renderStamps();
+            showToast('已重設集章進度，歡迎隨時重新蓋印！⚪');
         }}
 
         function showStampPhotoPreview(stampId) {{
@@ -4679,6 +4842,30 @@ function doGet(e) {{
             }}, 2800);
         }}
     </script>
+
+        <!-- 實地訪查小問答 Modal (實境解鎖) -->
+        <div id="stamp-quiz-modal" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs" onclick="closeStampQuizModal()">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 text-center shadow-2xl border-4 border-amber-400 relative" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between border-b pb-2.5">
+                    <div class="flex items-center gap-1.5 text-amber-800 font-black text-sm">
+                        <span class="text-base">🧩</span>
+                        <span id="quiz-modal-spot-name">景點現場訪查</span>
+                    </div>
+                    <button onclick="closeStampQuizModal()" class="text-stone-400 hover:text-stone-600 text-lg font-bold">✕</button>
+                </div>
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 text-left space-y-2">
+                    <span class="cute-pill bg-amber-200 text-amber-900 font-bold text-[10px]">現場觀察任務</span>
+                    <h4 class="font-black text-stone-800 text-sm leading-snug" id="quiz-modal-question">題目載入中...</h4>
+                    <p class="text-[11px] text-amber-700 font-medium" id="quiz-modal-hint">💡 答案就在現場招牌、景點說明或眼前景致中！</p>
+                </div>
+                <div class="space-y-2.5 text-left" id="quiz-modal-options"></div>
+                <div id="quiz-modal-feedback" class="hidden text-xs font-bold py-2.5 px-3.5 rounded-xl"></div>
+                <button onclick="closeStampQuizModal()" class="w-full py-2.5 rounded-2xl bg-stone-100 text-stone-600 font-bold text-xs hover:bg-stone-200 transition">
+                    先去現場看一眼～稍後再答
+                </button>
+            </div>
+        </div>
+
         <!-- 條碼全螢幕放大 Modal -->
         <div id="barcode-modal" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs" onclick="closeBarcodeModal()">
             <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl border-4 border-red-500" onclick="event.stopPropagation()">
