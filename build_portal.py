@@ -177,22 +177,31 @@ def build_portal(release_mode: bool = False):
             }}
         }}
 
-        /* 3D 角色即時對話氣泡浮動層 */
+        /* 3D 角色即時對話氣泡浮動層 (高透光毛玻璃感・固定寬度不隨位置縮放變形) */
         .island-speech-bubble {{
             position: absolute;
+            top: 0;
+            left: 0;
             transform: translate(-50%, -100%);
-            background: rgba(255, 253, 249, 0.96);
-            border: 2.5px solid #3d342b;
+            background: rgba(255, 253, 249, 0.52);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(61, 52, 43, 0.32);
             padding: 8px 14px;
             border-radius: 18px;
             font-size: 12px;
             font-weight: 800;
-            color: #3d342b;
-            max-width: 260px;
-            box-shadow: 0 12px 24px -4px rgba(0,0,0,0.22);
+            color: #1c1917;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.85);
+            width: 256px;
+            min-width: 256px;
+            max-width: 256px;
+            box-sizing: border-box;
+            box-shadow: 0 8px 18px -4px rgba(0,0,0,0.10);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: opacity 0.25s ease;
+            will-change: left, top, opacity;
             z-index: 30;
         }}
         .island-speech-bubble::after {{
@@ -203,7 +212,7 @@ def build_portal(release_mode: bool = False):
             transform: translateX(-50%);
             border-width: 7px;
             border-style: solid;
-            border-color: #3d342b transparent transparent transparent;
+            border-color: rgba(255, 253, 249, 0.55) transparent transparent transparent;
         }}
         .island-speech-bubble.active {{
             opacity: 1;
@@ -264,7 +273,7 @@ def build_portal(release_mode: bool = False):
                         </span>
                         <span class="inline-flex items-center gap-1 text-xs font-black text-emerald-900 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
                             <span>📍 目前抵達：</span>
-                            <span id="current-spot-badge">🏯 熊本城（Day 1 & 7）</span>
+                            <span id="current-spot-badge">🛫 熊本機場（Day 1 & 7）</span>
                         </span>
                     </div>
                     <h2 class="text-xl sm:text-2xl font-black text-stone-800 mt-1.5 flex items-center gap-2">
@@ -305,7 +314,7 @@ def build_portal(release_mode: bool = False):
                 <div id="char-speech-bubble" class="island-speech-bubble">
                     <div class="flex items-center justify-between gap-2 border-b border-stone-200 pb-0.5 mb-1">
                         <span id="bubble-speaker-name" class="text-[11px] font-black text-red-600">🧶 阿純</span>
-                        <span id="bubble-spot-tag" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded">📍 熊本城</span>
+                        <span id="bubble-spot-tag" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded">🛫 熊本機場</span>
                     </div>
                     <div id="bubble-speaker-text" class="text-xs font-bold text-stone-800 leading-snug whitespace-normal">
                         耶！2026 南九州冬季聖誕自駕出發囉～📸
@@ -323,7 +332,7 @@ def build_portal(release_mode: bool = False):
                 <button id="char-btn-achun" onclick="focusCharacter('achun')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-amber-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-amber-400 shadow-xs text-left">
                     <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-base shrink-0">🧶</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿純 <span class="text-[10px] text-amber-700 font-bold">｜吃貨睡神</span></div>
+                        <div class="truncate">阿純 <span class="text-[10px] text-amber-700 font-bold">｜吃貨睡神物治師</span></div>
                         <span id="char-lock-status-achun" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
@@ -546,18 +555,27 @@ def build_preview_page():
         }
         .island-speech-bubble {
             position: absolute;
+            top: 0;
+            left: 0;
             transform: translate(-50%, -100%);
-            background: rgba(255, 253, 249, 0.96);
-            border: 2px solid #3d342b;
+            background: rgba(255, 253, 249, 0.52);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(61, 52, 43, 0.32);
             padding: 6px 12px;
             border-radius: 14px;
             font-size: 11px;
             font-weight: 800;
-            color: #3d342b;
-            max-width: 240px;
+            color: #1c1917;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.85);
+            width: 236px;
+            min-width: 236px;
+            max-width: 236px;
+            box-sizing: border-box;
             pointer-events: none;
             opacity: 0;
-            transition: all 0.2s;
+            transition: opacity 0.22s ease;
+            will-change: left, top, opacity;
             z-index: 30;
         }
         .island-speech-bubble.active {

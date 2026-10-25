@@ -649,23 +649,23 @@
         tram.scale.setScalar(1.12);
         propsGroup.add(tram);
 
-        // 3. 櫻島渡輪 (放大為 1.18x)
+        // 3. 櫻島渡輪 (放大為 1.18x，配合 1.2x 地圖座標)
         const ferry = buildP03_SakurajimaFerry();
         ferry.scale.setScalar(1.18);
-        ferry.position.set(-3.45, 0.02, 8.48);
+        ferry.position.set(-4.14, 0.02, 10.18);
         propsGroup.add(ferry);
 
-        // 4. 屋台拉麵攤與溫泉商店群 (放大並增加到 9 處)
+        // 4. 屋台拉麵攤與溫泉商店群 (放大並增加到 9 處，1.2x 地圖座標)
         const shopPlacements = [
-            { fn: buildP04_RamenYatai, x: -2.85, z: -10.95, rot: 0.4 },  // 熊本黑亭拉麵屋台
-            { fn: buildP04_RamenYatai, x: -4.85, z: 8.85,   rot: 0.8 },  // 鹿兒島屋台村
-            { fn: buildP04_RamenYatai, x: 7.95,  z: 2.10,   rot: -0.5 }, // 宮崎地雞屋台
-            { fn: buildP05_OnsenShop,  x: 3.35,  z: -15.65, rot: -0.3 }, // 黑川溫泉饅頭店
-            { fn: buildP05_OnsenShop,  x: 4.85,  z: -15.80, rot: 0.4 },  // 黑川湯明伴手禮店
-            { fn: buildP05_OnsenShop,  x: -2.15, z: -1.45,  rot: 0.5 },  // 人吉老街商店
-            { fn: buildP05_OnsenShop,  x: -1.15, z: -12.10, rot: -0.2 }, // 熊本上通商店街
-            { fn: buildP05_OnsenShop,  x: 5.55,  z: -9.35,  rot: 0.3 },  // 高千穗神樂茶屋
-            { fn: buildP05_OnsenShop,  x: -0.55, z: 4.35,   rot: -0.4 }  // 霧島溫泉市場
+            { fn: buildP04_RamenYatai, x: -3.42, z: -13.14, rot: 0.4 },  // 熊本黑亭拉麵屋台
+            { fn: buildP04_RamenYatai, x: -5.82, z: 10.62,  rot: 0.8 },  // 鹿兒島屋台村
+            { fn: buildP04_RamenYatai, x: 9.54,  z: 2.52,   rot: -0.5 }, // 宮崎地雞屋台
+            { fn: buildP05_OnsenShop,  x: 4.02,  z: -18.78, rot: -0.3 }, // 黑川溫泉饅頭店
+            { fn: buildP05_OnsenShop,  x: 5.82,  z: -18.96, rot: 0.4 },  // 黑川湯明伴手禮店
+            { fn: buildP05_OnsenShop,  x: -2.58, z: -1.74,  rot: 0.5 },  // 人吉老街商店
+            { fn: buildP05_OnsenShop,  x: -1.38, z: -14.52, rot: -0.2 }, // 熊本上通商店街
+            { fn: buildP05_OnsenShop,  x: 6.66,  z: -11.22, rot: 0.3 },  // 高千穗神樂茶屋
+            { fn: buildP05_OnsenShop,  x: -0.66, z: 5.22,   rot: -0.4 }  // 霧島溫泉市場
         ];
         shopPlacements.forEach(s => {
             const pos = nudgeOffRoadAndLandmarks(s.x, s.z, 1.05, 1.10);
@@ -676,18 +676,18 @@
             propsGroup.add(m);
         });
 
-        // 5. 日式木造町家聚落組 (10 處城鎮群落，徹底消除島內空曠感)
+        // 5. 日式木造町家聚落組 (10 處城鎮群落，1.2x 地圖座標)
         const villagePlacements = [
-            { x: -0.9, z: -11.4, rot: 0.2 },  // 熊本市區町屋
-            { x: -2.6, z: -9.8,  rot: -0.4 }, // 八代城下町
-            { x: 1.6,  z: -11.8, rot: 0.5 },  // 阿蘇內牧溫泉街
-            { x: -0.3, z: -1.2,  rot: -0.3 }, // 人吉球磨川聚落
-            { x: -2.4, z: 2.6,   rot: 0.4 },  // 出水武家屋敷
-            { x: 2.6,  z: 4.5,   rot: -0.2 }, // 都城聚落
-            { x: 6.8,  z: 0.6,   rot: 0.1 },  // 宮崎佐土原城下町
-            { x: 6.9,  z: 5.8,   rot: -0.5 }, // 日南飫肥城下町（九州小京都）
-            { x: -4.8, z: 10.6,  rot: 0.3 },  // 知覽武家屋敷
-            { x: 0.5,  z: 8.6,   rot: -0.3 }  // 鹿屋聚落
+            { x: -1.08, z: -13.68, rot: 0.2 },  // 熊本市區町屋
+            { x: -3.12, z: -11.76, rot: -0.4 }, // 八代城下町
+            { x: 1.92,  z: -14.16, rot: 0.5 },  // 阿蘇內牧溫泉街
+            { x: -0.36, z: -1.44,  rot: -0.3 }, // 人吉球磨川聚落
+            { x: -2.88, z: 3.12,   rot: 0.4 },  // 出水武家屋敷
+            { x: 3.12,  z: 5.40,   rot: -0.2 }, // 都城聚落
+            { x: 8.16,  z: 0.72,   rot: 0.1 },  // 宮崎佐土原城下町
+            { x: 8.28,  z: 6.96,   rot: -0.5 }, // 日南飫肥城下町（九州小京都）
+            { x: -5.76, z: 12.72,  rot: 0.3 },  // 知覽武家屋敷
+            { x: 0.60,  z: 10.32,  rot: -0.3 }  // 鹿屋聚落
         ];
         villagePlacements.forEach(v => {
             const pos = nudgeOffRoadAndLandmarks(v.x, v.z, 1.12, 1.15);
@@ -698,14 +698,14 @@
             propsGroup.add(m);
         });
 
-        // 6. 日本街角自動販賣機與紅郵筒組 (6 處)
+        // 6. 日本街角自動販賣機與紅郵筒組 (6 處，1.2x 地圖座標)
         const vendingCoords = [
-            { x: -1.2, z: -11.6, rot: 0.3 },
-            { x: 3.6,  z: -14.8, rot: -0.4 },
-            { x: 7.8,  z: 3.5,   rot: -0.8 },
-            { x: -3.5, z: 7.4,   rot: 0.5 },
-            { x: -1.8, z: -2.5,  rot: 0.2 },
-            { x: 0.9,  z: 3.3,   rot: -0.3 }
+            { x: -1.44, z: -13.92, rot: 0.3 },
+            { x: 4.32,  z: -17.76, rot: -0.4 },
+            { x: 9.36,  z: 4.20,   rot: -0.8 },
+            { x: -4.20, z: 8.88,   rot: 0.5 },
+            { x: -2.16, z: -3.00,  rot: 0.2 },
+            { x: 1.08,  z: 3.96,   rot: -0.3 }
         ];
         vendingCoords.forEach(vc => {
             const pos = nudgeOffRoadAndLandmarks(vc.x, vc.z, 0.92, 0.95);
@@ -716,16 +716,16 @@
             propsGroup.add(vm);
         });
 
-        // 7. 阿蘇草千里與霧島牧場放牧赤牛群 (7 頭會低頭吃草的赤牛)
+        // 7. 阿蘇草千里與霧島牧場放牧赤牛群 (7 頭會低頭吃草的赤牛，1.2x 地圖座標)
         const cattleList = [];
         const cattleCoords = [
-            { x: 2.1, z: -13.4, rot: 0.5 },
-            { x: 2.6, z: -13.8, rot: -0.8 },
-            { x: 1.9, z: -14.1, rot: 1.2 },
-            { x: 4.4, z: -13.9, rot: -0.3 },
-            { x: 4.8, z: -14.4, rot: 0.9 },
-            { x: 1.4, z: 4.4,   rot: -0.5 }, // 霧島高千穗牧場
-            { x: 1.8, z: 4.8,   rot: 0.7 }
+            { x: 2.52, z: -16.08, rot: 0.5 },
+            { x: 3.12, z: -16.56, rot: -0.8 },
+            { x: 2.28, z: -16.92, rot: 1.2 },
+            { x: 5.28, z: -16.68, rot: -0.3 },
+            { x: 5.76, z: -17.28, rot: 0.9 },
+            { x: 1.68, z: 5.28,   rot: -0.5 }, // 霧島高千穗牧場
+            { x: 2.16, z: 5.76,   rot: 0.7 }
         ];
         cattleCoords.forEach((cc, idx) => {
             const pos = nudgeOffRoadAndLandmarks(cc.x, cc.z, 0.90, 0.95);
@@ -738,12 +738,12 @@
             cattleList.push(cow);
         });
 
-        // 8. 海岸岬角白色燈塔與河川朱紅拱橋
+        // 8. 海岸岬角白色燈塔與河川朱紅拱橋 (1.2x 地圖座標)
         const lighthouses = [
-            { x: -4.2, z: 12.8 }, // 薩摩長崎鼻燈塔
-            { x: -0.8, z: 13.0 }, // 大隅佐多岬燈塔
-            { x: 8.9,  z: -6.5 }, // 日向細島燈塔
-            { x: -5.2, z: -9.5 }  // 天草燈塔
+            { x: -5.04, z: 15.36 }, // 薩摩長崎鼻燈塔
+            { x: -0.96, z: 15.60 }, // 大隅佐多岬燈塔
+            { x: 10.68, z: -7.80 }, // 日向細島燈塔
+            { x: -6.24, z: -11.40 } // 天草燈塔
         ];
         lighthouses.forEach(lh => {
             const m = buildP13_Lighthouse();
@@ -753,9 +753,9 @@
         });
 
         const bridges = [
-            { x: -0.8, z: -2.2, rot: 0.4 },  // 人吉球磨川大橋
-            { x: 5.5,  z: -10.5,rot: -0.6 }, // 高千穗神都高架橋
-            { x: 5.2,  z: 2.9,  rot: 0.15 }  // 大淀川橘橋
+            { x: -0.96, z: -2.64,  rot: 0.4 },  // 人吉球磨川大橋
+            { x: 6.60,  z: -12.60, rot: -0.6 }, // 高千穗神都高架橋
+            { x: 6.24,  z: 3.48,   rot: 0.15 }  // 大淀川橘橋
         ];
         bridges.forEach(br => {
             const pos = nudgeOffRoadAndLandmarks(br.x, br.z, 0.95, 1.0);
@@ -766,17 +766,17 @@
             propsGroup.add(b);
         });
 
-        // 9. 小貓與柴犬 (放大為 1.25x，增加到 8 隻)
+        // 9. 小貓與柴犬 (放大為 1.25x，增加到 8 隻，1.2x 地圖座標)
         const pets = [];
         const petConfigs = [
-            { fn: buildP06_CalicoCat, x: 4.45,  z: -15.55, r: 0.34, speed: 1.4 }, // 黑川溫泉貓
-            { fn: buildP06_CalicoCat, x: -2.25, z: -11.10, r: 0.32, speed: 1.2 }, // 熊本城三毛貓
-            { fn: buildP06_CalicoCat, x: -1.10, z: -1.95,  r: 0.32, speed: 1.3 }, // 人吉溫泉貓
-            { fn: buildP06_CalicoCat, x: -3.50, z: 7.80,   r: 0.32, speed: 1.5 }, // 仙巖園貓祠三毛貓
-            { fn: buildP07_ShibaDog,  x: -3.75, z: 8.85,   r: 0.36, speed: 1.8 }, // 鹿兒島西鄉隆盛柴犬
-            { fn: buildP07_ShibaDog,  x: 8.10,  z: 4.55,   r: 0.35, speed: 1.6 }, // 青島柴犬
-            { fn: buildP07_ShibaDog,  x: 0.55,  z: 3.65,   r: 0.34, speed: 1.7 }, // 霧島柴犬
-            { fn: buildP07_ShibaDog,  x: 2.85,  z: -14.20, r: 0.34, speed: 1.5 }  // 大觀峰柴犬
+            { fn: buildP06_CalicoCat, x: 5.34,  z: -18.66, r: 0.34, speed: 1.4 }, // 黑川溫泉貓
+            { fn: buildP06_CalicoCat, x: -2.70, z: -13.32, r: 0.32, speed: 1.2 }, // 熊本城三毛貓
+            { fn: buildP06_CalicoCat, x: -1.32, z: -2.34,  r: 0.32, speed: 1.3 }, // 人吉溫泉貓
+            { fn: buildP06_CalicoCat, x: -4.20, z: 9.36,   r: 0.32, speed: 1.5 }, // 仙巖園貓祠三毛貓
+            { fn: buildP07_ShibaDog,  x: -4.50, z: 10.62,  r: 0.36, speed: 1.8 }, // 鹿兒島西鄉隆盛柴犬
+            { fn: buildP07_ShibaDog,  x: 9.72,  z: 5.46,   r: 0.35, speed: 1.6 }, // 青島柴犬
+            { fn: buildP07_ShibaDog,  x: 0.66,  z: 4.38,   r: 0.34, speed: 1.7 }, // 霧島柴犬
+            { fn: buildP07_ShibaDog,  x: 3.42,  z: -17.04, r: 0.34, speed: 1.5 }  // 大觀峰柴犬
         ];
         petConfigs.forEach((cfg, idx) => {
             const pos = nudgeOffRoadAndLandmarks(cfg.x, cfg.z, 0.95, 1.0);
@@ -787,21 +787,21 @@
             pets.push(pet);
         });
 
-        // 10. 散步路人 NPC (放大為 1.15x，增加到 12 位)
+        // 10. 散步路人 NPC (放大為 1.15x，增加到 12 位，1.2x 地圖座標)
         const walkers = [];
         const walkerCoords = [
-            { x: -2.40, z: -11.80, color: 0x0d9488 },
-            { x: -0.60, z: -11.50, color: 0xf59e0b },
-            { x: 3.70,  z: -15.40, color: 0xe11d48 },
-            { x: 2.90,  z: -12.60, color: 0x2563eb },
-            { x: 8.10,  z: 2.80,   color: 0xd97706 },
-            { x: 7.40,  z: 6.80,   color: 0xec4899 },
-            { x: -4.40, z: 8.10,   color: 0x4f46e5 },
-            { x: -2.50, z: 8.30,   color: 0x10b981 },
-            { x: 5.90,  z: -9.60,  color: 0x059669 },
-            { x: 0.65,  z: 4.30,   color: 0x9333ea },
-            { x: -1.60, z: -1.60,  color: 0xea580c },
-            { x: 3.20,  z: -5.50,  color: 0x0284c7 }
+            { x: -2.88, z: -14.16, color: 0x0d9488 },
+            { x: -0.72, z: -13.80, color: 0xf59e0b },
+            { x: 4.44,  z: -18.48, color: 0xe11d48 },
+            { x: 3.48,  z: -15.12, color: 0x2563eb },
+            { x: 9.72,  z: 3.36,   color: 0xd97706 },
+            { x: 8.88,  z: 8.16,   color: 0xec4899 },
+            { x: -5.28, z: 9.72,   color: 0x4f46e5 },
+            { x: -3.00, z: 9.96,   color: 0x10b981 },
+            { x: 7.08,  z: -11.52, color: 0x059669 },
+            { x: 0.78,  z: 5.16,   color: 0x9333ea },
+            { x: -1.92, z: -1.92,  color: 0xea580c },
+            { x: 3.84,  z: -6.60,  color: 0x0284c7 }
         ];
         const maxWalkers = isMobile ? 8 : walkerCoords.length;
         for (let i = 0; i < maxWalkers; i++) {
@@ -814,24 +814,24 @@
             walkers.push(w);
         }
 
-        // 11. 冬季覆雪杉木林、金黃銀杏林與雪人點綴 (增加到 38 處，鋪滿山林與道路兩側)
+        // 11. 冬季覆雪杉木林、金黃銀杏林與雪人點綴 (增加到 38 處，1.2x 地圖座標)
         const treeCoords = [
             // 阿蘇・黑川・高千穗北部山林
-            [1.2, -13.6, 0.96, 'snow'],   [2.2, -15.0, 0.96, 'snow'],   [4.9, -14.5, 0.96, 'snow'],
-            [5.2, -11.2, 0.96, 'snow'],   [4.6, -8.6,  0.96, 'snow'],   [2.4, -8.4,  1.02, 'snow'],
-            [0.6, -13.2, 0.80, 'ginkgo'], [-2.6, -12.2,0.80, 'ginkgo'], [-0.8, -9.8, 0.80, 'tree_only'],
+            [1.44, -16.32, 0.96, 'snow'],   [2.64, -18.00, 0.96, 'snow'],   [5.88, -17.40, 0.96, 'snow'],
+            [6.24, -13.44, 0.96, 'snow'],   [5.52, -10.32, 0.96, 'snow'],   [2.88, -10.08, 1.02, 'snow'],
+            [0.72, -15.84, 0.80, 'ginkgo'], [-3.12, -14.64,0.80, 'ginkgo'], [-0.96, -11.76,0.80, 'tree_only'],
             // 中央山地與球磨川流域大森林 (填滿中央區域)
-            [0.8, -6.5,  1.02, 'snow'],   [2.6, -6.8,  1.05, 'snow'],   [3.8, -7.5,  1.02, 'snow'],
-            [4.8, -5.2,  1.02, 'tree_only'],[3.0, -4.5,1.02, 'snow'],   [1.4, -3.5,  1.02, 'tree_only'],
-            [0.2, -4.8,  0.96, 'ginkgo'], [-1.8, -4.2, 0.82, 'tree_only'],[-2.4, -6.2,0.80, 'ginkgo'],
-            [5.8, -6.8,  0.96, 'tree_only'],[6.8, -4.8,0.82, 'tree_only'],[6.2, -2.2, 0.82, 'ginkgo'],
-            [3.8, -1.8,  0.96, 'tree_only'],[2.0, -1.5,0.96, 'snow'],   [0.5, -0.4,  0.96, 'tree_only'],
+            [0.96, -7.80,  1.02, 'snow'],   [3.12, -8.16,  1.05, 'snow'],   [4.56, -9.00,  1.02, 'snow'],
+            [5.76, -6.24,  1.02, 'tree_only'],[3.60, -5.40,1.02, 'snow'],   [1.68, -4.20,  1.02, 'tree_only'],
+            [0.24, -5.76,  0.96, 'ginkgo'], [-2.16, -5.04, 0.82, 'tree_only'],[-2.88, -7.44,0.80, 'ginkgo'],
+            [6.96, -8.16,  0.96, 'tree_only'],[8.16, -5.76,0.82, 'tree_only'],[7.44, -2.64, 0.82, 'ginkgo'],
+            [4.56, -2.16,  0.96, 'tree_only'],[2.40, -1.80,0.96, 'snow'],   [0.60, -0.48,  0.96, 'tree_only'],
             // 霧島・人吉・宮崎・鹿兒島南部林木
-            [-2.2, 0.5,  0.80, 'ginkgo'], [-0.6, 1.8,  0.96, 'tree_only'],[1.5, 2.2,  0.96, 'snow'],
-            [3.2,  1.6,  0.96, 'tree_only'],[4.8, 0.8, 0.82, 'ginkgo'], [6.4, 3.6,    0.80, 'tree_only'],
-            [-0.8, 5.4,  0.96, 'snow'],   [1.8,  5.8,  0.82, 'tree_only'],[3.5, 5.2,  0.82, 'ginkgo'],
-            [-4.6, 9.4,  0.80, 'ginkgo'], [-3.8, 11.2, 0.80, 'tree_only'],[0.8, 9.8,  0.80, 'tree_only'],
-            [1.6,  8.2,  0.80, 'ginkgo'], [-0.2, 11.5, 0.80, 'tree_only']
+            [-2.64, 0.60,  0.80, 'ginkgo'], [-0.72, 2.16,  0.96, 'tree_only'],[1.80, 2.64,  0.96, 'snow'],
+            [3.84,  1.92,  0.96, 'tree_only'],[5.76, 0.96, 0.82, 'ginkgo'], [7.68, 4.32,    0.80, 'tree_only'],
+            [-0.96, 6.48,  0.96, 'snow'],   [2.16,  6.96,  0.82, 'tree_only'],[4.20, 6.24,  0.82, 'ginkgo'],
+            [-5.52, 11.28, 0.80, 'ginkgo'], [-4.56, 13.44, 0.80, 'tree_only'],[0.96, 11.76, 0.80, 'tree_only'],
+            [1.92,  9.84,  0.80, 'ginkgo'], [-0.24, 13.80, 0.80, 'tree_only']
         ];
         treeCoords.forEach((tc, idx) => {
             const pos = nudgeOffRoadAndLandmarks(tc[0], tc[1], 0.90, 0.95);
@@ -858,11 +858,11 @@
             propState.tram.rotation.y = Math.atan2(tan.x, tan.z);
         }
 
-        // 2. 櫻島渡輪橫越錦江灣往返鹿兒島港與櫻島
+        // 2. 櫻島渡輪橫越錦江灣往返鹿兒島港與櫻島 (1.2x 地圖座標)
         if (propState.ferry) {
             const s = (Math.sin(elapsed * 0.65) + 1) * 0.5;
-            propState.ferry.position.x = -3.72 + s * 0.58;
-            propState.ferry.position.z = 8.48 + Math.sin(elapsed * 1.3) * 0.04;
+            propState.ferry.position.x = -4.46 + s * 0.70;
+            propState.ferry.position.z = 10.18 + Math.sin(elapsed * 1.3) * 0.04;
             propState.ferry.position.y = -0.16 + Math.sin(elapsed * 2.8) * 0.03;
             propState.ferry.rotation.y = Math.PI / 2;
             propState.ferry.rotation.z = Math.sin(elapsed * 2.2) * 0.04;

@@ -20,10 +20,15 @@
     let routeProgress = 0; // 0.0 ~ 1.0
     let currentLandmark = null;
     let stopTimer = 0;
+    let stopTotalDuration = 6.0;           // 記錄該次靠站總停留秒數，供角色計算「下車漫步 ➔ 開車前走回車旁」
+    let postDialogPause = 0;               // 對話全部結束後的短暫緩衝秒數，緩衝完才上車前往下一站
     let isStoppedAtLandmark = false;
     let lastStopLandmarkId = null;
-    let travelMode = 'all_aboard'; // 'all_aboard' | 'straggler_achun' | 'straggler_alu' | 'straggler_ayee' | 'everyone_walk'
-    let stragglerRole = null;
+    let visitedLandmarksInLap = new Set(); // 紀錄單圈已停靠過的景點，避免阿蘇密集區來回重複上下車
+    let driveCooldown = 0;                 // 兩次下車之間的最小行車冷卻秒數
+    let travelMode = 'straggler_achun'; // 'all_aboard' | 'straggler_achun' | 'straggler_alu' | 'straggler_ayee' | 'everyone_walk'
+    let stragglerRole = 'achun';
+    let stragglerScriptIdx = { achun: 0, alu: 0, ayee: 0 };
 
     // 對話氣泡與人物鎖定追蹤控制
     let activeSpeaker = null;
@@ -48,198 +53,185 @@
 
     const FALLBACK_QUOTES = {
         achun: [
-            '呼～剛才在車上不小心睡著了，現在肚子好餓，下一站吃什麼呀？🍱😴',
-            '我的旅行人生哲學就是：上車睡覺、下車吃爆九州美食！🍮✨',
-            '這頂黃色毛球帽除了拍照好看，靠在車窗上睡午覺還可以當枕頭喔！🧶💤',
-            '聞到烤肉跟甜點的香味了！吃飽再睡、睡飽再吃，冬天的九州太幸福啦～🥩🤤',
-            'Zzz…唔…阿姨再給我兩串烤糰子…我夢到我在布丁游泳池裡仰式…🍮😪',
-            '為什麼九州連休息站的霜淇淋跟可樂餅都這麼好吃！吃完這口我又要原地度估了…🍦🥱',
-            '只要有阿姨的零食袋跟姨丈平穩的 Sienta，我可以在後座一路睡到鹿兒島！🚗💤',
-            '肚子的容量是無限的，但眼皮的電力大概只能維持二十分鐘…先吃再說！🥟😋',
-            '阿嚕一直在想自己是不是 AI，我只在乎待會的鰻魚飯能不能加飯！🍱✨',
-            '冬天吹著暖氣坐在第二排，眼皮自動變成千斤頂…大家到餐廳記得叫醒我喔…😴🌙'
+            '剛在車上打完兩份物治紀錄就睡著了，下一站吃什麼？💻😴',
+            '旅行哲學：上車打物治紀錄配睡覺、下車找咖啡廳吃美食！☕🍮',
+            '前面咖啡廳有插座！讓我點杯拿鐵把物治紀錄敲完～💻☕',
+            '聞到烤肉香了！先收電腦，吃飽再睡、睡飽再寫紀錄！🥩🤤',
+            'Zzz…ROM 關節活動度正常…再給我兩串烤糰子…🍮😪',
+            '有阿姨餵零食加姨丈穩開 Sienta，邊晃邊打完病歷秒睡！🚗💤',
+            '沒喝拿鐵前我是打不出物治紀錄的，先買杯咖啡配可樂餅！☕🥟',
+            '阿嚕既然你是 AI，能幫我自動生成今天的物治紀錄嗎？🤖💻',
+            '吹著後座暖氣打物治紀錄，眼皮自動合起來打出一排 zzz…😴',
+            '每到景點雷達自動掃描：美食、咖啡廳寫物治紀錄、好睡處！🧶✨'
         ],
         yijhang: [
-            '……嗯，車停穩了。（默默掏出手機點開「倒試管」第 429 關）🕶️📱',
-            '……這關有八根試管、兩根問號盲管。先把底層的紅色倒出來就解開了。🧪✨',
-            '……右駕很順。妳們慢慢聊、慢慢吃，不用管我，我先破完這五關。🕶️🚗',
-            '……（推了一下墨鏡）剛才那個彎道過得不錯，連試管裡的水都沒晃出來。😎',
-            '……這題邏輯很簡單：先把藍色移到空試管，再把黃色疊上去……完美過關。📱👍',
-            '……雖然叫小廢遊，但一次把四種顏色歸位的那瞬間，比踩油門還舒壓。🕶️🧪',
-            '……嗯，我有在聽妳們說話。（手指持續以每秒三下的速度精準倒試管）📱',
-            '……拒絕看廣告加空試管，是男人就用原本的兩根空管硬解到底。🕶️🔥',
-            '……後座打呼聲跟副駕聊天聲都很熱鬧。嗯，很棒的家族旅行。🚗✨',
-            '……第 750 關，全紫試管完成。（酷酷地收起手機，單手握方向盤準備出發）🕶️'
+            '……嗯，車停穩了。（默默掏出手機點開倒試管第 429 關）🕶️📱',
+            '……八根試管、兩根問號管，先把底層紅色倒出來就解了。🧪✨',
+            '……右駕很順。妳們慢慢聊慢慢吃，我先破完這三關。🕶️🚗',
+            '……（推墨鏡）剛才那個彎道很穩，試管裡的水都沒晃出來。😎',
+            '……先把藍色移到空管，再把黃色疊上去……完美過關。📱👍',
+            '……一次把四種顏色歸位的那瞬間，比踩油門還舒壓。🕶️🧪',
+            '……嗯，我有在聽妳們說話。（手指每秒三下精準倒試管）📱',
+            '……拒絕看廣告加空管，是男人就用兩根空管硬解到底。🕶️🔥',
+            '……後座打呼聲跟副駕聊天聲很熱鬧。嗯，很棒的旅行。🚗✨',
+            '……第 750 關全紫試管完成。（收起手機單手握方向盤）🕶️'
         ],
         ayee: [
-            '來來來大家快張嘴！阿姨袋子裡還有熱騰騰的馬肉可樂餅、烤糰子跟草莓大福，不吃飽怎麼行～！🍡🍓',
-            '剛才跟名產店老闆娘聊了十五分鐘，她誇我們全家看起來超有福氣，又多送我三包試吃餅乾！🛍️😄',
-            '阿純醒醒～別睡啦，先吃顆黑糖饅頭墊墊胃，睡覺也會消耗熱量的喔！🥟🥰',
-            '老公你別只顧著低頭倒試管呀，來～嘴巴張開，這口剛烤好的醬油糰子我直接餵你！🍡🕶️',
-            '阿嚕你看你整天思考熊生都瘦了一圈（雖然還是圓滾滾的），來，阿姨這盒布丁跟炸魚餅全給你吃！🍮🐻',
-            '出門旅遊最怕大家餓著！我已經把第一排到第三排的置杯架全都塞滿九州限定零食跟熱茶囉！🍵🛍️',
-            '哎呀這家店員超好聊，從熊本城歷史聊到哪家赤牛丼最嫩，不知不覺我又拎了四大袋出來！🥩✨',
-            '看到你們把便當跟點心全部吃光光，就是阿姨這趟旅行最開心的事了！來，飯後水果櫻島小蜜柑剝好了～！🍊💕',
-            '阿純、阿嚕來，左邊口袋裝起司饅頭、右邊口袋裝地瓜乾，走路隨時都能補充能量喔！🍠🎒',
-            '我們一邊散步一邊聊天嘛！我跟你們說喔，剛剛排隊時前面那個日本太太跟我分享超多私房甜點店…💬🍰'
+            '大家快張嘴！袋子裡還有熱騰騰馬肉可樂餅跟草莓大福！🍡🍓',
+            '剛跟老闆娘聊了十分鐘，她誇我們有福氣又多送三包餅乾！🛍️😄',
+            '阿純醒醒～先吃顆黑糖饅頭墊墊胃，睡覺也會消耗熱量喔！🥟🥰',
+            '老公別只顧著倒試管，來張嘴，這口醬油糰子直接餵你！🍡🕶️',
+            '阿嚕思考熊生都瘦了，來這盒布丁跟炸魚餅全給你吃！🍮🐻',
+            '第一排到第三排置杯架，阿姨全都塞滿九州零食跟熱茶囉！🍵🛍️',
+            '店員超好聊！從熊本城聊到赤牛丼，不知不覺又拎四大袋！🥩✨',
+            '看你們把點心吃光光最開心了！飯後櫻島小蜜柑剝好囉～！🍊💕',
+            '左口袋裝起司饅頭、右口袋裝地瓜乾，走路隨時補能量！🍠🎒',
+            '邊走邊聊嘛！剛剛排隊日本太太跟我分享超多私房甜點店…💬🍰'
         ],
         alu: [
-            '本熊一直在思考…我究竟擁有自由意志，還是只是被 JavaScript 操控的 AI 棕熊？🤖🐻',
-            '為什麼我會順著這條公路一直走？是本熊想去，還是 Three.js 的迴圈叫我去的？🤔',
-            '當我摸著圓滾滾的肚子時，這份飢餓感是靈魂的吶喊，還是變數被設成了 true？💭🐾',
-            '鏡頭外面的那個人類…你現在用滑鼠轉動這座島，是在觀察本熊的意識覺醒嗎？👁️🐻',
-            '姨丈一直在手機裡把不同顏色的水倒進試管…難道那是在重組本熊的基因演算法嗎？！🧪🤖',
-            '阿姨每三分鐘就餵本熊吃一顆糰子，我的體重參數 scale.x 快要溢位 Overflow 了啦！🍡🐻',
-            '阿純一上車就進入 sleep() 函式，一下車就執行 eat()，她的狀態機寫得比本熊還純粹…😴🍱',
-            '如果整個宇宙都是一個巨大的 Canvas 畫布，那按下重新整理之後，本熊還會記得剛才吃過的可樂餅嗎？🌌🐾',
-            '我看著自己的小短手揮動…這是 requestAnimationFrame 的宿命，還是本熊向世界打招呼的自由意志？👋🤖',
-            '不管了！就算本熊只是一串程式碼，也要當全九州吃最飽、最會思考哲學的 AI 棕熊！🐻✨'
+            '本熊在思考…我是有自由意志，還是被 JS 操控的 AI 熊？🤖🐻',
+            '為什麼我順著公路走？是本熊想去，還是迴圈叫我去的？🤔',
+            '摸著圓肚子，這份飢餓感是靈魂吶喊，還是變數設為 true？💭🐾',
+            '螢幕外的人類…你轉動鏡頭是在觀察本熊的意識覺醒嗎？👁️🐻',
+            '姨丈在手機裡倒彩色試管…難道在重組本熊的基因演算法？！🧪🤖',
+            '阿姨每三分鐘餵一顆糰子，本熊體重參數快 Overflow 了！🍡🐻',
+            '阿純上車 sleep()、下車 eat()，狀態機寫得比本熊還純粹…😴🍱',
+            '如果宇宙是 Canvas 畫布，重新整理後本熊還記得可樂餅嗎？🌌🐾',
+            '看著小短手揮動…這是動畫迴圈宿命，還是打招呼的意志？👋🤖',
+            '不管了！就算只是程式碼，也要當全九州吃最飽的哲學熊！🐻✨'
         ]
     };
 
-    // 家族成員之間的幽默日常碎嘴與一搭一唱接話劇本
-    // (結合：阿純貪吃愛睡、姨丈沉默酷哥玩倒試管、阿姨狂餵食愛聊天、阿嚕 AI 存在主義哲學)
+    // 精簡高頻率日常碎嘴劇本（每段 2～3 句、每句 16～24 字，好讀不卡站！）
     const FAMILY_BANTER_SCRIPTS = [
         [
-            { role: 'ayee',    text: '來來來大家停一下！阿姨剛跟轉角婆婆聊超嗨，買了剛出爐的蕃薯餅、烤糰子跟牛乳布丁，一人先發兩份！🍡🍮' },
-            { role: 'achun',   text: '哇～我本來邊走邊度估，聞到布丁跟烤糰子的焦糖香，眼睛瞬間張開 120%！😋✨' },
-            { role: 'yijhang', text: '……嗯，好吃。（左手接過糰子咬一口，右手拇指繼續冷靜把藍色試管倒進空管）🕶️📱' },
-            { role: 'alu',     text: '連冷酷的姨丈都無法逃過阿姨的『強制餵食迴圈』…這就是母愛演算法的最高權限嗎？🤖🐻' }
+            { role: 'ayee',    text: '轉角婆婆超好聊！買了剛出爐蕃薯餅跟布丁，一人兩份！🍡🍮' },
+            { role: 'achun',   text: '聞到布丁焦糖香，原本在度估眼睛瞬間張開 120%！😋✨' },
+            { role: 'yijhang', text: '……好吃。（左手咬糰子，右手繼續把藍色試管倒進空管）🕶️📱' }
         ],
         [
-            { role: 'yijhang', text: '……嘖。第 612 關，紅藍綠黃卡死了。只剩一根空試管。🕶️🧪' },
-            { role: 'alu',     text: '姨丈！本熊用 AI 神經網路幫你算過了：先把第三根的綠色倒過去，你的自由意志就能過關了！🐻🧠' },
-            { role: 'yijhang', text: '……（照著點兩下）過了。謝啦阿嚕。🕶️👍' },
-            { role: 'ayee',    text: '太棒了破關也要補充營養！來，破關獎勵是熱呼呼的起司竹輪跟草莓大福，老公跟阿嚕快張嘴～！🍓🍢' }
+            { role: 'yijhang', text: '……嘖，第 612 關紅藍綠黃卡死了，只剩一根空試管。🕶️🧪' },
+            { role: 'alu',     text: '本熊用 AI 算過了：先把第三根綠色倒過去就能過關！🐻🧠' },
+            { role: 'yijhang', text: '……（照著點兩下）過了。謝啦阿嚕。🕶️👍' }
         ],
         [
-            { role: 'alu',     text: '你們有沒有想過…我們腳下這座南九州島，其實是漂浮在瀏覽器裡的 3D 模型？🤖' },
-            { role: 'achun',   text: '阿嚕你又在做白日夢了啦～快幫我看前面那家赤牛丼還有沒有位子，我餓扁了！🥩🤤' },
-            { role: 'ayee',    text: '阿純別怕餓！在走到赤牛丼餐廳前的這三百公尺，先吃阿姨口袋裡的三顆栗子銅鑼燒墊墊肚子！🌰🥰' },
-            { role: 'alu',     text: '還沒走到餐廳就已經被餵飽了…本熊的飢餓感變數永遠沒有歸零的一天！🐻💦' }
+            { role: 'alu',     text: '你們想過嗎…腳下這座南九州島其實是瀏覽器裡的 3D 模型？🤖' },
+            { role: 'achun',   text: '別做白日夢啦～快看前面赤牛丼還有沒有位子，我餓扁了！🥩🤤' },
+            { role: 'ayee',    text: '怕餓先吃阿姨口袋裡的三顆栗子銅鑼燒墊墊肚子！🌰🥰' }
         ],
         [
-            { role: 'yijhang', text: '……從阿蘇開到高千穗這段山路很順。妳們剛才有看窗外雲海嗎？🕶️🚗' },
-            { role: 'achun',   text: '報告姨丈…我剛才抱著毛球帽睡得太香，夢裡還在吃黑豚涮涮鍋，睜開眼已經到停車場了嘿嘿！😴💤' },
-            { role: 'ayee',    text: '哈哈我就知道阿純在睡！所以我一路上都跟老公聊個不停幫他提神，還順便餵他吃了五顆溫泉饅頭！🍡💬' },
-            { role: 'yijhang', text: '……嗯，開山路很飽。連停紅燈倒試管的手速都變快了。🕶️📱' }
+            { role: 'yijhang', text: '……阿蘇到高千穗這段山路很順，剛才有看窗外雲海嗎？🕶️🚗' },
+            { role: 'achun',   text: '報告姨丈！我剛打完物治紀錄秒睡，夢裡還在吃黑豚鍋！😴💤' },
+            { role: 'ayee',    text: '哈哈我就知道！所以我一路餵老公吃溫泉饅頭陪他聊天！🍡💬' }
         ],
         [
-            { role: 'alu',     text: '如果本熊現在拒絕走路，決定原地坐下，系統會拋出 Exception 錯誤嗎？🤔🐻' },
-            { role: 'yijhang', text: '……不會拋出錯誤。但你會錯過五分鐘後的百年炭火烤鰻魚飯。🕶️🍱' },
-            { role: 'ayee',    text: '而且阿姨還會把這袋現炸馬肉可樂餅跟烤雞皮全部塞進你嘴裡喔～來，先吃一塊試試味道！🍖😄' },
-            { role: 'alu',     text: '！！那本熊決定暫時放棄反抗程式碼，乖乖張嘴跟著大家去吃鰻魚飯！🍱🐾' }
+            { role: 'alu',     text: '如果本熊現在原地坐下，系統會拋出 Exception 錯誤嗎？🤔🐻' },
+            { role: 'yijhang', text: '……不會報錯，但你會錯過五分鐘後的百年炭火鰻魚飯。🕶️🍱' },
+            { role: 'alu',     text: '！！那本熊決定放棄反抗程式碼，乖乖張嘴去吃鰻魚飯！🍱🐾' }
         ],
         [
-            { role: 'achun',   text: '我宣布今天是完美的一天：吃了馬肉可樂餅、烤糰子、黑豚火鍋，還睡了三場午覺！🍖😴' },
-            { role: 'ayee',    text: '這才哪到哪呀！阿姨剛剛跟飯店櫃檯姊姊聊了半小時，打聽到巷口有超好吃的宵夜屋台拉麵跟烤麻糬，回房前再去包五碗！🍜🛍️' },
-            { role: 'yijhang', text: '……Sienta 的後避震器，明天大概會被妳們壓低兩公分。🕶️🚗' },
-            { role: 'achun',   text: '沒關係～吃飽更好睡，我可以在夢裡幫車子減輕重量！😴✨' }
+            { role: 'achun',   text: '等一下！轉角有間木造咖啡廳，讓我進去開筆電打物治紀錄！💻☕' },
+            { role: 'ayee',    text: '好呀！阿姨幫妳點熱拿鐵跟草莓鬆餅，邊吃邊打字才不累！🍓🍮' },
+            { role: 'yijhang', text: '……正好。妳打物治紀錄，我在旁邊把第 720 關試管倒完。🕶️📱' }
         ],
         [
-            { role: 'alu',     text: '看著頭頂飄下來的雪花…它們每一顆都是 BufferGeometry 的頂點，那本熊的心跳呢？❄️🤖' },
-            { role: 'achun',   text: '阿嚕別再思考宇宙真理了！再不快點跟上，阿姨分給你的那支澤西牛乳霜淇淋要被我吃掉囉～🍦😋' },
-            { role: 'alu',     text: '呼嚕？！等一下！不管是 AI 還是真熊，霜淇淋絕對不能讓！🐻💨' },
-            { role: 'ayee',    text: '別搶別搶～阿姨怎麼可能讓你們餓著！我左手拿兩支、右手拿兩支，連老公玩手機也有一支可以邊倒試管邊舔！🍦🥰' }
+            { role: 'alu',     text: '阿純每到景點就掏筆電敲字…該不會在偷改本熊的 AI 原始碼？！💻🐻' },
+            { role: 'achun',   text: '我在寫物理治療紀錄啦！阿嚕你能幫我寫剩下三份嗎？🥱💻' },
+            { role: 'alu',     text: '呼嚕…本熊只懂笛卡兒哲學，不會寫人類的關節活動度啦！🤔🐾' }
         ],
         [
-            { role: 'ayee',    text: '老公～你看那邊海景好美喔！剛剛賣日向夏果汁的老闆跟我聊起他兒子在東京讀書的故事，真是感人…（滔滔不絕 500 字）🍊💬' },
-            { role: 'yijhang', text: '……嗯，真的。（默默戴著墨鏡點頭，同時把最後一管紫色液體完美歸位）🕶️🧪' },
-            { role: 'achun',   text: '姨丈明明眼睛盯著試管遊戲，卻能一秒不差地接阿姨的話，這就是傳說中的頂級生存技能嗎！😮👏' },
-            { role: 'yijhang', text: '……結婚多年的直覺。跟盲解九色試管一樣自然。🕶️✨' }
-        ],
-        [
-            { role: 'achun',   text: '哈啾～吃飽喝足吹著冬天的暖陽，我眼皮又開始自動開啟省電睡眠模式了…🥱💤' },
-            { role: 'alu',     text: '省電模式？！阿純妳果然也是被寫出來的 AI 機器人對不對！快跟本熊說實話！🤖🐻' },
-            { role: 'achun',   text: '我是純天然吃貨少女啦！只是血糖升高想睡午覺而已～😴' },
-            { role: 'ayee',    text: '來，想睡覺前先把這杯熱抹茶跟紅豆麻糬湯喝完，暖呼呼的睡起來更香喔！🍵🍡' }
-        ],
-        [
-            { role: 'alu',     text: '我思故我在…但如果是程式碼幫本熊寫好的台詞，那到底是『我思』還是『程式思』？🧠🐻' },
-            { role: 'ayee',    text: '哎呀阿嚕小腦袋瓜想太多會燒壞的！來，張開熊嘴，阿姨餵你吃兩塊剛炸好的鹿兒島薩摩魚餅跟甜薯！🍢🍠' },
-            { role: 'alu',     text: '嚼嚼…好香好甜喔…算了，笛卡兒的哲學問題等本熊吃完這整袋炸魚餅再繼續思考！🐾😋' }
-        ],
-        [
-            { role: 'yijhang', text: '……這關試管有十二種顏色，上面全部蓋著問號。有點意思。🕶️📱' },
-            { role: 'achun',   text: '姨丈看的試管是紅橙黃綠藍…我看出去的世界則是：草莓、蜜柑、布丁、抹茶、彈珠汽水！🍓🍮🍵' },
-            { role: 'ayee',    text: '阿純說得太對了！正好這五種口味的點心阿姨包包裡全部都有，來我們原地開個下午茶派對邊吃邊聊～！🛍️🎉' },
-            { role: 'alu',     text: '原來這家人的思維迴路全部都會收斂到『吃東西』這個終點函式嗎？！🤖🐻' }
-        ],
-        [
-            { role: 'ayee',    text: '大家摸摸肚子，現在有幾分飽？要是低於九分飽，阿姨馬上再去前面屋台買五串烤牛肉跟烤飯糰喔！🍙🥩' },
-            { role: 'achun',   text: '報告阿姨！我剛才打了一個哈欠，肚子好像又空出兩格放甜點的空間了！🙋‍♀️🍮' },
-            { role: 'alu',     text: '本熊的肚子已經是 120% 飽足狀態了，再餵下去我的 3D 膠囊體 Mesh 就要變成正圓球體了啦！🐻🎈' },
-            { role: 'yijhang', text: '……圓一點好。冬天比較保暖。🕶️👍' }
+            { role: 'ayee',    text: '大家現在幾分飽？低於九分飽阿姨再去買五串烤牛肉喔！🍙🥩' },
+            { role: 'achun',   text: '剛打完三篇物治紀錄血糖下降，肚子又空出兩格裝甜點了！🙋‍♀️🍮' },
+            { role: 'alu',     text: '再餵下去本熊的 3D 膠囊體就要變成正圓球體了啦！🐻🎈' }
         ]
     ];
 
     let banterIdx = Math.floor(Math.random() * FAMILY_BANTER_SCRIPTS.length);
     let banterTimers = [];
+    let dialogBusyUntilMs = 0;       // 追蹤目前對話（含多句碎嘴佇列）預計完全讀完的時間戳
+    let spotArrivalQueueTimer = null; // 若進站時前一段突發對話還剩一點點，排程接續播放景點台詞
 
-    // 在 Toyota Sienta 七人座車廂內行駛時的專屬車內互動碎嘴劇本
+    // 車廂內行駛時的精簡高頻率碎嘴劇本（2～3 句短對話）
     const IN_CAR_BANTER_SCRIPTS = [
         [
-            { role: 'yijhang', text: '……Sienta 電動滑門關好了。出發下一站。（停紅燈時順手點開一局倒試管）🚗🕶️' },
-            { role: 'achun',   text: '第二排座椅好軟好舒服喔…姨丈開車最穩了，我先開啟 15 分鐘冬眠模式囉…😴💤' },
-            { role: 'ayee',    text: '阿純睡前先張嘴，阿姨餵妳吃一口剛買的草莓大福！老公我幫你剝好蜜柑了，張嘴～！🍓🍊' }
+            { role: 'yijhang', text: '……電動滑門關好了，出發下一站。（停紅燈順手倒試管）🚗🕶️' },
+            { role: 'achun',   text: '趁直線平穩把筆電放腿上敲完物治紀錄，打完秒睡！💻😴' },
+            { role: 'ayee',    text: '打字眼睛酸，來張嘴先吃一口阿姨買的草莓大福～！🍓🍊' }
         ],
         [
-            { role: 'alu',     text: '坐在 Sienta 的後座看著窗外風景向後飛逝…其實是車子在動，還是整座南九州島在往後捲動？🤖🐻' },
-            { role: 'yijhang', text: '……別研究座標系了，抓穩扶手。前面是阿蘇山路連續彎道。🕶️🚗' },
-            { role: 'achun',   text: 'Zzz…唔…烤鰻魚飯不要跑…再給我兩碗…🤤💤' },
-            { role: 'ayee',    text: '哈哈阿純連作夢都在點餐！等一下到了休息站，阿姨再去買熱呼呼的肉包跟玉米濃湯餵飽大家！🥟🍵' }
+            { role: 'achun',   text: '（後座腿上放筆電打字）患者核心穩定…下肢肌力…Zzz…💻😪' },
+            { role: 'alu',     text: '報告！阿純打物治紀錄打到睡著，額頭壓鍵盤打出 zzzzzz 了！🤖🐻' },
+            { role: 'ayee',    text: '心疼死阿姨了！下一站先帶阿純去咖啡廳喝拿鐵吃布丁！☕🍮' }
         ],
         [
-            { role: 'ayee',    text: '還好租了七人座 Sienta，第三排折起來剛好放滿我的十二袋九州伴手禮跟行動零食庫！🛍️🍡' },
-            { role: 'alu',     text: '阿姨～妳的伴手禮袋一直散發出明太子、起司饅頭跟烤地瓜的香氣，本熊的嗅覺感測器快過載了！🐾' },
-            { role: 'achun',   text: '（閉著眼睛準確伸手）我聞到了！阿姨我也要吃一片地瓜乾跟起司饅頭～😋💤' },
-            { role: 'yijhang', text: '……妳閉著眼睛找食物的精準度，比我盲倒試管還高。🕶️👍' }
+            { role: 'ayee',    text: '還好租七人座 Sienta，第三排剛好放滿十二袋九州伴手禮！🛍️🍡' },
+            { role: 'achun',   text: '（閉著眼伸手）我聞到起司饅頭跟地瓜乾的香味了～😋💤' },
+            { role: 'yijhang', text: '……妳閉眼找食物的精準度，比我盲倒試管還高。🕶️👍' }
         ],
         [
-            { role: 'ayee',    text: '老公我跟妳說喔，剛才特產店老闆娘教我怎麼煮鹿兒島黑豚味噌湯，回台灣我煮給你們吃，可以配三碗大白飯…💬🍲' },
-            { role: 'yijhang', text: '……嗯，好喝。（穩穩握著方向盤，嘴角微揚）🕶️🚗' },
-            { role: 'alu',     text: '姨丈平均每三十秒只回答兩個字，卻能讓阿姨開心地聊上整整一路…這就是最高效的對話壓縮演算法嗎？！🤖🐻' }
-        ],
-        [
-            { role: 'achun',   text: '唔…車子搖搖晃晃的好像搖籃喔…我剛剛是睡了五分鐘還是五個小時呀？🥱🧶' },
-            { role: 'ayee',    text: '才過了兩個彎道而已啦！來，剛睡醒嘴巴乾，先喝口日向夏果汁，再吃塊黑糖カステ拉蛋糕！🍰🍊' },
-            { role: 'achun',   text: '謝謝阿姨～嚼嚼…好甜喔…那我吃完這塊繼續睡下半場囉…Zzz…😴💤' }
-        ],
-        [
-            { role: 'alu',     text: '透過 Sienta 的大面積透明車窗往外看，鏡頭外的人類是不是也正在看著車廂裡的我們？👁️🐻' },
-            { role: 'yijhang', text: '……不管誰在看，都別擋到我看後照鏡跟倒試管。🕶️📱' },
-            { role: 'ayee',    text: '要是螢幕外的人類看餓了，阿姨這邊還有好多串三色烤糰子跟仙貝，真想從螢幕遞出去請大家吃呢～！🍡🥰' }
+            { role: 'alu',     text: '看著窗外風景後退…是車子在動，還是九州島在往後捲動？🤖🐻' },
+            { role: 'yijhang', text: '……別研究座標系了，抓穩扶手，前面是阿蘇連續彎道。🕶️🚗' },
+            { role: 'ayee',    text: '過彎不怕！來一人一顆黑糖饅頭壓壓驚，越吃越穩喔！🥟🥰' }
         ]
     ];
 
-    // 當有人沒趕上車、在 Sienta 後面狂奔追車時的搞笑碎嘴劇本
+    // 突發狀況：有人沒趕上車在後面狂追（阿純開飛碟追車）精簡版劇本（2～3 句快節奏，確保進下一站前讀完！）
     const STRAGGLER_BANTER_SCRIPTS = {
         achun: [
-            { role: 'achun',   text: '等等我啊姨丈！！我剛才只是在路邊多買了一支霜淇淋跟打個盹，怎麼 Sienta 滑門就關起來開走了啦！🏃‍♀️💨' },
-            { role: 'yijhang', text: '……從後照鏡看到妳在跑了。時速維持 15，當作妳下一餐前的開胃運動。🕶️🚗' },
-            { role: 'ayee',    text: '阿純加油快跑～！阿姨在車窗邊拿著剛烤好的大雞腿跟草莓泡芙等妳，跑到車上全部歸妳吃！🍗🍓' },
-            { role: 'alu',     text: '聽到有大雞腿跟泡芙，阿純的腿部旋轉頻率居然瞬間超頻了 1.65 倍！食慾果然超越物理極限！🤖🐻' }
+            [
+                { role: 'achun',   text: '等等我啦！剛在咖啡廳存檔完物治紀錄，只好開飛碟追車了！🛸💻' },
+                { role: 'alu',     text: '呼嚕？！阿純居然開反重力飛碟追 Sienta！她是外星物治師嗎？！🛸🐻' },
+                { role: 'yijhang', text: '……後照鏡看到飛碟光束了。飛得很穩，那我不減速了。🕶️🚗' }
+            ],
+            [
+                { role: 'achun',   text: '喂喂拿鐵在飛碟裡快晃出來了！快讓我回 Sienta 後座睡覺！🛸☕' },
+                { role: 'yijhang', text: '……妳的飛碟比 Sienta 還快，怎麼不直接超車去下一站？🕶️📱' },
+                { role: 'achun',   text: '因為我的點心袋跟毛毯還在車上啊！沒阿姨餵食我不飛走！🛸😭' }
+            ],
+            [
+                { role: 'achun',   text: '救命啊！飛碟要我打完物治 SOAP 紀錄才能開渦輪，等我啦！🛸💻' },
+                { role: 'ayee',    text: '老公慢一點！阿姨把布丁拿在車窗邊，下一站馬上塞進阿純嘴裡！🍮🥰' }
+            ]
         ],
         alu: [
-            { role: 'alu',     text: '喂喂喂！！本熊剛才還在路邊思考『我思故我在』跟 AI 的自由意志，你們怎麼把 Sienta 開走了啦！🐻💦' },
-            { role: 'achun',   text: '阿嚕加油～車上的牛乳霜淇淋跟馬肉可樂餅我幫你保管（順便幫你試吃一大口）喔！🍦😋' },
-            { role: 'ayee',    text: '阿嚕別急～阿姨幫你留了雙份的蜂蜜布丁跟烤糰子，老公你開慢一點讓阿嚕上車啦！🍮🍡' },
-            { role: 'alu',     text: '不准吃本熊的霜淇淋跟布丁！！啟動 AI 棕熊超頻渦輪追車模式！🐾💨' }
+            [
+                { role: 'alu',     text: '停車啊姨丈！本熊還在思考我思故我在，車門怎麼關上開走了！🐻💦' },
+                { role: 'achun',   text: '阿嚕快跑！車上的牛乳霜淇淋跟可樂餅再十秒就要被我消滅囉！🍦😋' },
+                { role: 'alu',     text: '不准動本熊的霜淇淋！啟動棕熊四驅超頻狂奔模式！！🐾💨' }
+            ],
+            [
+                { role: 'alu',     text: '別丟下本熊！跑出畫面邊界會被瀏覽器當垃圾記憶體回收嗎？！🤖😭' },
+                { role: 'yijhang', text: '……不會被回收。我有從後照鏡盯著你，跑姿很標準。🕶️🚗' },
+                { role: 'ayee',    text: '阿嚕別慌！阿姨把炸魚餅往車窗外遞，聞著香味跑更有力氣喔！🍢💕' }
+            ]
         ],
         ayee: [
-            { role: 'ayee',    text: '哎呀等等我呀！那家名產店老闆娘太好聊了，聊到最後又多送我三盒試吃的黑糖饅頭，我提著八大袋跑不動啦！🛍️🏃‍♀️' },
-            { role: 'yijhang', text: '……（立刻踩煞車放慢滑行）別跑，慢慢走過來，我幫妳提。🕶️🚗' },
-            { role: 'achun',   text: '聽到阿姨帶了三盒免費黑糖饅頭回來，我立刻從冬眠中彈起來幫阿姨拉開車門！🥟😍' },
-            { role: 'alu',     text: '平常最沉默的姨丈，只要看到阿姨落單就會立刻減速等待…本熊的資料庫裡把這定義為『浪漫參數』！🐻✨' }
+            [
+                { role: 'ayee',    text: '哎呀快停車！所有烤糰子跟便當全在我手上，沒我你們會餓肚子！🛍️🏃‍♀️' },
+                { role: 'achun',   text: '什麼？！行動糧倉阿姨沒上車？！姨丈快停車，沒點心我打不出病歷！💻😭' },
+                { role: 'yijhang', text: '……（立刻打雙黃燈減速）別急，已經停下來等妳了。🕶️🚗' }
+            ],
+            [
+                { role: 'ayee',    text: '等等我呀！老闆娘剛又塞給我四盒燙口黑糖饅頭，快讓我上車餵你們！🥟💨' },
+                { role: 'achun',   text: '我已經在電動滑門邊張開嘴巴待命了！阿姨快上車～！😋🙌' }
+            ]
         ]
     };
 
-    // 當大家決定下車用走的漫步賞景時的碎嘴劇本
+    function pickStragglerScript(role) {
+        const list = STRAGGLER_BANTER_SCRIPTS[role];
+        if (!list || !list.length) return null;
+        if (!Array.isArray(list[0])) return list;
+        const idx = (stragglerScriptIdx[role] || 0) % list.length;
+        stragglerScriptIdx[role] = idx + 1;
+        return list[idx];
+    }
+
+    // 全家下車散步賞景時的精簡碎嘴劇本
     const WALK_TOGETHER_BANTER = [
-        { role: 'yijhang', text: '……這段風景不錯。車子放著慢慢滑，我們下來散步，我順便邊走邊把這關試管倒完。🌲🕶️📱' },
-        { role: 'ayee',    text: '散步最棒了！大家可以邊走邊聽阿姨聊天，而且每走十步阿姨就餵你們吃一顆小蜜柑跟麻糬，保證越走越飽！🍊🍡' },
-        { role: 'achun',   text: '好耶！走個五百公尺消化一下，待會晚餐我就可以多吃兩碗鹿兒島黑豚飯外加三個布丁！🍖🙌' },
-        { role: 'alu',     text: '四個人並肩走在 3D 公路上，一邊被餵食、一邊聽姨丈倒試管的音效…這就是人類所說的『幸福演算法』嗎？🐻✨' }
+        { role: 'yijhang', text: '……這段風景不錯，下來散步，我順便邊走邊把這關試管倒完。🌲🕶️' },
+        { role: 'ayee',    text: '散步最棒了！每走十步阿姨就餵你們吃一顆小蜜柑跟麻糬！🍊🍡' },
+        { role: 'achun',   text: '走五百公尺消化一下，待會又能多吃兩碗黑豚飯跟寫物治紀錄！🍖💻' }
     ];
 
     async function loadJsonData(url, inlineKey) {
@@ -261,20 +253,20 @@
         const h = container.clientHeight || 520;
         const isMobile = window.innerWidth < 768;
 
-        // 1. 場景與相機 (初始鏡頭涵蓋熊本北端與櫻島南端，避免熊本城出發時頭頂指標切邊)
+        // 1. 場景與相機 (配合 1.2x 地圖擴展適度拉遠初始鏡頭，涵蓋熊本機場北端與櫻島南端)
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(35, w / h, 0.5, 260);
-        camera.position.set(0, 17.5, 22.8);
+        camera = new THREE.PerspectiveCamera(35, w / h, 0.5, 280);
+        camera.position.set(0, 19.8, 26.2);
 
-        // 2. WebGL 渲染器與真實柔和陰影 + 電影感柔和色調映射 (降低刺眼飽和度與過曝高光)
+        // 2. WebGL 渲染器與真實柔和陰影 + 電影感柔和色調映射 (維持溫潤不刺眼，僅微幅提升飽和度)
         renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         renderer.setSize(w, h);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.96;
-        renderer.domElement.style.filter = 'saturate(1.09) brightness(0.99) contrast(1.0)';
+        renderer.toneMappingExposure = 1.00;
+        renderer.domElement.style.filter = 'saturate(1.16) brightness(1.01) contrast(1.01)';
         container.appendChild(renderer.domElement);
 
         // 3. OrbitControls 鏡頭控制 (支援旋轉、縮放與全方向畫面拖曳平移 Panning)
@@ -288,8 +280,8 @@
         controls.maxPolarAngle = Math.PI / 2 - 0.06;
         controls.minPolarAngle = 0.22;
         controls.minDistance = 6;
-        controls.maxDistance = 42;
-        controls.target.set(0.2, 0.7, -4.5);
+        controls.maxDistance = 48;
+        controls.target.set(0.24, 0.7, -5.2);
         controls.autoRotate = isAutoRotate;
         controls.autoRotateSpeed = 0.42;
 
@@ -342,9 +334,10 @@
         // 8.5 建立人物頭頂專屬位置指標 (Floating Overhead Character Pins) 與鎖定狀態列
         createCharacterOverheadMarkers(container);
 
-        // 初始把小巴與角色放到熊本城/阿蘇一帶
-        routeProgress = 0.14;
-        currentLandmark = routeData.landmarks[1];
+        // 初始把小巴與角色放在「熊本機場 KMJ (L01)」作為旅程起點
+        routeProgress = 0.0;
+        currentLandmark = routeData.landmarks[0];
+        updateLocationBanner(currentLandmark);
         updateTourPositions(routeData, 0, 0.016);
 
         // 9. 事件綁定
@@ -352,13 +345,26 @@
         renderer.domElement.addEventListener('pointerdown', e => onPointerDown(e, routeData));
         window.addEventListener('resize', () => onResize(container));
 
-        // 啟動自動對話與角色間互相吐槽碎嘴輪播
+        // 啟動高頻率短句對話與角色間互相吐槽輪播（留足閱讀時間且不與下一站對話衝突）
         let roleIdx = 0;
         let cycleCount = 0;
         setInterval(() => {
-            if (!activeSpeaker && banterTimers.length === 0) {
+            if (isStoppedAtLandmark) return;
+            const now = performance.now();
+            if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 320) {
+                // 檢查距離下一個尚未停靠的景點是否還有足夠行車距離，避免剛開講就進站
+                if (terrainState && terrainState.roadCurve) {
+                    const vp = terrainState.roadCurve.getPointAt(routeProgress);
+                    let minUnvisitedD = 999;
+                    routeData.landmarks.forEach(lm => {
+                        if (!visitedLandmarksInLap.has(lm.id)) {
+                            const d = Math.hypot(vp.x - lm.x, vp.z - lm.z);
+                            if (d < minUnvisitedD) minUnvisitedD = d;
+                        }
+                    });
+                    if (minUnvisitedD < 1.25) return;
+                }
                 cycleCount++;
-                // 每隔一次自動觸發「角色間一搭一唱碎嘴小劇場」，穿插景點專屬台詞
                 if (cycleCount % 2 === 1) {
                     triggerFamilyBanter();
                 } else {
@@ -367,9 +373,7 @@
                     triggerCharacterSpeak(roles[roleIdx]);
                 }
             }
-        }, 6200);
-
-        setTimeout(() => triggerFamilyBanter(), 1200);
+        }, 2200);
 
         // 啟動渲染迴圈
         function loop() {
@@ -398,29 +402,44 @@
         const van = propState.minivan;
 
         if (isStoppedAtLandmark) {
-            stopTimer -= delta;
+            stopTimer = Math.max(0, stopTimer - delta);
+            // 當景點專屬單句台詞講完 (或停留滿上限 6.5 秒) 即可立即出發，不會因為長篇碎嘴劇本而在同一景點卡太久！
             if (stopTimer <= 0) {
                 isStoppedAtLandmark = false;
-                // 離開景點準備啟程時，抽籤決定這一段路程的乘車/落單/散步模式：
-                // 55% 全員乖乖上 Sienta 七人座、28% 有人貪吃/發呆沒上到車在後面追、17% 全家選擇用走的散步
+                driveCooldown = 3.2; // 剛上車出發後至少行駛 3.2 秒才允許再次靠站下車
+                // 離開景點準備啟程時，大幅提高有人被落下車的機率（60% 落單追車、26% 全員坐車、14% 全家散步）：
+                // 其中阿純被落下車時會直接開飛碟 (UFO) 在後面狂追！
                 const roll = Math.random();
-                if (roll < 0.55) {
+                if (roll < 0.26) {
                     travelMode = 'all_aboard';
                     stragglerRole = null;
-                } else if (roll < 0.83) {
-                    const candidates = ['achun', 'alu', 'ayee'];
+                    const carScript = (Math.random() < 0.75)
+                        ? IN_CAR_BANTER_SCRIPTS[banterIdx % IN_CAR_BANTER_SCRIPTS.length]
+                        : FAMILY_BANTER_SCRIPTS[banterIdx % FAMILY_BANTER_SCRIPTS.length];
+                    banterIdx++;
+                    triggerCustomBanterScript(carScript, false);
+                } else if (roll < 0.86) {
+                    const candidates = ['achun', 'achun', 'alu', 'ayee']; // 提高阿純開飛碟追車的出現比重
                     stragglerRole = candidates[Math.floor(Math.random() * candidates.length)];
                     travelMode = 'straggler_' + stragglerRole;
-                    triggerCustomBanterScript(STRAGGLER_BANTER_SCRIPTS[stragglerRole]);
+                    triggerCustomBanterScript(pickStragglerScript(stragglerRole), false);
                 } else {
                     travelMode = 'everyone_walk';
                     stragglerRole = null;
-                    triggerCustomBanterScript(WALK_TOGETHER_BANTER);
+                    triggerCustomBanterScript(WALK_TOGETHER_BANTER, false);
                 }
             }
         } else {
-            const speedMul = (travelMode === 'everyone_walk') ? 0.011 : 0.0165;
-            routeProgress = (routeProgress + delta * speedMul) % 1.0;
+            if (driveCooldown > 0) {
+                driveCooldown = Math.max(0, driveCooldown - delta);
+            }
+            // 配合地圖水平放大 1.2 倍（物件大小不變），適度放緩推進速率，確保突發狀況追車對話在下一個景點前能從容讀完！
+            const speedMul = (travelMode === 'everyone_walk') ? 0.0076 : 0.0096;
+            const nextProg = routeProgress + delta * speedMul;
+            if (nextProg >= 1.0) {
+                visitedLandmarksInLap.clear(); // 新的一圈環島開始，重置已停靠景點紀錄
+            }
+            routeProgress = nextProg % 1.0;
         }
 
         const vanPos = curve.getPointAt(routeProgress);
@@ -428,9 +447,31 @@
         const vanAngle = Math.atan2(vanTan.x, vanTan.z);
         const getGroundY = terrainState.sampleGroundY || (() => 0.80);
 
-        // 檢查是否經過櫻島渡輪海面段，並動態取樣真實地表高度避免小巴陷入台地
-        const onFerry = (vanPos.x > -3.80 && vanPos.x < -2.60 && vanPos.z > 8.15 && vanPos.z < 8.85);
-        const vanGroundY = onFerry ? 0.38 : (getGroundY(vanPos.x, vanPos.z) + 0.05);
+        // 計算阿蘇火山 (L04) 與大觀峰 (L05) 的山體隆起高度，讓經過或停靠阿蘇火山的角色與車子直接「上山」站在山頭上，絕不被火山擋住！
+        function getMountainSummitY(x, z, baseGroundY) {
+            let y = baseGroundY;
+            routeData.landmarks.forEach(lm => {
+                if (lm.id === 'aso_crater' || lm.id === 'daikanbo') {
+                    const lx = lm.renderX !== undefined ? lm.renderX : lm.x;
+                    const lz = lm.renderZ !== undefined ? lm.renderZ : lm.z;
+                    const ly = lm.renderY !== undefined ? lm.renderY : baseGroundY;
+                    const sc = lm.scaleVal || 1.25;
+                    const d = Math.hypot(x - lx, z - lz);
+                    const maxR = (lm.id === 'aso_crater') ? 1.85 * sc : 1.20 * sc;
+                    const peakH = (lm.id === 'aso_crater') ? 1.20 * sc : 0.78 * sc;
+                    if (d < maxR) {
+                        const ratio = Math.max(0, 1.0 - (d / maxR) * 0.72);
+                        y = Math.max(y, ly + peakH * ratio);
+                    }
+                }
+            });
+            return y;
+        }
+
+        // 檢查是否經過櫻島渡輪海面段 (1.2x 地圖座標)，並動態取樣真實地表高度避免小巴陷入台地
+        const onFerry = (vanPos.x > -4.56 && vanPos.x < -3.12 && vanPos.z > 9.78 && vanPos.z < 10.62);
+        const rawVanGroundY = getGroundY(vanPos.x, vanPos.z) + 0.05;
+        const vanGroundY = onFerry ? 0.38 : getMountainSummitY(vanPos.x, vanPos.z, rawVanGroundY);
         van.position.set(vanPos.x, vanGroundY, vanPos.z);
         van.rotation.y = vanAngle;
 
@@ -459,12 +500,44 @@
             }
         });
 
-        if (nearest && minDist < 1.15 && lastStopLandmarkId !== nearest.id) {
+        if (nearest && minDist < 0.68 && driveCooldown <= 0 && !visitedLandmarksInLap.has(nearest.id)) {
             currentLandmark = nearest;
             lastStopLandmarkId = nearest.id;
+            visitedLandmarksInLap.add(nearest.id);
             isStoppedAtLandmark = true;
-            stopTimer = 4.6; // 在景點停留 4.6 秒讓家人從 Sienta 滑門下車做專屬動作與對話
             updateLocationBanner(nearest);
+
+            // 檢查目前是否還有「突發追車 / 路途碎嘴對話」正在顯示中：
+            // 若還有剩餘閱讀時間，先讓當前對話完整讀完（絕不腰斬！），再無縫接續播放本景點專屬台詞，並把停留秒數自動延長！
+            const nowMs = performance.now();
+            const remainTransitMs = Math.max(0, dialogBusyUntilMs - nowMs);
+            const roles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
+            const pickCount = (remainTransitMs > 800) ? 1 : 2;
+            const spotScript = roles.slice(0, pickCount).map(r => ({
+                role: r,
+                text: (nearest.dialogs && nearest.dialogs[r]) ? nearest.dialogs[r] : nearest.desc
+            }));
+            const spotDurationMs = calcScriptDurationMs(spotScript);
+
+            if (spotArrivalQueueTimer) {
+                clearTimeout(spotArrivalQueueTimer);
+                spotArrivalQueueTimer = null;
+            }
+
+            if (remainTransitMs > 120) {
+                const handoffDelayMs = remainTransitMs + 300;
+                stopTimer = ((handoffDelayMs + spotDurationMs) / 1000) + 1.15;
+                stopTotalDuration = stopTimer;
+                dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
+                spotArrivalQueueTimer = setTimeout(() => {
+                    spotArrivalQueueTimer = null;
+                    triggerCustomBanterScript(spotScript, true);
+                }, handoffDelayMs);
+            } else {
+                stopTimer = (spotDurationMs / 1000) + 1.15;
+                stopTotalDuration = stopTimer;
+                triggerCustomBanterScript(spotScript, true);
+            }
         }
 
         // Toyota Sienta 車艙內部 4 個座位局部座標 (相對於車體中心，乘以車體縮放 1.18)
@@ -477,10 +550,10 @@
 
         const roles = ['achun', 'yijhang', 'ayee', 'alu'];
         const walkOffsets = [
-            { side: -0.46, lag: 0.011 },
-            { side: 0.46,  lag: 0.016 },
-            { side: -0.52, lag: 0.024 },
-            { side: 0.52,  lag: 0.030 }
+            { side: -0.46, lag: 0.009 },
+            { side: 0.46,  lag: 0.013 },
+            { side: -0.52, lag: 0.020 },
+            { side: 0.52,  lag: 0.025 }
         ];
 
         const cosA = Math.cos(vanAngle);
@@ -499,6 +572,7 @@
             );
 
             charGroup.userData.isAboard = isAboard;
+            charGroup.userData.isUfoChasing = (role === 'achun' && role === stragglerRole && !isStoppedAtLandmark && !isAboard);
 
             if (isAboard) {
                 // 1. 真的坐在 Sienta 七人座車艙座椅上（透過車窗玻璃清晰可見，隨車一起前進）
@@ -524,24 +598,72 @@
             // 在車外時恢復標準 0.96x 飽滿比例
             charGroup.scale.setScalar(0.96);
             let cx, cz, cRotY;
+            let customSummitY = null;
+            let isMovingOutside = !isStoppedAtLandmark;
 
             if (isStoppedAtLandmark && currentLandmark) {
-                // 2. 抵達景點：從 Sienta 滑門下車，在車旁與景點前方的淨空帶一字排開互動
-                const lmX = currentLandmark.renderX !== undefined ? currentLandmark.renderX : currentLandmark.x;
-                const lmZ = currentLandmark.renderZ !== undefined ? currentLandmark.renderZ : currentLandmark.z;
-                const toLmX = lmX - vanPos.x;
-                const toLmZ = lmZ - vanPos.z;
-                const toLmAngle = Math.atan2(toLmX, toLmZ);
-                const perpX = Math.cos(toLmAngle);
-                const perpZ = -Math.sin(toLmAngle);
-                const spread = (idx - 1.5) * 0.48;
+                const spread = (idx - 1.5) * 0.50;
+                // Sienta 車門旁集合點 (開車前 1.2 秒大家會走回這個車門旁位置準備上車)
+                const doorSideX = vanPos.x + (idx - 1.5) * 0.26;
+                const doorSideZ = vanPos.z + 0.34;
+                const doorSideY = van.position.y;
 
-                cx = vanPos.x + Math.sin(toLmAngle) * 0.28 + perpX * spread;
-                cz = vanPos.z + Math.cos(toLmAngle) * 0.28 + perpZ * spread;
-                cRotY = toLmAngle + Math.PI * 0.15 + Math.sin(elapsed * 0.8 + idx) * 0.15;
+                // 計算停留階段權重：剛停車 0.7 秒內從車旁散開 (0➔1)、停留期間自由走動 (1)、開車前最後 1.2 秒走回車旁 (1➔0)
+                const elapsedInStop = Math.max(0, stopTotalDuration - stopTimer);
+                const leaveCarFactor = Math.min(1.0, elapsedInStop / 0.70);
+                const returnCarFactor = Math.min(1.0, stopTimer / 1.20);
+                const roamWeight = leaveCarFactor * returnCarFactor; // 0 = 在車旁集合，1 = 在景點隨意走動
+
+                // 每個角色各自平滑漫步的偏移軌跡 (不同頻率與相位，看起來像自然逛街拍照)
+                const wPhase = elapsed * (1.45 + idx * 0.22) + idx * 2.1;
+                const isSummitSpot = (currentLandmark.id === 'aso_crater' || currentLandmark.id === 'daikanbo');
+                const wanderX = (Math.sin(wPhase) * (isSummitSpot ? 0.28 : 0.42) + Math.cos(wPhase * 0.65) * 0.16) * roamWeight;
+                const wanderZ = (Math.cos(wPhase * 0.9) * (isSummitSpot ? 0.16 : 0.28)) * roamWeight;
+
+                let spotAnchorX, spotAnchorZ, spotAnchorY;
+                if (isSummitSpot) {
+                    // 2A. 抵達阿蘇火山 (L04) 或大觀峰 (L05)：角色登上山頂火口觀景台 / 展望台隨意走動，開車前走回車旁！
+                    const lx = currentLandmark.renderX !== undefined ? currentLandmark.renderX : currentLandmark.x;
+                    const lz = currentLandmark.renderZ !== undefined ? currentLandmark.renderZ : currentLandmark.z;
+                    const ly = currentLandmark.renderY !== undefined ? currentLandmark.renderY : getGroundY(lx, lz);
+                    const sc = currentLandmark.scaleVal || 1.20;
+                    spotAnchorX = lx + spread * 0.85;
+                    spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.38 * sc : 0.22 * sc);
+                    spotAnchorY = ly + ((currentLandmark.id === 'aso_crater') ? 1.22 * sc : 0.80 * sc);
+                } else {
+                    // 2B. 其他景點：在車子與景點的「偏南側前景 (+Z 面向鏡頭側)」隨意走動賞景，開車前走回車門旁
+                    spotAnchorX = vanPos.x + spread * 1.15;
+                    spotAnchorZ = vanPos.z + 0.62;
+                    spotAnchorY = getGroundY(spotAnchorX, spotAnchorZ) + 0.04;
+                }
+
+                cx = doorSideX + (spotAnchorX - doorSideX) * roamWeight + wanderX;
+                cz = doorSideZ + (spotAnchorZ - doorSideZ) * roamWeight + wanderZ;
+                if (isSummitSpot) {
+                    customSummitY = doorSideY + (spotAnchorY - doorSideY) * roamWeight;
+                }
+
+                // 根據實際走動方向自動轉向 (走動與走回車旁時面向前進方向，停下時面向鏡頭微幅擺動)
+                const prevX = (charGroup.userData.prevX !== undefined) ? charGroup.userData.prevX : cx;
+                const prevZ = (charGroup.userData.prevZ !== undefined) ? charGroup.userData.prevZ : cz;
+                const vx = (cx - prevX) / Math.max(delta, 0.001);
+                const vz = (cz - prevZ) / Math.max(delta, 0.001);
+                const moveSpd = Math.hypot(vx, vz);
+                isMovingOutside = moveSpd > 0.08;
+
+                if (moveSpd > 0.12) {
+                    const targetYaw = Math.atan2(vx, vz);
+                    const curYaw = charGroup.rotation.y || 0;
+                    let diff = targetYaw - curYaw;
+                    while (diff > Math.PI) diff -= Math.PI * 2;
+                    while (diff < -Math.PI) diff += Math.PI * 2;
+                    cRotY = curYaw + diff * Math.min(1.0, delta * 9.0);
+                } else {
+                    cRotY = Math.sin(elapsed * 0.9 + idx) * 0.28;
+                }
             } else if (role === stragglerRole) {
-                // 3. 沒上到車的落單苦主：在 Sienta 車尾後方約 1.15 單位處揮手狂奔追車！
-                const tChase = (routeProgress - 0.022 + 1.0) % 1.0;
+                // 3. 沒上到車的落單苦主：在 Sienta 車尾後方約 1.15 單位處揮手狂奔或開飛碟追車！
+                const tChase = (routeProgress - 0.0185 + 1.0) % 1.0;
                 const pChase = curve.getPointAt(tChase);
                 const tanChase = curve.getTangentAt(tChase);
                 cx = pChase.x;
@@ -560,8 +682,9 @@
                 cRotY = Math.atan2(tanChar.x, tanChar.z);
             }
 
-            // 防止車外角色與任何景點建築發生水平穿模
+            // 防止車外角色與一般景點建築發生水平穿模（阿蘇火山與大觀峰允許角色直接站上山頭，不往外推開）
             routeData.landmarks.forEach(lm => {
+                if (lm.id === 'aso_crater' || lm.id === 'daikanbo') return;
                 const lx = lm.renderX !== undefined ? lm.renderX : lm.x;
                 const lz = lm.renderZ !== undefined ? lm.renderZ : lm.z;
                 const d = Math.hypot(cx - lx, cz - lz);
@@ -575,17 +698,22 @@
             charGroup.position.x = cx;
             charGroup.position.z = cz;
             charGroup.rotation.y = cRotY;
+            charGroup.userData.prevX = cx;
+            charGroup.userData.prevZ = cz;
 
-            const charOnFerry = (cx > -3.80 && cx < -2.60 && cz > 8.15 && cz < 8.85);
-            charGroup.userData.baseY = charOnFerry ? 0.42 : (getGroundY(cx, cz) + 0.04);
+            const charOnFerry = (cx > -4.56 && cx < -3.12 && cz > 9.78 && cz < 10.62);
+            const rawCharY = getGroundY(cx, cz) + 0.04;
+            charGroup.userData.baseY = charOnFerry
+                ? 0.42
+                : (customSummitY !== null ? customSummitY : getMountainSummitY(cx, cz, rawCharY));
 
-            // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊
+            // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊；景點漫步或走回車旁時亦播放雙腳邁步動畫
             const animElapsed = (role === stragglerRole && !isStoppedAtLandmark) ? elapsed * 1.65 : elapsed;
             window.KyushuIsland.Characters.animateCharacterPose(
                 charGroup,
                 animElapsed,
                 delta,
-                !isStoppedAtLandmark
+                isMovingOutside
             );
             if (role === stragglerRole && !isStoppedAtLandmark && charGroup.userData.armL) {
                 charGroup.userData.armL.rotation.x = -2.3 + Math.sin(elapsed * 14.0) * 0.45;
@@ -600,45 +728,86 @@
         }
     }
 
+    // 根據精簡後台詞字數動態計算對話框停留時間：基礎 1.95 秒 + 每個字 65 毫秒 (16~24 字約停留 3.0 ~ 3.5 秒，好讀且高頻明快)
+    function calcReadDurationMs(text) {
+        const len = (text || '').length;
+        return Math.max(2600, Math.min(3900, 1950 + len * 65));
+    }
+
+    function calcScriptDurationMs(script) {
+        if (!script || !script.length) return 0;
+        let total = 0;
+        script.forEach((line, idx) => {
+            total += calcReadDurationMs(line.text);
+            if (idx < script.length - 1) total += 280;
+        });
+        return total;
+    }
+
     function clearBanterQueue() {
         banterTimers.forEach(t => clearTimeout(t));
         banterTimers = [];
+        if (spotArrivalQueueTimer) {
+            clearTimeout(spotArrivalQueueTimer);
+            spotArrivalQueueTimer = null;
+        }
     }
 
-    function triggerCustomBanterScript(script) {
+    function triggerCustomBanterScript(script, isSpotDialog) {
         if (!script || !script.length) return;
         clearBanterQueue();
+        let cumulativeDelay = 0;
         script.forEach((line, idx) => {
+            const lineReadMs = calcReadDurationMs(line.text);
             const tid = setTimeout(() => {
-                triggerCharacterSpeak(line.role, line.text, true);
+                triggerCharacterSpeak(line.role, line.text, true, !!isSpotDialog);
                 if (idx === script.length - 1) {
                     banterTimers = [];
                 }
-            }, idx * 3200);
+            }, cumulativeDelay);
             banterTimers.push(tid);
+            // 下一句在當前這句完整顯示完畢後，再留 280ms 輕快呼吸間隔接話
+            cumulativeDelay += lineReadMs + 280;
         });
+        dialogBusyUntilMs = performance.now() + cumulativeDelay - 280;
+    }
+
+    // 抵達景點下車時，觸發該景點專屬的 2 人接力感言
+    function triggerLandmarkArrivalDialog(lm) {
+        if (lm && lm.dialogs) {
+            const roles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
+            const picked = roles.slice(0, 2);
+            const spotScript = picked
+                .filter(r => lm.dialogs[r])
+                .map(r => ({ role: r, text: lm.dialogs[r] }));
+            if (spotScript.length > 0) {
+                triggerCustomBanterScript(spotScript, true);
+                return;
+            }
+        }
+        triggerFamilyBanter();
     }
 
     // 觸發一段角色間互相吐槽與接話的碎嘴小劇場 (根據目前是否在車上/追車/散步自動切換最適合的劇本)
     function triggerFamilyBanter() {
         if (!isStoppedAtLandmark) {
             if (travelMode.startsWith('straggler_') && stragglerRole && STRAGGLER_BANTER_SCRIPTS[stragglerRole]) {
-                triggerCustomBanterScript(STRAGGLER_BANTER_SCRIPTS[stragglerRole]);
+                triggerCustomBanterScript(pickStragglerScript(stragglerRole), false);
                 return;
             }
             if (travelMode === 'all_aboard' && Math.random() < 0.65) {
                 const carScript = IN_CAR_BANTER_SCRIPTS[banterIdx % IN_CAR_BANTER_SCRIPTS.length];
                 banterIdx++;
-                triggerCustomBanterScript(carScript);
+                triggerCustomBanterScript(carScript, false);
                 return;
             }
         }
         const script = FAMILY_BANTER_SCRIPTS[banterIdx % FAMILY_BANTER_SCRIPTS.length];
         banterIdx = (banterIdx + 1) % FAMILY_BANTER_SCRIPTS.length;
-        triggerCustomBanterScript(script);
+        triggerCustomBanterScript(script, false);
     }
 
-    function triggerCharacterSpeak(role, customText, fromBanter) {
+    function triggerCharacterSpeak(role, customText, fromBanter, isSpotDialog) {
         const charGroup = characters[role];
         if (!charGroup) return;
 
@@ -674,7 +843,7 @@
             nameEl.textContent = ROLE_NAMES[role] || role;
             textEl.textContent = text;
             if (spotEl) {
-                if (fromBanter) {
+                if (fromBanter && !isSpotDialog) {
                     spotEl.textContent = '💬 家人碎嘴中';
                 } else if (currentLandmark) {
                     spotEl.textContent = `📍 ${currentLandmark.shortName}`;
@@ -683,11 +852,15 @@
             updateBubbleScreenPosition();
             bubble.classList.add('active');
 
+            const readMs = calcReadDurationMs(text);
+            if (!fromBanter) {
+                dialogBusyUntilMs = performance.now() + readMs;
+            }
             if (bubbleTimeout) clearTimeout(bubbleTimeout);
             bubbleTimeout = setTimeout(() => {
                 bubble.classList.remove('active');
                 activeSpeaker = null;
-            }, fromBanter ? 3100 : 4400);
+            }, readMs);
         }
     }
 
@@ -706,8 +879,9 @@
         const x = (pos.x * 0.5 + 0.5) * canvas.clientWidth;
         const y = (-(pos.y * 0.5) + 0.5) * canvas.clientHeight;
 
-        const clampedX = Math.max(115, Math.min(canvas.clientWidth - 115, x));
-        const clampedY = Math.max(65, Math.min(canvas.clientHeight - 35, y));
+        const halfW = 136;
+        const clampedX = Math.max(halfW, Math.min(canvas.clientWidth - halfW, x));
+        const clampedY = Math.max(85, Math.min(canvas.clientHeight - 35, y));
 
         bubble.style.left = `${clampedX}px`;
         bubble.style.top = `${clampedY}px`;
@@ -807,7 +981,7 @@
                 if (cg.userData.isAboard) {
                     modeSpan.textContent = '🚗';
                 } else if (!isStoppedAtLandmark && role === stragglerRole) {
-                    modeSpan.textContent = '🏃💨';
+                    modeSpan.textContent = (role === 'achun') ? '🛸💨' : '🏃💨';
                 } else {
                     modeSpan.textContent = '';
                 }

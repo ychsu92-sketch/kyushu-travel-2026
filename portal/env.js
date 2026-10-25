@@ -41,23 +41,23 @@
 
     function setupWinterLights(scene) {
         // 1. 柔和冬季環境光 (自然溫潤、不灰暗也不過曝)
-        const ambient = new THREE.AmbientLight(0xfff5eb, 0.54);
+        const ambient = new THREE.AmbientLight(0xfff5eb, 0.56);
         scene.add(ambient);
 
         // 2. 天空與大地半球反射光
-        const hemiLight = new THREE.HemisphereLight(0xd6e6f5, 0xc9b9a3, 0.42);
+        const hemiLight = new THREE.HemisphereLight(0xd6e6f5, 0xc9b9a3, 0.44);
         hemiLight.position.set(0, 35, 0);
         scene.add(hemiLight);
 
         // 3. 12 月冬季低角度暖陽 (產生柔和長陰影，色澤溫暖清透)
-        const sunLight = new THREE.DirectionalLight(0xffdeb8, 0.98);
+        const sunLight = new THREE.DirectionalLight(0xffdeb8, 1.00);
         sunLight.position.set(26, 22, 18);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
         sunLight.shadow.mapSize.height = 2048;
         sunLight.shadow.camera.near = 4;
-        sunLight.shadow.camera.far = 85;
-        const d = 24;
+        sunLight.shadow.camera.far = 95;
+        const d = 29;
         sunLight.shadow.camera.left = -d;
         sunLight.shadow.camera.right = d;
         sunLight.shadow.camera.top = d;
@@ -66,7 +66,7 @@
         scene.add(sunLight);
 
         // 4. 背光側暖色補光，避免暗部死黑
-        const fillLight = new THREE.DirectionalLight(0xb8c4d9, 0.24);
+        const fillLight = new THREE.DirectionalLight(0xb8c4d9, 0.25);
         fillLight.position.set(-22, 14, -18);
         scene.add(fillLight);
 
@@ -156,10 +156,10 @@
             return g;
         }
 
-        // 外海環狀分布的白線波紋 (64 組)
+        // 外海環狀分布的白線波紋 (64 組，配合 1.2x 地圖尺寸外擴)
         for (let i = 0; i < 64; i++) {
             const angle = (i / 64) * Math.PI * 2 + (Math.random() - 0.5) * 0.18;
-            const dist = 10.5 + (i % 5) * 3.6 + Math.random() * 1.8;
+            const dist = (10.5 + (i % 5) * 3.6 + Math.random() * 1.8) * 1.2;
             const cx = Math.cos(angle) * dist * 0.88;
             const cz = Math.sin(angle) * dist * 1.15;
             const width = 1.15 + (i % 3) * 0.45;
@@ -181,17 +181,17 @@
             waveLines.push(lineUnit);
         }
 
-        // 錦江灣、宮崎日南海岸、天草海域與薩摩半島近岸白線波紋 (18 組)
+        // 錦江灣、宮崎日南海岸、天草海域與薩摩半島近岸白線波紋 (18 組，1.2x 地圖座標)
         const coastalLineSpots = [
-            { x: -3.2, z: 7.3,  rot: 0.15, w: 1.1 },  { x: -3.1, z: 9.2,  rot: -0.2, w: 1.1 }, // 錦江灣
-            { x: -1.8, z: 7.6,  rot: 0.4,  w: 0.9 },  { x: -2.0, z: 9.5,  rot: -0.4, w: 1.0 },
-            { x: 9.0,  z: 1.8,  rot: 1.45, w: 1.5 },  { x: 8.8,  z: 4.5,  rot: 1.38, w: 1.5 }, // 宮崎日向灘
-            { x: 8.2,  z: 7.2,  rot: 1.25, w: 1.4 },  { x: 6.4,  z: 10.1, rot: 1.05, w: 1.5 }, // 日南海岸
-            { x: 9.5,  z: -3.5, rot: 1.50, w: 1.5 },  { x: 9.2,  z: -7.2, rot: 1.55, w: 1.4 },
-            { x: -6.2, z: -9.8, rot: -1.25,w: 1.4 },  { x: -5.8, z: -6.8, rot: -1.35,w: 1.4 }, // 天草灘
-            { x: -4.8, z: -3.2, rot: -1.45,w: 1.3 },  { x: -5.2, z: 2.5,  rot: -1.40,w: 1.4 }, // 八代海・薩摩西岸
-            { x: -6.2, z: 7.8,  rot: -1.30,w: 1.5 },  { x: -5.5, z: 11.8, rot: -0.75,w: 1.5 },
-            { x: -2.2, z: 12.8, rot: 0.15, w: 1.4 },  { x: 1.8,  z: 12.2, rot: 0.65, w: 1.5 }  // 指宿與佐多岬外海
+            { x: -3.84, z: 8.76,  rot: 0.15, w: 1.1 },  { x: -3.72, z: 11.04, rot: -0.2, w: 1.1 }, // 錦江灣
+            { x: -2.16, z: 9.12,  rot: 0.4,  w: 0.9 },  { x: -2.40, z: 11.40, rot: -0.4, w: 1.0 },
+            { x: 10.80, z: 2.16,  rot: 1.45, w: 1.5 },  { x: 10.56, z: 5.40,  rot: 1.38, w: 1.5 }, // 宮崎日向灘
+            { x: 9.84,  z: 8.64,  rot: 1.25, w: 1.4 },  { x: 7.68,  z: 12.12, rot: 1.05, w: 1.5 }, // 日南海岸
+            { x: 11.40, z: -4.20, rot: 1.50, w: 1.5 },  { x: 11.04, z: -8.64, rot: 1.55, w: 1.4 },
+            { x: -7.44, z: -11.76,rot: -1.25,w: 1.4 },  { x: -6.96, z: -8.16, rot: -1.35,w: 1.4 }, // 天草灘
+            { x: -5.76, z: -3.84, rot: -1.45,w: 1.3 },  { x: -6.24, z: 3.00,  rot: -1.40,w: 1.4 }, // 八代海・薩摩西岸
+            { x: -7.44, z: 9.36,  rot: -1.30,w: 1.5 },  { x: -6.60, z: 14.16, rot: -0.75,w: 1.5 },
+            { x: -2.64, z: 15.36, rot: 0.15, w: 1.4 },  { x: 2.16,  z: 14.64, rot: 0.65, w: 1.5 }  // 指宿與佐多岬外海
         ];
         coastalLineSpots.forEach((cl, idx) => {
             const lineUnit = createWaveLineUnit(cl.w, idx % 2 === 0 ? 'wavy' : 'double');
@@ -222,7 +222,8 @@
             color: 0xfffdf9,
             flatShading: true,
             transparent: true,
-            opacity: 0.92
+            opacity: 0.44,
+            depthWrite: false
         });
 
         const cloudConfigs = [

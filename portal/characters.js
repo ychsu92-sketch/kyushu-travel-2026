@@ -14,9 +14,9 @@
             code: 'C1',
             id: 'achun',
             name: '阿純',
-            title: '可愛妹子・吃貨睡神',
-            badge: '🧶 黃色毛帽・吃飽睡睡飽吃',
-            desc: '戴著招牌黃色毛球針織帽的可愛妹子，人生最大樂趣就是吃遍九州美食跟隨時隨地香甜補眠！'
+            title: '吃貨睡神・斜槓物治師',
+            badge: '🧶 吃飽睡＋找咖啡廳打物理治療紀錄',
+            desc: '戴著招牌黃色毛球針織帽的可愛妹子，除了熱愛吃遍九州美食跟上車秒睡，每到一個景點或在車上都想找咖啡廳拿出筆電打物理治療紀錄（工作狂吃貨）！'
         },
         {
             code: 'C2',
@@ -140,28 +140,103 @@
         headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBack, lockL, lockR, beanie, brim, pom);
         root.add(headGroup);
 
-        // 左右手臂（右手拿智慧型手機自拍）
+        // 左右手臂（左手拿銀色筆電隨時打「物理治療紀錄」、右手拿外帶熱拿鐵咖啡杯）
         const armL = new THREE.Group();
         armL.position.set(-0.25, 0.66, 0);
         const armMeshL = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.28, 8), coatMat);
         armMeshL.position.y = -0.11;
-        armL.add(armMeshL);
+
+        // 隨身銀色筆電 (鍵盤底座 + 掀開的發光螢幕顯示物理治療紀錄表單)
+        const laptopGroup = new THREE.Group();
+        const silverMat = new THREE.MeshLambertMaterial({ color: 0xcbd5e1 });
+        const kbMat     = new THREE.MeshLambertMaterial({ color: 0x334155 });
+        const screenGlow= new THREE.MeshBasicMaterial({ color: 0xe0f2fe });
+        const chartBar1 = new THREE.MeshBasicMaterial({ color: 0x0284c7 });
+        const chartBar2 = new THREE.MeshBasicMaterial({ color: 0x10b981 });
+
+        const lapBase = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.018, 0.16), silverMat);
+        const lapKb   = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.020, 0.11), kbMat);
+        lapKb.position.y = 0.002;
+        const lapScreenGroup = new THREE.Group();
+        lapScreenGroup.position.set(0, 0.01, -0.075);
+        lapScreenGroup.rotation.x = -0.35; // 微仰角掀開螢幕
+        const lapLid = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.15, 0.014), silverMat);
+        lapLid.position.y = 0.075;
+        const lapDisp = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.12, 0.016), screenGlow);
+        lapDisp.position.set(0, 0.075, 0.002);
+        const ptHeader = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.022, 0.018), chartBar1);
+        ptHeader.position.set(0, 0.115, 0.004);
+        const ptRow1 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.016, 0.018), chartBar2);
+        ptRow1.position.set(-0.01, 0.082, 0.004);
+        const ptRow2 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.018), chartBar1);
+        ptRow2.position.set(-0.02, 0.052, 0.004);
+        lapScreenGroup.add(lapLid, lapDisp, ptHeader, ptRow1, ptRow2);
+
+        laptopGroup.add(lapBase, lapKb, lapScreenGroup);
+        laptopGroup.position.set(0.06, -0.22, 0.13);
+        laptopGroup.rotation.x = 0.45;
+        armL.add(armMeshL, laptopGroup);
 
         const armR = new THREE.Group();
         armR.position.set(0.25, 0.66, 0);
         const armMeshR = armMeshL.clone();
-        const phone = new THREE.Mesh(
-            new THREE.BoxGeometry(0.08, 0.14, 0.02),
-            new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-        );
-        phone.position.set(0, -0.24, 0.08);
-        phone.rotation.x = -0.5;
-        armR.add(armMeshR, phone);
+        // 外帶咖啡廳熱拿鐵杯 (白杯身 + 牛皮紙隔熱杯套 + 深棕杯蓋)
+        const cupGroup = new THREE.Group();
+        const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.032, 0.11, 8), pomMat);
+        const cupSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.038, 0.045, 8), new THREE.MeshLambertMaterial({ color: 0xb45309 }));
+        const cupLid = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.045, 0.02, 8), bootMat);
+        cupLid.position.y = 0.06;
+        cupGroup.add(cupBody, cupSleeve, cupLid);
+        cupGroup.position.set(0, -0.23, 0.08);
+        cupGroup.rotation.x = -0.45;
+        armR.add(armMeshR, cupGroup);
         root.add(armL, armR);
+
+        // 阿純落單追車專屬座騎：科幻發光飛碟 (UFO Flying Saucer，預設隱藏，被落下車時自動召喚開飛碟狂追！)
+        const ufoGroup = new THREE.Group();
+        ufoGroup.position.y = 0.34;
+        const ufoMetalMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8, flatShading: true });
+        const ufoRimMat   = new THREE.MeshLambertMaterial({ color: 0x475569, flatShading: true });
+        const ufoDomeMat  = new THREE.MeshPhongMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.42, shininess: 90 });
+        const ufoBeamMat  = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.30, side: THREE.DoubleSide });
+        const ufoBulbMat1 = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+        const ufoBulbMat2 = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+
+        const saucerTop = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.58, 0.12, 16), ufoMetalMat);
+        const saucerBot = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.24, 0.10, 16), ufoRimMat);
+        saucerBot.position.y = -0.10;
+        const saucerTorus = new THREE.Mesh(new THREE.TorusGeometry(0.57, 0.04, 8, 20), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+        saucerTorus.rotation.x = Math.PI / 2;
+        saucerTorus.position.y = -0.04;
+
+        // 透明環形座艙罩
+        const cockpitGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.36, 0.18, 16, 1, true), ufoDomeMat);
+        cockpitGlass.position.y = 0.12;
+
+        // 底部反重力推進光束
+        const tractorBeam = new THREE.Mesh(new THREE.ConeGeometry(0.38, 0.36, 14, 1, true), ufoBeamMat);
+        tractorBeam.position.y = -0.28;
+
+        // 飛碟外圈 8 顆旋轉霓虹燈
+        const ufoSpinRing = new THREE.Group();
+        for (let i = 0; i < 8; i++) {
+            const ang = (i / 8) * Math.PI * 2;
+            const bulb = new THREE.Mesh(
+                new THREE.SphereGeometry(0.052, 8, 8),
+                (i % 2 === 0) ? ufoBulbMat1 : ufoBulbMat2
+            );
+            bulb.position.set(Math.cos(ang) * 0.58, -0.03, Math.sin(ang) * 0.58);
+            ufoSpinRing.add(bulb);
+        }
+
+        ufoGroup.add(saucerTop, saucerBot, saucerTorus, cockpitGlass, tractorBeam, ufoSpinRing);
+        ufoGroup.visible = false;
+        root.add(ufoGroup);
 
         root.userData = {
             role: 'achun',
             legL, legR, armL, armR, headGroup, torso,
+            ufoGroup, ufoSpinRing, tractorBeam,
             eyes: [eyeL, eyeR],
             jumping: 0,
             actionPhase: Math.random() * 10
@@ -573,6 +648,27 @@
         ud.armR.rotation.set(0, 0, 0);
         ud.torso.rotation.set(0, 0, 0);
         ud.headGroup.rotation.set(0, 0, 0);
+        if (ud.ufoGroup) {
+            ud.ufoGroup.visible = !!ud.isUfoChasing;
+            ud.legL.visible = !ud.isUfoChasing;
+            ud.legR.visible = !ud.isUfoChasing;
+        }
+
+        if (ud.isUfoChasing && ud.ufoGroup) {
+            // 阿純被落下車時：召喚並駕駛科幻飛碟 (UFO) 在後面高速懸浮追車！
+            const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
+            charGroup.position.y = baseY + 0.36 + Math.sin(elapsed * 7.5) * 0.08 + jumpOffset;
+            if (ud.ufoSpinRing) ud.ufoSpinRing.rotation.y = elapsed * 6.5;
+            if (ud.tractorBeam) ud.tractorBeam.scale.setScalar(0.92 + Math.sin(elapsed * 12.0) * 0.14);
+            ud.ufoGroup.rotation.z = Math.sin(elapsed * 5.0) * 0.09;
+            ud.ufoGroup.rotation.x = 0.14; // 飛碟微幅前傾衝刺
+            // 左手托著筆電繼續打物理治療紀錄，右手緊張高舉拿鐵揮手大喊「等等我！」
+            ud.armL.rotation.x = -1.15;
+            ud.armL.rotation.y = 0.25;
+            ud.armR.rotation.x = -2.35 + Math.sin(elapsed * 15.0) * 0.42;
+            ud.headGroup.rotation.y = Math.sin(elapsed * 6.0) * 0.22;
+            return;
+        }
 
         if (isWalking === 'seated') {
             // 坐在 Toyota Sienta 7 人座車艙內的專屬乘車姿勢
@@ -584,10 +680,12 @@
                 ud.armR.rotation.x = -1.05 - Math.sin(elapsed * 3.5) * 0.12;
                 ud.headGroup.rotation.y = Math.sin(elapsed * 1.6) * 0.18;
             } else if (ud.role === 'achun') {
-                // 阿純在車上靠窗香甜打瞌睡（度估）或伸手拿零食
-                if (activeQuirk === 1 || activeQuirk === 2) {
-                    ud.armR.rotation.x = -1.1;
-                    ud.headGroup.rotation.y = -0.25;
+                // 阿純在車上：交替表現「把筆電放腿上狂打物理治療紀錄」與「打完字靠窗香甜度估睡覺」
+                if (activeQuirk === 1 || activeQuirk === 2 || activeQuirk === 4) {
+                    ud.armL.rotation.x = -1.05;
+                    ud.armR.rotation.x = -1.05 + Math.sin(elapsed * 14.0) * 0.12;
+                    ud.headGroup.rotation.x = 0.22;
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 3.0) * 0.10;
                 } else {
                     ud.eyes.forEach(e => { e.scale.y = 0.12; });
                     ud.headGroup.rotation.z = 0.25 + Math.sin(elapsed * 2.2) * 0.08;
@@ -694,8 +792,8 @@
             }
 
             if (ud.role === 'achun') {
-                // 阿純：交替表現「閉眼歪頭打瞌睡點頭」與「聞到美食驚醒開心揮手」
-                if (activeQuirk === 3 || activeQuirk === 4) {
+                // 阿純：交替表現「拿筆電找咖啡廳狂打物理治療紀錄＋喝拿鐵」與「閉眼歪頭打瞌睡點頭」
+                if (activeQuirk === 3) {
                     // 香甜站著打瞌睡（閉眼 + 頭一點一點度估）
                     ud.eyes.forEach(e => { e.scale.y = 0.12; });
                     ud.headGroup.rotation.x = 0.25 + Math.abs(Math.sin(elapsed * 2.4)) * 0.20;
@@ -703,12 +801,13 @@
                     ud.armL.rotation.z = 0.20;
                     ud.armR.rotation.x = -0.35;
                 } else {
-                    // 開心伸懶腰找美食與自拍
-                    ud.armR.rotation.x = -1.25 + Math.sin(elapsed * 4.5) * 0.18;
-                    ud.armR.rotation.y = Math.cos(elapsed * 2.5) * 0.25;
-                    ud.armL.rotation.z = 0.70 + Math.sin(elapsed * 6.5) * 0.38;
-                    ud.headGroup.rotation.z = 0.16 * Math.sin(elapsed * 3.0);
-                    ud.headGroup.rotation.y = 0.22 * Math.cos(elapsed * 2.2);
+                    // 左手托著銀色筆電、右手飛快敲鍵盤打物理治療紀錄＆喝拿鐵找咖啡廳
+                    ud.armL.rotation.x = -1.18 + Math.sin(elapsed * 2.5) * 0.06;
+                    ud.armL.rotation.y = 0.22;
+                    ud.armR.rotation.x = -1.12 + Math.sin(elapsed * 12.0) * 0.14;
+                    ud.armR.rotation.y = -0.18;
+                    ud.headGroup.rotation.x = 0.20;
+                    ud.headGroup.rotation.y = 0.16 * Math.cos(elapsed * 2.2);
                 }
             } else if (ud.role === 'yijhang') {
                 // 姨丈：沉默酷哥司機，一停下來就默默舉起左手手機專心玩「倒試管益智小遊戲」，偶爾酷酷點頭

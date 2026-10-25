@@ -32,12 +32,12 @@
             ctx.fill();
         }
 
-        // 繪製細緻草地顆粒與等高線微網格
-        for (let i = 0; i < 1400; i++) {
+        // 繪製細緻草地陽光顆粒與微紋理 (避免深黑點造成畫面發灰)
+        for (let i = 0; i < 1100; i++) {
             const x = Math.random() * 256;
             const y = Math.random() * 256;
-            ctx.fillStyle = (i % 2 === 0) ? '#ffffff' : '#2d3a24';
-            ctx.globalAlpha = grainOpacity * 0.35;
+            ctx.fillStyle = (i % 2 === 0) ? '#fffbeb' : '#558b3e';
+            ctx.globalAlpha = grainOpacity * 0.28;
             ctx.fillRect(x, y, 2, 2);
         }
 
@@ -48,16 +48,16 @@
         return tex;
     }
 
-    // 計算任一 (x, z) 在南九州地表上的基礎海拔高度 (供物件、景點與道路自動貼合高低起伏)
+    // 計算任一 (x, z) 在南九州地表上的基礎海拔高度 (供物件、景點與道路自動貼合高低起伏，已隨 1.2x 地圖比例擴展)
     function getTerrainElevation(x, z) {
         let h = 0.78;
         const regions = [
-            { x: 3.28,  z: -12.94, r: 3.6, amp: 0.85 }, // 阿蘇高地
-            { x: 4.09,  z: -16.14, r: 3.2, amp: 0.75 }, // 黑川・九重高原
-            { x: 6.30,  z: -9.98,  r: 3.4, amp: 0.70 }, // 高千穗山地
-            { x: 2.20,  z: -5.20,  r: 4.5, amp: 0.82 }, // 九州中央山地
-            { x: 0.29,  z: 3.99,   r: 3.0, amp: 0.72 }, // 霧島山塊
-            { x: -2.70, z: 8.50,   r: 1.2, amp: 0.55 }  // 櫻島台地
+            { x: 3.94,  z: -15.53, r: 4.32, amp: 0.85 }, // 阿蘇高地
+            { x: 4.91,  z: -19.37, r: 3.84, amp: 0.75 }, // 黑川・九重高原
+            { x: 7.56,  z: -11.98, r: 4.08, amp: 0.70 }, // 高千穗山地
+            { x: 2.64,  z: -6.24,  r: 5.40, amp: 0.82 }, // 九州中央山地
+            { x: 0.35,  z: 4.79,   r: 3.60, amp: 0.72 }, // 霧島山塊
+            { x: -3.24, z: 10.20,  r: 1.44, amp: 0.55 }  // 櫻島台地
         ];
         for (let i = 0; i < regions.length; i++) {
             const p = regions[i];
@@ -74,8 +74,8 @@
         const shape = new THREE.Shape();
         if (!pts || !pts.length) return shape;
         const sf = scaleFactor || 1.0;
-        const cx = centerOffset ? centerOffset[0] : 0.8;
-        const cz = centerOffset ? centerOffset[1] : -2.0;
+        const cx = centerOffset ? centerOffset[0] : 0.96;
+        const cz = centerOffset ? centerOffset[1] : -2.40;
 
         for (let i = 0; i < pts.length; i++) {
             const px = cx + (pts[i][0] - cx) * sf;
@@ -223,7 +223,7 @@
             group.add(meshT2);
 
             // 第三階：中央山麓高原層 (縮放 0.60，暖褐枯草高地色)
-            const shapeT3 = createPolygonShape(pts, 0.60, [1.8, -4.5]);
+            const shapeT3 = createPolygonShape(pts, 0.60, [2.16, -5.40]);
             const geoT3 = new THREE.ExtrudeGeometry(shapeT3, {
                 depth: 0.26,
                 bevelEnabled: true,
@@ -252,29 +252,29 @@
         return { group, turfMesh: turfMesh1, cliffMesh, foamMesh };
     }
 
-    // 建立地貌拼布細節：農田/茶園方塊、冬季枯黃芒草原、球磨川與大淀川蜿蜒溪流、海岸礁石
+    // 建立地貌拼布細節：農田/茶園方塊、冬季枯黃芒草原、球磨川與大淀川蜿蜒溪流、海岸礁石 (1.2x 地圖座標)
     function buildBiomePatchesAndRivers(parent) {
         const biomeGroup = new THREE.Group();
 
         // 1. 田園拼布色塊 (熊本平原、人吉盆地、宮崎平原、知覽茶園)
         const patchDefs = [
             // 熊本與菊池平原農田
-            { x: -0.9, z: -10.2, w: 1.6, d: 1.1, rot: 0.2,  color: 0x9cb376, y: 0.80 },
-            { x: 0.6,  z: -10.8, w: 1.4, d: 1.0, rot: -0.15,color: 0xb5a876, y: 0.80 },
-            { x: -2.2, z: -9.5,  w: 1.3, d: 0.9, rot: 0.35, color: 0x829e65, y: 0.80 },
+            { x: -1.08, z: -12.24, w: 1.7, d: 1.2, rot: 0.2,  color: 0x9cb376, y: 0.80 },
+            { x: 0.72,  z: -12.96, w: 1.5, d: 1.1, rot: -0.15,color: 0xb5a876, y: 0.80 },
+            { x: -2.64, z: -11.40, w: 1.4, d: 1.0, rot: 0.35, color: 0x829e65, y: 0.80 },
             // 阿蘇草千里與牛奶之路冬日金黃枯草原
-            { x: 2.2,  z: -13.6, w: 2.2, d: 1.5, rot: 0.1,  color: 0xc2a878, y: 1.02 },
-            { x: 4.5,  z: -14.2, w: 1.8, d: 1.3, rot: -0.3, color: 0xb89f72, y: 1.02 },
+            { x: 2.64,  z: -16.32, w: 2.3, d: 1.6, rot: 0.1,  color: 0xc2a878, y: 1.02 },
+            { x: 5.40,  z: -17.04, w: 1.9, d: 1.4, rot: -0.3, color: 0xb89f72, y: 1.02 },
             // 人吉球磨盆地與霧島山麓茶園
-            { x: -0.6, z: -2.2,  w: 1.9, d: 1.4, rot: 0.25, color: 0x8fa868, y: 1.02 },
-            { x: -1.8, z: 1.8,   w: 1.7, d: 1.2, rot: -0.2, color: 0x9ab372, y: 0.82 },
+            { x: -0.72, z: -2.64,  w: 2.0, d: 1.5, rot: 0.25, color: 0x8fa868, y: 1.02 },
+            { x: -2.16, z: 2.16,   w: 1.8, d: 1.3, rot: -0.2, color: 0x9ab372, y: 0.82 },
             // 薩摩半島知覽茶園與指宿菜の花田（冬季暖黃綠）
-            { x: -4.6, z: 9.8,   w: 1.6, d: 1.3, rot: 0.18, color: 0xa3bd6a, y: 0.80 },
-            { x: -4.2, z: 11.4,  w: 1.4, d: 1.0, rot: -0.1, color: 0xd4be6a, y: 0.80 },
+            { x: -5.52, z: 11.76,  w: 1.7, d: 1.4, rot: 0.18, color: 0xa3bd6a, y: 0.80 },
+            { x: -5.04, z: 13.68,  w: 1.5, d: 1.1, rot: -0.1, color: 0xd4be6a, y: 0.80 },
             // 大隅半島與宮崎日南陽光草坡
-            { x: 0.6,  z: 9.2,   w: 2.0, d: 1.5, rot: -0.25,color: 0x8ca668, y: 0.80 },
-            { x: 6.8,  z: 1.5,   w: 1.8, d: 2.2, rot: 0.12, color: 0x96b070, y: 0.82 },
-            { x: 5.5,  z: -3.5,  w: 2.1, d: 1.6, rot: -0.2, color: 0x7d965e, y: 1.02 }
+            { x: 0.72,  z: 11.04,  w: 2.1, d: 1.6, rot: -0.25,color: 0x8ca668, y: 0.80 },
+            { x: 8.16,  z: 1.80,   w: 1.9, d: 2.3, rot: 0.12, color: 0x96b070, y: 0.82 },
+            { x: 6.60,  z: -4.20,  w: 2.2, d: 1.7, rot: -0.2, color: 0x7d965e, y: 1.02 }
         ];
 
         patchDefs.forEach(p => {
@@ -307,22 +307,22 @@
         const rivers = [
             // 球磨川 (從九州山地流經人吉盆地注入八代海)
             [
-                new THREE.Vector3(2.2, 1.15, -3.5),
-                new THREE.Vector3(0.4, 1.05, -2.4),
-                new THREE.Vector3(-1.3, 0.90, -1.8),
-                new THREE.Vector3(-2.6, 0.78, -3.2)
+                new THREE.Vector3(2.64, 1.15, -4.20),
+                new THREE.Vector3(0.48, 1.05, -2.88),
+                new THREE.Vector3(-1.56, 0.90, -2.16),
+                new THREE.Vector3(-3.12, 0.78, -3.84)
             ],
             // 五瀨川 (從阿蘇高千穗流向延岡日向灘)
             [
-                new THREE.Vector3(4.2, 1.15, -11.5),
-                new THREE.Vector3(6.3, 1.02, -9.9),
-                new THREE.Vector3(8.2, 0.82, -8.5)
+                new THREE.Vector3(5.04, 1.15, -13.80),
+                new THREE.Vector3(7.56, 1.02, -11.88),
+                new THREE.Vector3(9.84, 0.82, -10.20)
             ],
             // 大淀川 (從都城盆地流向宮崎海岸)
             [
-                new THREE.Vector3(2.5, 1.02, 3.2),
-                new THREE.Vector3(5.6, 0.90, 2.8),
-                new THREE.Vector3(8.5, 0.78, 2.5)
+                new THREE.Vector3(3.00, 1.02, 3.84),
+                new THREE.Vector3(6.72, 0.90, 3.36),
+                new THREE.Vector3(10.20, 0.78, 3.00)
             ]
         ];
 
@@ -347,7 +347,7 @@
 
         for (let i = 0; i < mainlandPts.length; i += 2) {
             const pt = mainlandPts[i];
-            if (pt[1] < -12.5) {
+            if (pt[1] < -15.0) {
                 const rock = new THREE.Mesh(
                     new THREE.DodecahedronGeometry(0.55 + (i % 3) * 0.18, 0),
                     i % 2 === 0 ? darkRockMat : midRockMat
@@ -390,27 +390,21 @@
         }
 
         const ranges = [
-            // 北部：九重連山與黑川後山（退至路線北側外圍）
-            { x: 5.5,  z: -15.8, r: 1.35, h: 1.25, snow: true,  rocky: true },
-            { x: 1.3,  z: -15.2, r: 1.35, h: 1.05, snow: true,  rocky: false },
-            // 阿蘇外輪山與祖母傾山（退至路線外側）
-            { x: 5.6,  z: -12.8, r: 1.35, h: 1.18, snow: true,  rocky: true },
-            { x: 7.7,  z: -10.5, r: 1.35, h: 1.15, snow: true,  rocky: true },
-            // 九州脊樑山地（位於東側宮崎公路與西側人吉公路正中央的無人山區，絕不碰觸兩側道路）
-            { x: 3.8,  z: -8.2,  r: 1.75, h: 1.22, snow: true,  rocky: false },
-            { x: 2.2,  z: -6.8,  r: 1.95, h: 1.38, snow: true,  rocky: true },
-            { x: 4.5,  z: -5.5,  r: 1.85, h: 1.22, snow: true,  rocky: false },
-            { x: 1.8,  z: -4.2,  r: 1.75, h: 1.15, snow: true,  rocky: false },
-            { x: 4.6,  z: -2.8,  r: 1.80, h: 0.98, snow: false, rocky: false },
-            { x: 2.8,  z: -0.6,  r: 1.65, h: 0.92, snow: false, rocky: false },
-            { x: 4.8,  z: 1.2,   r: 1.60, h: 0.88, snow: false, rocky: false },
+            // 北部：九重連山與黑川後山（退至路線北側外圍，壓低高度避免遮擋視線，1.2x 地圖座標）
+            { x: 6.96,  z: -19.44, r: 1.15, h: 0.85, snow: true,  rocky: true },
+            { x: 0.96,  z: -18.72, r: 1.10, h: 0.75, snow: true,  rocky: false },
+            // 九州脊樑山地（壓低高度作為中景起伏丘陵，絕不遮擋北側熊本與阿蘇車道上的人物）
+            { x: 2.64,  z: -9.00,  r: 1.35, h: 0.72, snow: true,  rocky: true },
+            { x: 5.04,  z: -6.60,  r: 1.35, h: 0.68, snow: true,  rocky: false },
+            { x: 2.40,  z: -5.04,  r: 1.25, h: 0.65, snow: false, rocky: false },
+            { x: 5.28,  z: -3.00,  r: 1.30, h: 0.65, snow: false, rocky: false },
+            { x: 3.36,  z: -0.48,  r: 1.25, h: 0.62, snow: false, rocky: false },
+            { x: 5.40,  z: 1.44,   r: 1.25, h: 0.60, snow: false, rocky: false },
             // 霧島連山（位於霧島神宮東側後山）
-            { x: 2.2,  z: 3.6,   r: 1.45, h: 1.28, snow: true,  rocky: true },
-            // 薩摩半島（開聞岳/薩摩富士 & 金峰山）與大隅半島（高隈山）
-            { x: -5.1, z: 10.6,  r: 1.35, h: 0.78, snow: false, rocky: false },
-            { x: -3.9, z: 12.6,  r: 1.05, h: 1.15, snow: true,  rocky: true },
-            { x: 0.5,  z: 10.4,  r: 1.65, h: 0.88, snow: false, rocky: false },
-            { x: -0.6, z: 12.2,  r: 1.45, h: 0.72, snow: false, rocky: false }
+            { x: 2.88,  z: 3.84,   r: 1.15, h: 0.82, snow: true,  rocky: true },
+            // 薩摩半島（開聞岳/薩摩富士）與大隅半島
+            { x: -4.68, z: 15.12,  r: 0.95, h: 0.85, snow: true,  rocky: true },
+            { x: 0.96,  z: 12.72,  r: 1.25, h: 0.65, snow: false, rocky: false }
         ];
 
         ranges.forEach((m, idx) => {
@@ -501,14 +495,14 @@
         const dashMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
         const ferryBuoyMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
-        const samples = 300;
+        const samples = 360;
         for (let i = 0; i < samples; i++) {
             const t = i / samples;
             const pos = roadCurve.getPointAt(t);
             const tangent = roadCurve.getTangentAt(t);
             const angle = Math.atan2(tangent.x, tangent.z);
 
-            const isFerryWater = (pos.x > -3.80 && pos.x < -2.55 && pos.z > 8.15 && pos.z < 8.85);
+            const isFerryWater = (pos.x > -4.56 && pos.x < -3.06 && pos.z > 9.78 && pos.z < 10.62);
 
             if (isFerryWater) {
                 if (i % 3 === 0) {
@@ -548,8 +542,8 @@
         const railMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
         const sleeperMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
 
-        for (let i = 0; i <= 38; i++) {
-            const t = i / 38;
+        for (let i = 0; i <= 46; i++) {
+            const t = i / 46;
             const p = tramCurve.getPointAt(t);
             const tan = tramCurve.getTangentAt(t);
             const ang = Math.atan2(tan.x, tan.z);
@@ -573,13 +567,13 @@
     function buildSouthKyushuTerrain(scene, coastData, routeData) {
         const root = new THREE.Group();
 
-        // 1. 南九州主島（含 3 層立體等高線階梯台地 + 程序化微縮模型凹凸貼圖）
+        // 1. 南九州主島（含 3 層立體等高線階梯台地 + 程序化微縮模型凹凸貼圖，1.2x 地圖尺寸）
         const mainland = buildLayeredLandmass(coastData.mainland, {
             turfHex1: '#7f9968',
             cliffHex: '#865639',
             cliffDepth: 1.95,
             enableTerraces: true,
-            center: [0.8, -2.0]
+            center: [0.96, -2.40]
         });
         root.add(mainland.group);
 
@@ -589,7 +583,7 @@
             cliffHex: '#593e32',
             cliffDepth: 1.65,
             enableTerraces: false,
-            center: [-2.7, 8.5]
+            center: [-3.24, 10.20]
         });
         root.add(sakurajima.group);
 
@@ -617,8 +611,8 @@
         const groundTargets = [mainland.group, sakurajima.group];
 
         function sampleGroundY(x, z) {
-            // 錦江灣渡輪水道
-            if (x > -3.80 && x < -2.55 && z > 8.15 && z < 8.85) {
+            // 錦江灣渡輪水道 (1.2x 地圖座標)
+            if (x > -4.56 && x < -3.06 && z > 9.78 && z < 10.62) {
                 return 0.12;
             }
             rayOrigin.set(x, 12.0, z);

@@ -44,52 +44,86 @@
         return g;
     }
 
-    // L01: 熊本機場 KMJ (新木造航廈 + 塔台 + 華航飛機)
+    // L01: 熊本機場 KMJ (2023 新阿蘇熊本木造航廈 + 管制塔台 + 空橋 + 條紋跑道 + 華航客機起降)
     function buildL01_Airport() {
         const g = new THREE.Group();
         const woodMat = new THREE.MeshLambertMaterial({ color: 0xd97706, flatShading: true });
-        const roofMat = new THREE.MeshLambertMaterial({ color: 0x475569, flatShading: true });
-        const glassMat = new THREE.MeshLambertMaterial({ color: 0xbae6fd });
+        const roofMat = new THREE.MeshLambertMaterial({ color: 0x334155, flatShading: true });
+        const glassMat = new THREE.MeshLambertMaterial({ color: 0x7dd3fc });
         const whiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+        const redAccent = new THREE.MeshLambertMaterial({ color: 0xe11d48 });
+        const yellowMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
 
-        // 航廈主體
-        const term = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.36, 0.55), woodMat);
-        term.position.set(0, 0.18, 0);
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(1.02, 0.22, 0.57), glassMat);
-        glass.position.set(0, 0.18, 0);
-        const roof = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.08, 0.68), roofMat);
-        roof.position.set(0, 0.39, 0);
-        g.add(term, glass, roof);
+        // 1. 航廈主體與木造格柵屋頂
+        const term = new THREE.Mesh(new THREE.BoxGeometry(1.24, 0.38, 0.58), woodMat);
+        term.position.set(0, 0.19, -0.06);
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.24, 0.60), glassMat);
+        glass.position.set(0, 0.19, -0.06);
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.08, 0.72), roofMat);
+        roof.position.set(0, 0.41, -0.06);
+        const roofUpper = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.07, 0.46), woodMat);
+        roofUpper.position.set(0, 0.48, -0.06);
+        // 航廈頂部 KMJ 紅底招牌
+        const signBoard = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.12, 0.06), redAccent);
+        signBoard.position.set(0.12, 0.57, 0.18);
+        g.add(term, glass, roof, roofUpper, signBoard);
 
-        // 管制塔台
-        const towerShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 0.78, 8), whiteMat);
-        towerShaft.position.set(-0.42, 0.39, -0.18);
-        const towerCab = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 0.16, 8), glassMat);
-        towerCab.position.set(-0.42, 0.82, -0.18);
-        const towerRoof = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.1, 8), roofMat);
-        towerRoof.position.set(-0.42, 0.94, -0.18);
-        g.add(towerShaft, towerCab, towerRoof);
+        // 2. 登機空橋 (Jetbridge)
+        const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.38), whiteMat);
+        bridge.position.set(0.26, 0.22, 0.26);
+        g.add(bridge);
 
-        // 跑道與迷你客機
+        // 3. 紅白相間飛航管制塔台
+        const towerShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.84, 8), whiteMat);
+        towerShaft.position.set(-0.48, 0.42, -0.22);
+        const towerBand = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.105, 0.16, 8), redAccent);
+        towerBand.position.set(-0.48, 0.66, -0.22);
+        const towerCab = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.13, 0.18, 8), glassMat);
+        towerCab.position.set(-0.48, 0.90, -0.22);
+        const towerRoof = new THREE.Mesh(new THREE.ConeGeometry(0.20, 0.12, 8), roofMat);
+        towerRoof.position.set(-0.48, 1.04, -0.22);
+        const radarBeacon = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), yellowMat);
+        radarBeacon.position.set(-0.48, 1.13, -0.22);
+        g.add(towerShaft, towerBand, towerCab, towerRoof, radarBeacon);
+
+        // 4. 柏油跑道與白色虛線標線
         const runway = new THREE.Mesh(
-            new THREE.BoxGeometry(1.3, 0.02, 0.26),
-            new THREE.MeshLambertMaterial({ color: 0x334155 })
+            new THREE.BoxGeometry(1.56, 0.025, 0.34),
+            new THREE.MeshLambertMaterial({ color: 0x1e293b })
         );
-        runway.position.set(0.05, 0.01, 0.48);
+        runway.position.set(0.05, 0.015, 0.52);
         g.add(runway);
 
+        for (let i = -3; i <= 3; i++) {
+            const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.03, 0.035), whiteMat);
+            stripe.position.set(0.05 + i * 0.21, 0.018, 0.52);
+            g.add(stripe);
+        }
+
+        // 5. 華航紅梅尾翼客機 (雙引擎 + 機翼 + 駕駛艙窗)
         const plane = new THREE.Group();
-        const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.52, 8), whiteMat);
+        const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.66, 10), whiteMat);
         fuselage.rotation.z = Math.PI / 2;
-        const wing = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.02, 0.52), whiteMat);
+        const nose = new THREE.Mesh(new THREE.SphereGeometry(0.074, 8, 8), whiteMat);
+        nose.position.set(0.32, 0, 0);
+        const cockpit = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.045, 0.09), glassMat);
+        cockpit.position.set(0.29, 0.035, 0);
+        const wing = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.022, 0.68), whiteMat);
+        wing.position.set(0.02, -0.01, 0);
+        const engGeo = new THREE.CylinderGeometry(0.032, 0.032, 0.12, 8);
+        engGeo.rotateZ(Math.PI / 2);
+        const engL = new THREE.Mesh(engGeo, roofMat);
+        engL.position.set(0.04, -0.04, 0.18);
+        const engR = new THREE.Mesh(engGeo, roofMat);
+        engR.position.set(0.04, -0.04, -0.18);
         const tail = new THREE.Mesh(
-            new THREE.BoxGeometry(0.10, 0.14, 0.03),
+            new THREE.BoxGeometry(0.13, 0.19, 0.035),
             new THREE.MeshLambertMaterial({ color: 0xf43f5e }) // 華航紅梅尾翼意象
         );
-        tail.position.set(-0.22, 0.08, 0);
-        plane.add(fuselage, wing, tail);
-        plane.position.set(0.1, 0.14, 0.48);
-        plane.rotation.z = 0.12;
+        tail.position.set(-0.27, 0.10, 0);
+        plane.add(fuselage, nose, cockpit, wing, engL, engR, tail);
+        plane.position.set(0.12, 0.18, 0.52);
+        plane.rotation.z = 0.15;
         g.add(plane);
         g.userData.plane = plane;
 
@@ -188,25 +222,30 @@
         return g;
     }
 
-    // L04: 阿蘇中岳火山口・草千里 (破火山口 + 翠綠火口湖 + 覆雪外輪山 + 白煙粒子)
+    // L04: 阿蘇中岳火山口・草千里 (破火山口 + 翠綠火口湖 + 山頂雪原觀景平台 + 白煙粒子)
     function buildL04_AsoCrater() {
         const g = new THREE.Group();
         const rockMat = new THREE.MeshLambertMaterial({ color: 0x57534e, flatShading: true });
         const snowMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc, flatShading: true });
+        const woodMat = new THREE.MeshLambertMaterial({ color: 0x92400e });
         const lakeMat = new THREE.MeshBasicMaterial({ color: 0x2dd4bf }); // 中岳翠綠湯溜り
 
-        const cone = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 1.35, 1.18, 10), rockMat);
-        cone.position.y = 0.59;
+        const cone = new THREE.Mesh(new THREE.CylinderGeometry(0.82, 1.42, 1.12, 10), rockMat);
+        cone.position.y = 0.56;
         g.add(cone);
 
-        // 山頂積雪環
-        const snowRing = new THREE.Mesh(new THREE.CylinderGeometry(0.64, 0.92, 0.36, 10), snowMat);
-        snowRing.position.y = 1.02;
+        // 山頂寬闊積雪環與火口觀景步道平台 (讓 4 位角色可以直接站上阿蘇火山頂！)
+        const snowRing = new THREE.Mesh(new THREE.CylinderGeometry(0.86, 1.02, 0.34, 10), snowMat);
+        snowRing.position.y = 0.98;
         g.add(snowRing);
+
+        const summitDeck = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.10, 0.52), woodMat);
+        summitDeck.position.set(0, 1.15, 0.36);
+        g.add(summitDeck);
 
         // 火山口翡翠綠湖面
         const craterLake = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.38, 0.08, 10), lakeMat);
-        craterLake.position.y = 1.18;
+        craterLake.position.set(0, 1.16, -0.10);
         g.add(craterLake);
 
         // 草千里雪原與放牧小馬
@@ -739,37 +778,43 @@
             }
         }
 
-        // 依據不同景點類型給予 1.38x ~ 1.72x 放大比例，讓整座島嶼視覺飽滿豐富
+        // 依據不同景點類型給予適當放大比例（火山適度收斂並退至道路北側後方，絕不擋住前方人物）
         const SCALE_MAP = {
-            L01: 1.45, // 熊本機場
-            L02: 1.65, // 熊本城（主力地標放大）
+            L01: 1.62, // 熊本機場（起點地標放大）
+            L02: 1.60, // 熊本城（主力地標放大）
             L03: 1.38, // 水前寺
-            L04: 1.62, // 阿蘇中岳火山口
-            L05: 1.42, // 大觀峰
-            L06: 1.55, // 黑川溫泉山彥旅館
-            L07: 1.45, // 上色見神社
-            L08: 1.58, // 高千穗峽谷
-            L09: 1.52, // 宮崎海景渡假區
-            L10: 1.48, // 青島神社
-            L11: 1.55, // 日南摩艾石像
-            L12: 1.48, // 鵜戶神宮
-            L13: 1.65, // 鹿兒島天文館聖誕市集
+            L04: 1.18, // 阿蘇中岳火山口（收斂尺寸並退居車道後方，避免火山錐擋住人物）
+            L05: 1.40, // 大觀峰
+            L06: 1.50, // 黑川溫泉山彥旅館
+            L07: 1.42, // 上色見神社
+            L08: 1.52, // 高千穗峽谷
+            L09: 1.48, // 宮崎海景渡假區
+            L10: 1.45, // 青島神社
+            L11: 1.50, // 日南摩艾石像
+            L12: 1.45, // 鵜戶神宮
+            L13: 1.58, // 鹿兒島天文館聖誕市集
             L14: 1.42, // 仙巖園
-            L15: 1.60, // 櫻島活火山
-            L16: 1.58, // 霧島神宮
-            L17: 1.55  // 人吉百年鰻魚
+            L15: 1.18, // 櫻島活火山（退居渡輪碼頭後方，不遮擋人物）
+            L16: 1.52, // 霧島神宮
+            L17: 1.50  // 人吉百年鰻魚
         };
 
         landmarksData.forEach(item => {
             const meshGroup = createLandmarkByCode(item.code);
-            const scaleVal = SCALE_MAP[item.code] || 1.48;
+            const scaleVal = SCALE_MAP[item.code] || 1.45;
             meshGroup.scale.setScalar(scaleVal);
 
             let lx = item.x;
             let lz = item.z;
 
-            // 若景點座標離自駕道路中心線太近 (< 1.15)，自動往道路外側退開，留出小巴與 4 位角色的無障礙步道
-            if (roadSamples.length > 0 && item.code !== 'L15') {
+            // 將火山與景點統一退往車道北側後方（遠離鏡頭的 -Z 側），而阿蘇火山直接坐落於站點旁讓角色登上山頂！
+            if (item.code === 'L15') {
+                lx = -2.46;
+                lz = 9.60;
+            } else if (item.code === 'L04') {
+                lx = item.x;
+                lz = item.z - 0.32;
+            } else if (roadSamples.length > 0) {
                 let nearestPt = null;
                 let minD = 999;
                 for (let i = 0; i < roadSamples.length; i++) {
@@ -779,14 +824,14 @@
                         nearestPt = roadSamples[i];
                     }
                 }
-                const minClearance = 1.18;
+                const minClearance = 1.32;
                 if (nearestPt && minD < minClearance) {
                     let dx = lx - nearestPt.x;
                     let dz = lz - nearestPt.z;
                     const len = Math.hypot(dx, dz);
-                    if (len < 0.05) {
-                        dx = 0.8;
-                        dz = -0.6;
+                    if (len < 0.08) {
+                        dx = (nearestPt.x >= 0) ? 0.45 : -0.45;
+                        dz = -0.95;
                     }
                     const norm = Math.hypot(dx, dz);
                     lx = nearestPt.x + (dx / norm) * minClearance;
@@ -802,6 +847,7 @@
             item.renderX = lx;
             item.renderZ = lz;
             item.renderY = baseY;
+            item.scaleVal = scaleVal;
             meshGroup.userData.landmarkInfo = item;
             landmarkGroup.add(meshGroup);
             animatedLandmarks.push(meshGroup);

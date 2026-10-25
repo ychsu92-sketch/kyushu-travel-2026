@@ -11,7 +11,7 @@
     let currentShowcaseRoot = null;
     let currentCategory = 'character';
     let currentCode = 'C1';
-    let charWalkMode = false;
+    let charPoseIdx = 0; // 0: 景點專屬動作, 1: 走路擺臂動作, 2: 開飛碟追車(C1專屬)
     let routeDataCache = null;
 
     async function initPreviewGallery() {
@@ -96,7 +96,8 @@
             if (currentShowcaseRoot) {
                 if (currentCategory === 'character') {
                     currentShowcaseRoot.userData.baseY = 0;
-                    window.KyushuIsland.Characters.animateCharacterPose(currentShowcaseRoot, elapsed, delta, charWalkMode);
+                    currentShowcaseRoot.userData.isUfoChasing = (currentCode === 'C1' && charPoseIdx === 2);
+                    window.KyushuIsland.Characters.animateCharacterPose(currentShowcaseRoot, elapsed, delta, charPoseIdx === 1);
                 } else if (currentCategory === 'landmark') {
                     window.KyushuIsland.Landmarks.updateLandmarks([currentShowcaseRoot], elapsed);
                 } else if (currentCategory === 'prop') {
@@ -241,10 +242,13 @@
     }
 
     function toggleCharPoseMode() {
-        charWalkMode = !charWalkMode;
+        const maxModes = (currentCode === 'C1') ? 3 : 2;
+        charPoseIdx = (charPoseIdx + 1) % maxModes;
         const txt = document.getElementById('pose-mode-text');
         if (txt) {
-            txt.textContent = charWalkMode ? '切換為：景點專屬動作' : '切換為：走路擺臂動作';
+            if (charPoseIdx === 0) txt.textContent = '目前：景點專屬動作 (點擊切換)';
+            else if (charPoseIdx === 1) txt.textContent = (currentCode === 'C1') ? '目前：走路動作 (再點看飛碟🛸)' : '目前：走路擺臂動作 (點擊切換)';
+            else txt.textContent = '目前：🛸 開飛碟追車模式！';
         }
     }
 
