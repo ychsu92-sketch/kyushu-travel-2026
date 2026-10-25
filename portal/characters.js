@@ -640,36 +640,46 @@
         blushR.position.set(0.15, -0.04, 0.25);
         blushR.rotation.y = 0.35;
 
-        // 優雅溫婉深棕秀髮基底（完美對稱包覆後腦、兩側太陽穴與頭頂，徹底告別禿頭空洞！）
-        // 正臉朝向 +Z (phi = 0.50pi)，臉頰開口從 0.33pi 到 0.67pi (寬度 0.34pi，完整露出和藹笑眼與腮紅)
-        // 秀髮從 0.67pi 經後腦 (1.50pi) 環繞至 0.33pi (總長 1.66pi)，左右嚴格對稱！
+        // 優雅溫婉深棕秀髮基底（全包覆頭頂與後腦，前額傾角適度，徹底根除禿頭與怪異中分分岔！）
+        // 採用平滑後仰球冠罩蓋，額頭正面露出圓潤笑臉，完全沒有生硬的 V 字高分岔
         const hairBase = new THREE.Mesh(
-            new THREE.SphereGeometry(0.292, 18, 14, Math.PI * 0.67, Math.PI * 1.66, 0, Math.PI * 0.82),
+            new THREE.SphereGeometry(0.294, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.58),
             hairMat
         );
-        hairBase.position.set(0, 0.01, 0);
+        hairBase.rotation.x = -0.22; // 微微後仰，自然露出光潔額頭與和藹笑眼
+        hairBase.position.set(0, 0.04, -0.02);
 
-        // 溫柔側旁分齊瀏海（位於高額頭頂部 y = 0.15~0.19，自然弧度覆蓋額骨，完全在笑眼 y = 0.02 上方）
-        const ayeeBangs = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.288, 0.292, 0.065, 12, 1, false, Math.PI * 0.33, Math.PI * 0.34),
+        // 後頸部秀髮收口（銜接大衣與圍巾）
+        const hairBack = new THREE.Mesh(
+            new THREE.SphereGeometry(0.292, 16, 12, Math.PI * 0.70, Math.PI * 1.60, 0, Math.PI * 0.78),
             hairMat
         );
-        ayeeBangs.position.set(0, 0.15, 0.02);
-        ayeeBangs.rotation.x = 0.12;
+        hairBack.position.set(0, 0, -0.02);
 
-        headGroup.add(head, eyeL, eyeR, blushL, blushR, hairBase, ayeeBangs);
+        // 溫柔優雅斜旁分微蓬瀏海（以球體層次自然斜斜搭在高額頭上方 y = 0.12~0.15，柔和自然，絕不中分生硬！）
+        const bangsSide = new THREE.Mesh(
+            new THREE.SphereGeometry(0.12, 10, 8),
+            hairMat
+        );
+        bangsSide.scale.set(1.6, 0.65, 0.9);
+        bangsSide.position.set(0.04, 0.14, 0.22);
+        bangsSide.rotation.set(-0.15, 0.10, -0.12);
 
-        // 兩側與後方的蓬鬆優雅貴婦髮捲（對稱分佈於左右兩側耳際、頭頂與後頸，層次豐盈飽滿）
+        headGroup.add(head, eyeL, eyeR, blushL, blushR, hairBase, hairBack, bangsSide);
+
+        // 蓬鬆立體貴婦優雅波浪捲髮（飽滿環繞在頭頂、兩側耳際與臉頰旁，線條圓潤優美，層次非常自然）
         const curlPositions = [
-            // 左右兩側耳際與臉頰旁豐盈波浪捲
-            [-0.22, 0.08, 0.06], [0.22, 0.08, 0.06],
+            // 左右兩側耳際與臉頰豐盈修飾捲
+            [-0.22, 0.06, 0.06], [0.22, 0.06, 0.06],
             [-0.24, -0.04, -0.02], [0.24, -0.04, -0.02],
-            // 頭頂蓬鬆微捲（銜接兩側與頭頂輪廓）
-            [-0.14, 0.21, 0.02], [0.14, 0.21, 0.02],
-            [0, 0.24, -0.05],
-            // 後腦勺與後頸優雅捲髮收口
-            [-0.15, 0.05, -0.16], [0.15, 0.05, -0.16],
-            [0, -0.08, -0.18]
+            // 前額兩側優雅過渡微捲
+            [-0.12, 0.16, 0.19], [0.15, 0.15, 0.17],
+            // 頭頂蓬鬆圓潤弧度
+            [-0.12, 0.24, 0.02], [0.12, 0.24, 0.02],
+            [0, 0.26, -0.06],
+            // 後腦與後頸優雅收口
+            [-0.16, 0.04, -0.17], [0.16, 0.04, -0.17],
+            [0, -0.07, -0.19]
         ];
         curlPositions.forEach(p => {
             const c = new THREE.Mesh(new THREE.SphereGeometry(0.088, 8, 8), hairMat);
