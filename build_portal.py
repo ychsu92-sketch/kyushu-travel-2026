@@ -175,54 +175,24 @@ def build_portal(release_mode: bool = False):
             #island-canvas-container {{
                 height: 420px;
             }}
-            #kyushu-avatar-dock {{
-                top: 8px !important;
-                left: 8px !important;
-                gap: 4px !important;
-            }}
-            .kyushu-avatar-btn {{
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 14px !important;
-            }}
-            .ig-note-bubble {{
-                padding: 2px 5px !important;
-                max-width: 115px !important;
-                min-width: 46px !important;
-                height: 20px !important;
-                border-radius: 8px !important;
-            }}
-            .ig-note-text {{
-                font-size: 8.5px !important;
-                max-width: 105px !important;
-            }}
         }}
 
-        /* 3D 角色即時對話氣泡浮動層 (高透光毛玻璃感・固定寬度不隨位置縮放變形) */
+        /* 3D 角色即時對話氣泡浮動層 */
         .island-speech-bubble {{
             position: absolute;
-            top: 0;
-            left: 0;
             transform: translate(-50%, -100%);
-            background: rgba(255, 253, 249, 0.52);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1.5px solid rgba(61, 52, 43, 0.32);
+            background: rgba(255, 253, 249, 0.96);
+            border: 2.5px solid #3d342b;
             padding: 8px 14px;
             border-radius: 18px;
             font-size: 12px;
             font-weight: 800;
-            color: #1c1917;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.85);
-            width: 256px;
-            min-width: 256px;
-            max-width: 256px;
-            box-sizing: border-box;
-            box-shadow: 0 8px 18px -4px rgba(0,0,0,0.10);
+            color: #3d342b;
+            max-width: 260px;
+            box-shadow: 0 12px 24px -4px rgba(0,0,0,0.22);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.25s ease;
-            will-change: left, top, opacity;
+            transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 30;
         }}
         .island-speech-bubble::after {{
@@ -233,7 +203,7 @@ def build_portal(release_mode: bool = False):
             transform: translateX(-50%);
             border-width: 7px;
             border-style: solid;
-            border-color: rgba(255, 253, 249, 0.55) transparent transparent transparent;
+            border-color: #3d342b transparent transparent transparent;
         }}
         .island-speech-bubble.active {{
             opacity: 1;
@@ -294,7 +264,7 @@ def build_portal(release_mode: bool = False):
                         </span>
                         <span class="inline-flex items-center gap-1 text-xs font-black text-emerald-900 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
                             <span>📍 目前抵達：</span>
-                            <span id="current-spot-badge">🛫 熊本機場（Day 1 & 7）</span>
+                            <span id="current-spot-badge">🏯 熊本城（Day 1 & 7）</span>
                         </span>
                     </div>
                     <h2 class="text-xl sm:text-2xl font-black text-stone-800 mt-1.5 flex items-center gap-2">
@@ -335,7 +305,7 @@ def build_portal(release_mode: bool = False):
                 <div id="char-speech-bubble" class="island-speech-bubble">
                     <div class="flex items-center justify-between gap-2 border-b border-stone-200 pb-0.5 mb-1">
                         <span id="bubble-speaker-name" class="text-[11px] font-black text-red-600">🧶 阿純</span>
-                        <span id="bubble-spot-tag" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded">🛫 熊本機場</span>
+                        <span id="bubble-spot-tag" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded">📍 熊本城</span>
                     </div>
                     <div id="bubble-speaker-text" class="text-xs font-bold text-stone-800 leading-snug whitespace-normal">
                         耶！2026 南九州冬季聖誕自駕出發囉～📸
@@ -344,37 +314,37 @@ def build_portal(release_mode: bool = False):
 
                 <!-- 浮動在畫布角落的引導提示 -->
                 <div class="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
-                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊「左上角大頭照」或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
+                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
                 </div>
             </div>
 
             <!-- 下方 4 位家族角色名牌列 (點擊鎖定跟隨 / 再次點擊取消鎖定) -->
             <div class="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3 pt-3 border-t border-sky-200/70 text-xs">
                 <button id="char-btn-achun" onclick="focusCharacter('achun')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-amber-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-amber-400 shadow-xs text-left">
-                    <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-base shrink-0">🧶</span>
+                    <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-base shrink-0">🧭</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿純 <span class="text-[10px] text-amber-700 font-bold">｜吃貨睡神物治師</span></div>
+                        <div class="truncate">首席導遊 <span class="text-[10px] text-amber-700 font-bold">｜阿純</span></div>
                         <span id="char-lock-status-achun" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
                 <button id="char-btn-yijhang" onclick="focusCharacter('yijhang')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-blue-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-blue-400 shadow-xs text-left">
-                    <span class="w-7 h-7 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-base shrink-0">🕶️</span>
+                    <span class="w-7 h-7 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-base shrink-0">🎩</span>
                     <div class="min-w-0">
-                        <div class="truncate">姨丈 <span class="text-[10px] text-blue-700 font-bold">｜沉默酷哥</span></div>
+                        <div class="truncate">榮譽總指揮 <span class="text-[10px] text-blue-700 font-bold">｜姨丈</span></div>
                         <span id="char-lock-status-yijhang" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
                 <button id="char-btn-ayee" onclick="focusCharacter('ayee')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-rose-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-rose-400 shadow-xs text-left">
-                    <span class="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-base shrink-0">🍡</span>
+                    <span class="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-base shrink-0">⭐</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿姨 <span class="text-[10px] text-rose-700 font-bold">｜餵食話匣子</span></div>
+                        <div class="truncate">美食評鑑官 <span class="text-[10px] text-rose-700 font-bold">｜阿姨</span></div>
                         <span id="char-lock-status-ayee" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
                 <button id="char-btn-alu" onclick="focusCharacter('alu')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-orange-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-orange-400 shadow-xs text-left">
-                    <span class="w-7 h-7 rounded-xl bg-orange-100 text-orange-900 flex items-center justify-center text-base shrink-0">🐻</span>
+                    <span class="w-7 h-7 rounded-xl bg-orange-100 text-orange-900 flex items-center justify-center text-base shrink-0">💰</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿嚕 <span class="text-[10px] text-orange-800 font-bold">｜哲學AI熊</span></div>
+                        <div class="truncate">總務大臣 <span class="text-[10px] text-orange-800 font-bold">｜阿嚕</span></div>
                         <span id="char-lock-status-alu" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
@@ -576,55 +546,23 @@ def build_preview_page():
         }
         .island-speech-bubble {
             position: absolute;
-            top: 0;
-            left: 0;
             transform: translate(-50%, -100%);
-            background: rgba(255, 253, 249, 0.52);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1.5px solid rgba(61, 52, 43, 0.32);
+            background: rgba(255, 253, 249, 0.96);
+            border: 2px solid #3d342b;
             padding: 6px 12px;
             border-radius: 14px;
             font-size: 11px;
             font-weight: 800;
-            color: #1c1917;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.85);
-            width: 236px;
-            min-width: 236px;
-            max-width: 236px;
-            box-sizing: border-box;
+            color: #3d342b;
+            max-width: 240px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.22s ease;
-            will-change: left, top, opacity;
+            transition: all 0.2s;
             z-index: 30;
         }
         .island-speech-bubble.active {
             opacity: 1;
             transform: translate(-50%, -110%);
-        }
-        @media (max-width: 640px) {
-            #kyushu-avatar-dock {
-                top: 8px !important;
-                left: 8px !important;
-                gap: 4px !important;
-            }
-            .kyushu-avatar-btn {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 14px !important;
-            }
-            .ig-note-bubble {
-                padding: 2px 5px !important;
-                max-width: 115px !important;
-                min-width: 46px !important;
-                height: 20px !important;
-                border-radius: 8px !important;
-            }
-            .ig-note-text {
-                font-size: 8.5px !important;
-                max-width: 105px !important;
-            }
         }
     </style>
 </head>
@@ -674,10 +612,10 @@ def build_preview_page():
             </div>
 
             <div class="grid grid-cols-4 gap-2 text-xs">
-                <button id="char-btn-achun" onclick="focusCharacter('achun')" class="py-1.5 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black border border-amber-200">鎖定/取消 C1 阿純</button>
-                <button id="char-btn-yijhang" onclick="focusCharacter('yijhang')" class="py-1.5 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-black border border-blue-200">鎖定/取消 C2 姨丈</button>
-                <button id="char-btn-ayee" onclick="focusCharacter('ayee')" class="py-1.5 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 font-black border border-rose-200">鎖定/取消 C3 阿姨</button>
-                <button id="char-btn-alu" onclick="focusCharacter('alu')" class="py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-900 font-black border border-orange-200">鎖定/取消 C4 阿嚕</button>
+                <button id="char-btn-achun" onclick="focusCharacter('achun')" class="py-1.5 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black border border-amber-200">鎖定/取消 C1 首席導遊 阿純</button>
+                <button id="char-btn-yijhang" onclick="focusCharacter('yijhang')" class="py-1.5 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-black border border-blue-200">鎖定/取消 C2 榮譽總指揮 姨丈</button>
+                <button id="char-btn-ayee" onclick="focusCharacter('ayee')" class="py-1.5 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 font-black border border-rose-200">鎖定/取消 C3 美食評鑑官 阿姨</button>
+                <button id="char-btn-alu" onclick="focusCharacter('alu')" class="py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-900 font-black border border-orange-200">鎖定/取消 C4 總務大臣 阿嚕</button>
             </div>
         </section>
 
@@ -687,7 +625,7 @@ def build_preview_page():
                 <div>
                     <div class="flex items-center gap-2">
                         <span id="inspector-code" class="px-2.5 py-0.5 rounded-md bg-red-600 text-white font-black text-xs">C1</span>
-                        <h3 id="inspector-title" class="font-black text-base text-stone-800">阿純（行程總召・可愛妹子）</h3>
+                        <h3 id="inspector-title" class="font-black text-base text-stone-800">首席導遊 阿純（全行程總召）</h3>
                     </div>
                     <p id="inspector-subtitle" class="text-xs font-bold text-amber-700 mt-0.5">🧶 黃色毛帽・自拍達人</p>
                 </div>
@@ -737,9 +675,6 @@ def build_preview_page():
 
     </main>
 
-    <script>
-        /* __KYUSHU_INLINE_DATA__ */
-    </script>
     <script src="./portal/env.js"></script>
     <script src="./portal/terrain.js"></script>
     <script src="./portal/landmarks.js"></script>
@@ -749,14 +684,6 @@ def build_preview_page():
     <script src="./portal/preview.js"></script>
 </body>
 </html>"""
-    with open(os.path.join(PORTAL_DIR, 'data', 'kyushu_coast.json'), 'r', encoding='utf-8') as f:
-        coast_json = f.read().strip()
-    with open(os.path.join(PORTAL_DIR, 'data', 'route.json'), 'r', encoding='utf-8') as f:
-        route_json = f.read().strip()
-
-    inline_script = f"window.KYUSHU_INLINE_DATA = {{\n            coast: {coast_json},\n            route: {route_json}\n        }};"
-    preview_html = preview_html.replace('/* __KYUSHU_INLINE_DATA__ */', inline_script)
-
     preview_path = os.path.join(BASE_DIR, 'preview.html')
     with open(preview_path, 'w', encoding='utf-8') as f:
         f.write(preview_html)

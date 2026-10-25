@@ -1218,9 +1218,12 @@ def build():
 
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b-2 border-stone-100 gap-4">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="cute-pill bg-amber-100 text-amber-700">✨ 4人小家庭分帳</span>
-                            <span class="text-xs text-stone-400">（阿純、阿嚕、阿姨、姨丈）</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="cute-pill bg-amber-100 text-amber-700 font-bold">✨ 4人探險隊分帳</span>
+                            <span class="text-xs text-stone-400" id="members-subtitle-names">（首席導遊、總務大臣、美食評鑑官、榮譽總指揮）</span>
+                            <button type="button" onclick="openMemberNamesModal()" class="px-2 py-0.5 rounded-lg bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] font-bold transition active:scale-95 flex items-center gap-1 shadow-2xs">
+                                <span>✏️</span> <span>自訂名稱</span>
+                            </button>
                         </div>
                         <h3 class="text-xl font-black text-stone-800 mt-1">👛 旅費代墊與應付分攤結算看板</h3>
                         <p class="text-xs text-stone-500 mt-0.5">即時記帳自動分攤，支援網頁直接記帳與 Google 試算表雲端同步！</p>
@@ -1322,10 +1325,10 @@ def build():
                             <div>
                                 <label class="font-bold text-stone-600 block mb-1">💳 誰先墊付：</label>
                                 <select id="exp-payer" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
-                                    <option value="阿純">🌸 阿純 先墊付</option>
-                                    <option value="阿嚕">🐻 阿嚕 先墊付</option>
-                                    <option value="阿姨">🌼 阿姨 先墊付</option>
-                                    <option value="姨丈">🎩 姨丈 先墊付</option>
+                                    <option value="achun">🌸 首席導遊 阿純 先墊付</option>
+                                    <option value="alu">🐻 總務大臣 阿嚕 先墊付</option>
+                                    <option value="ayee">🌼 美食評鑑官 阿姨 先墊付</option>
+                                    <option value="yijhang">🎩 榮譽總指揮 姨丈 先墊付</option>
                                 </select>
                             </div>
                         </div>
@@ -1355,12 +1358,12 @@ def build():
 
                         <!-- 誰分攤 -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-                            <div class="flex items-center gap-3 text-xs font-bold text-stone-700">
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-stone-700">
                                 <span class="text-stone-500">分攤成員：</span>
-                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-achun" checked class="rounded text-amber-600"> 阿純</label>
-                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-alu" checked class="rounded text-amber-600"> 阿嚕</label>
-                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-aunt" checked class="rounded text-amber-600"> 阿姨</label>
-                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-uncle" checked class="rounded text-amber-600"> 姨丈</label>
+                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-achun" checked class="rounded text-amber-600"> <span id="label-split-achun">首席導遊 阿純</span></label>
+                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-alu" checked class="rounded text-amber-600"> <span id="label-split-alu">總務大臣 阿嚕</span></label>
+                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-aunt" checked class="rounded text-amber-600"> <span id="label-split-ayee">美食評鑑官 阿姨</span></label>
+                                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="split-uncle" checked class="rounded text-amber-600"> <span id="label-split-yijhang">榮譽總指揮 姨丈</span></label>
                             </div>
 
                             <button type="submit" class="px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-200 transition">
@@ -3597,12 +3600,134 @@ def build():
         }}
 
         // ======================= 費用明細 ＆ 即時記帳與 Google Sheet 串接 =======================
-        const BASE_SETTLEMENT = {{
-            '阿純': {{ basePaid: 47775, baseShould: 20575, color: 'text-red-600', icon: '🌸', note: '代墊華航機票 NT$ 33,150 ＋ 黑川山彥溫泉旅館 (含早餐)。' }},
-            '阿嚕': {{ basePaid: 23475, baseShould: 9525, color: 'text-sky-600', icon: '🐻', note: '代墊熊本 Via Inn、宮崎海景公寓、鹿兒島 Perch 與熊本 AMANEK。' }},
-            '阿姨': {{ basePaid: 0, baseShould: 20575, color: 'text-amber-600', icon: '🌼', note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }},
-            '姨丈': {{ basePaid: 0, baseShould: 20575, color: 'text-purple-600', icon: '🎩', note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }}
+        const DEFAULT_MEMBER_NAMES = {{
+            achun: '首席導遊 阿純',
+            alu: '總務大臣 阿嚕',
+            ayee: '美食評鑑官 阿姨',
+            yijhang: '榮譽總指揮 姨丈'
         }};
+
+        const MEMBER_CONFIG = {{
+            achun: {{ key: 'achun', icon: '🌸', color: 'text-red-600', basePaid: 47775, baseShould: 20575, note: '代墊華航機票 NT$ 33,150 ＋ 黑川山彥溫泉旅館 (含早餐)。' }},
+            alu: {{ key: 'alu', icon: '🐻', color: 'text-sky-600', basePaid: 23475, baseShould: 9525, note: '代墊熊本 Via Inn、宮崎海景公寓、鹿兒島 Perch 與熊本 AMANEK。' }},
+            ayee: {{ key: 'ayee', icon: '🌼', color: 'text-amber-600', basePaid: 0, baseShould: 20575, note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }},
+            yijhang: {{ key: 'yijhang', icon: '🎩', color: 'text-purple-600', basePaid: 0, baseShould: 20575, note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }}
+        }};
+
+        function getMemberNames() {{
+            try {{
+                const stored = localStorage.getItem('kyushu_member_names_v2');
+                if (stored) {{
+                    const parsed = JSON.parse(stored);
+                    return {{
+                        achun: (parsed.achun || '').trim() || DEFAULT_MEMBER_NAMES.achun,
+                        alu: (parsed.alu || '').trim() || DEFAULT_MEMBER_NAMES.alu,
+                        ayee: (parsed.ayee || '').trim() || DEFAULT_MEMBER_NAMES.ayee,
+                        yijhang: (parsed.yijhang || '').trim() || DEFAULT_MEMBER_NAMES.yijhang
+                    }};
+                }}
+            }} catch(e) {{}}
+            return Object.assign({{}}, DEFAULT_MEMBER_NAMES);
+        }}
+
+        function resolveMemberKey(payer) {{
+            if (!payer) return 'achun';
+            if (payer === 'achun' || payer === '阿純' || payer.includes('阿純') || payer.includes('導遊')) return 'achun';
+            if (payer === 'alu' || payer === '阿嚕' || payer.includes('阿嚕') || payer.includes('總務')) return 'alu';
+            if (payer === 'ayee' || payer === '阿姨' || payer.includes('阿姨') || payer.includes('美食')) return 'ayee';
+            if (payer === 'yijhang' || payer === '姨丈' || payer.includes('姨丈') || payer.includes('指揮')) return 'yijhang';
+            const names = getMemberNames();
+            if (payer === names.achun) return 'achun';
+            if (payer === names.alu) return 'alu';
+            if (payer === names.ayee) return 'ayee';
+            if (payer === names.yijhang) return 'yijhang';
+            return 'achun';
+        }}
+
+        function updatePayerAndSplitOptions() {{
+            const names = getMemberNames();
+            const payerSelect = document.getElementById('exp-payer');
+            if (payerSelect) {{
+                const curVal = payerSelect.value;
+                payerSelect.innerHTML = `
+                    <option value="achun">🌸 ${{escapeHtml(names.achun)}} 先墊付</option>
+                    <option value="alu">🐻 ${{escapeHtml(names.alu)}} 先墊付</option>
+                    <option value="ayee">🌼 ${{escapeHtml(names.ayee)}} 先墊付</option>
+                    <option value="yijhang">🎩 ${{escapeHtml(names.yijhang)}} 先墊付</option>
+                `;
+                if (curVal) payerSelect.value = curVal;
+            }}
+
+            const lblAchun = document.getElementById('label-split-achun');
+            const lblAlu = document.getElementById('label-split-alu');
+            const lblAyee = document.getElementById('label-split-ayee');
+            const lblYijhang = document.getElementById('label-split-yijhang');
+            const subTitle = document.getElementById('members-subtitle-names');
+
+            if (lblAchun) lblAchun.textContent = names.achun;
+            if (lblAlu) lblAlu.textContent = names.alu;
+            if (lblAyee) lblAyee.textContent = names.ayee;
+            if (lblYijhang) lblYijhang.textContent = names.yijhang;
+            if (subTitle) subTitle.textContent = `（${{names.achun}}、${{names.alu}}、${{names.ayee}}、${{names.yijhang}}）`;
+        }}
+
+        function openMemberNamesModal() {{
+            const names = getMemberNames();
+            const inAchun = document.getElementById('member-input-achun');
+            const inAlu = document.getElementById('member-input-alu');
+            const inAyee = document.getElementById('member-input-ayee');
+            const inYijhang = document.getElementById('member-input-yijhang');
+
+            if (inAchun) inAchun.value = names.achun;
+            if (inAlu) inAlu.value = names.alu;
+            if (inAyee) inAyee.value = names.ayee;
+            if (inYijhang) inYijhang.value = names.yijhang;
+
+            const modal = document.getElementById('member-names-modal');
+            if (modal) modal.classList.remove('hidden');
+        }}
+
+        function closeMemberNamesModal() {{
+            const modal = document.getElementById('member-names-modal');
+            if (modal) modal.classList.add('hidden');
+        }}
+
+        function saveCustomMemberNames() {{
+            const inAchun = document.getElementById('member-input-achun');
+            const inAlu = document.getElementById('member-input-alu');
+            const inAyee = document.getElementById('member-input-ayee');
+            const inYijhang = document.getElementById('member-input-yijhang');
+
+            const newNames = {{
+                achun: (inAchun ? inAchun.value.trim() : '') || DEFAULT_MEMBER_NAMES.achun,
+                alu: (inAlu ? inAlu.value.trim() : '') || DEFAULT_MEMBER_NAMES.alu,
+                ayee: (inAyee ? inAyee.value.trim() : '') || DEFAULT_MEMBER_NAMES.ayee,
+                yijhang: (inYijhang ? inYijhang.value.trim() : '') || DEFAULT_MEMBER_NAMES.yijhang
+            }};
+
+            localStorage.setItem('kyushu_member_names_v2', JSON.stringify(newNames));
+            closeMemberNamesModal();
+            updatePayerAndSplitOptions();
+            renderCosts();
+            showToast('✨ 4 位成員分帳稱號已成功更新並同步！');
+        }}
+
+        function resetMemberNamesToSchemeA() {{
+            localStorage.removeItem('kyushu_member_names_v2');
+            const inAchun = document.getElementById('member-input-achun');
+            const inAlu = document.getElementById('member-input-alu');
+            const inAyee = document.getElementById('member-input-ayee');
+            const inYijhang = document.getElementById('member-input-yijhang');
+
+            if (inAchun) inAchun.value = DEFAULT_MEMBER_NAMES.achun;
+            if (inAlu) inAlu.value = DEFAULT_MEMBER_NAMES.alu;
+            if (inAyee) inAyee.value = DEFAULT_MEMBER_NAMES.ayee;
+            if (inYijhang) inYijhang.value = DEFAULT_MEMBER_NAMES.yijhang;
+
+            updatePayerAndSplitOptions();
+            renderCosts();
+            showToast('已恢復方案 A 探險隊專屬職責預設名稱！');
+        }}
 
         function getCustomExpenses() {{
             try {{
@@ -3651,39 +3776,42 @@ def build():
                 }}
             }}
 
+            updatePayerAndSplitOptions();
             renderCosts();
         }}
 
         function renderCosts() {{
             const customList = getCustomExpenses();
+            const names = getMemberNames();
             let baseTotalSpent = 71250;
             let customSpentTotal = 0;
 
             const membersCalc = {{
-                '阿純': {{ paid: BASE_SETTLEMENT['阿純'].basePaid, should: BASE_SETTLEMENT['阿純'].baseShould }},
-                '阿嚕': {{ paid: BASE_SETTLEMENT['阿嚕'].basePaid, should: BASE_SETTLEMENT['阿嚕'].baseShould }},
-                '阿姨': {{ paid: BASE_SETTLEMENT['阿姨'].basePaid, should: BASE_SETTLEMENT['阿姨'].baseShould }},
-                '姨丈': {{ paid: BASE_SETTLEMENT['姨丈'].basePaid, should: BASE_SETTLEMENT['姨丈'].baseShould }}
+                achun: {{ paid: MEMBER_CONFIG.achun.basePaid, should: MEMBER_CONFIG.achun.baseShould }},
+                alu: {{ paid: MEMBER_CONFIG.alu.basePaid, should: MEMBER_CONFIG.alu.baseShould }},
+                ayee: {{ paid: MEMBER_CONFIG.ayee.basePaid, should: MEMBER_CONFIG.ayee.baseShould }},
+                yijhang: {{ paid: MEMBER_CONFIG.yijhang.basePaid, should: MEMBER_CONFIG.yijhang.baseShould }}
             }};
 
             customList.forEach(item => {{
                 const twd = Number(item.amount_twd || 0);
                 customSpentTotal += twd;
 
-                if (membersCalc[item.payer]) {{
-                    membersCalc[item.payer].paid += twd;
+                const payerKey = resolveMemberKey(item.payer);
+                if (membersCalc[payerKey]) {{
+                    membersCalc[payerKey].paid += twd;
                 }}
 
                 const splitMembers = [];
-                if (item.achun) splitMembers.push('阿純');
-                if (item.alu) splitMembers.push('阿嚕');
-                if (item.aunt) splitMembers.push('阿姨');
-                if (item.uncle) splitMembers.push('姨丈');
+                if (item.achun) splitMembers.push('achun');
+                if (item.alu) splitMembers.push('alu');
+                if (item.aunt) splitMembers.push('ayee');
+                if (item.uncle) splitMembers.push('yijhang');
 
                 if (splitMembers.length > 0) {{
                     const share = Math.round(twd / splitMembers.length);
-                    splitMembers.forEach(m => {{
-                        if (membersCalc[m]) membersCalc[m].should += share;
+                    splitMembers.forEach(k => {{
+                        if (membersCalc[k]) membersCalc[k].should += share;
                     }});
                 }}
             }});
@@ -3699,22 +3827,24 @@ def build():
             const cardsContainer = document.getElementById('members-settlement-cards');
             if (cardsContainer) {{
                 cardsContainer.innerHTML = '';
-                ['阿純', '阿嚕', '阿姨', '姨丈'].forEach(name => {{
-                    const m = membersCalc[name];
-                    const cfg = BASE_SETTLEMENT[name];
+                ['achun', 'alu', 'ayee', 'yijhang'].forEach(k => {{
+                    const m = membersCalc[k];
+                    const cfg = MEMBER_CONFIG[k];
+                    const displayName = names[k];
                     const diff = m.paid - m.should;
                     const isCredit = diff > 0;
                     const isBalanced = diff === 0;
 
                     const div = document.createElement('div');
-                    div.className = 'polaroid-card space-y-3 bg-gradient-to-b from-white to-stone-50/50';
+                    div.className = 'polaroid-card space-y-3 bg-gradient-to-b from-white to-stone-50/50 relative group';
                     div.innerHTML = `
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-2xl">${{cfg.icon}}</span>
-                                <span class="text-base font-black text-stone-800">${{name}}</span>
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-2xl shrink-0">${{cfg.icon}}</span>
+                                <span class="text-base font-black text-stone-800 truncate" title="${{escapeHtml(displayName)}}">${{escapeHtml(displayName)}}</span>
+                                <button type="button" onclick="openMemberNamesModal()" class="text-stone-300 hover:text-amber-600 text-xs shrink-0 transition" title="點擊自訂名稱">✏️</button>
                             </div>
-                            <span class="cute-pill ${{isCredit ? 'bg-emerald-100 text-emerald-700' : (isBalanced ? 'bg-stone-100 text-stone-600' : 'bg-red-100 text-red-700')}}">
+                            <span class="cute-pill shrink-0 ${{isCredit ? 'bg-emerald-100 text-emerald-700' : (isBalanced ? 'bg-stone-100 text-stone-600' : 'bg-red-100 text-red-700')}}">
                                 ${{isCredit ? '🟢 應收款' : (isBalanced ? '⚪ 平帳' : '🔴 應補款')}}
                             </span>
                         </div>
@@ -3748,10 +3878,10 @@ def build():
             if (guideBox) {{
                 const debtors = [];
                 const creditors = [];
-                ['阿純', '阿嚕', '阿姨', '姨丈'].forEach(name => {{
-                    const diff = membersCalc[name].paid - membersCalc[name].should;
-                    if (diff < -5) debtors.push({{ name, amount: Math.abs(diff) }});
-                    else if (diff > 5) creditors.push({{ name, amount: diff }});
+                ['achun', 'alu', 'ayee', 'yijhang'].forEach(k => {{
+                    const diff = membersCalc[k].paid - membersCalc[k].should;
+                    if (diff < -5) debtors.push({{ key: k, name: names[k], amount: Math.abs(diff) }});
+                    else if (diff > 5) creditors.push({{ key: k, name: names[k], amount: diff }});
                 }});
 
                 let steps = [];
@@ -3794,23 +3924,26 @@ def build():
                         row.className = 'bg-white p-3 rounded-2xl border border-stone-200 flex flex-wrap items-center justify-between text-xs gap-2 shadow-sm';
                         
                         const splitText = [
-                            item.achun ? '純' : '',
-                            item.alu ? '嚕' : '',
-                            item.aunt ? '姨' : '',
-                            item.uncle ? '丈' : ''
+                            item.achun ? names.achun.slice(0, 4) : '',
+                            item.alu ? names.alu.slice(0, 4) : '',
+                            item.aunt ? names.ayee.slice(0, 4) : '',
+                            item.uncle ? names.yijhang.slice(0, 4) : ''
                         ].filter(Boolean).join('/');
+
+                        const payerKey = resolveMemberKey(item.payer);
+                        const payerDisplayName = names[payerKey] || item.payer;
 
                         row.innerHTML = `
                             <div class="flex items-center gap-2">
                                 <span class="cute-pill bg-amber-100 text-amber-700">${{item.date.split('-').slice(1).join('/')}}</span>
-                                <span class="font-bold text-stone-800">${{item.item}}</span>
-                                <span class="text-stone-400 text-[11px]">(${{item.category}})</span>
-                                ${{item.note ? `<span class="text-stone-400 text-[11px] italic">"${{item.note}}"</span>` : ''}}
+                                <span class="font-bold text-stone-800">${{escapeHtml(item.item)}}</span>
+                                <span class="text-stone-400 text-[11px]">(${{escapeHtml(item.category)}})</span>
+                                ${{item.note ? `<span class="text-stone-400 text-[11px] italic">"${{escapeHtml(item.note)}}"</span>` : ''}}
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="text-right">
                                     <span class="font-mono font-bold text-stone-800">NT$ ${{Number(item.amount_twd).toLocaleString()}}</span>
-                                    <div class="text-[10px] text-stone-400">${{item.payer}} 墊 ｜ 分攤: ${{splitText}}</div>
+                                    <div class="text-[10px] text-stone-400">${{escapeHtml(payerDisplayName)}} 墊 ｜ 分攤: ${{splitText}}</div>
                                 </div>
                                 <button type="button" onclick="copySingleExpenseTsv('${{item.id}}')" class="p-1 text-stone-400 hover:text-stone-600" title="複製此列">📋</button>
                                 <button type="button" onclick="deleteCustomExpense('${{item.id}}')" class="p-1 text-red-400 hover:text-red-600" title="刪除">🗑️</button>
@@ -5247,6 +5380,63 @@ function doGet(e) {{
                 <button onclick="closeBarcodeModal()" class="w-full py-2.5 rounded-2xl bg-stone-800 text-white font-bold text-xs hover:bg-stone-900 transition">
                     關閉放大視窗
                 </button>
+            </div>
+        </div>
+
+        <!-- ✏️ 自訂成員名稱 Modal -->
+        <div id="member-names-modal" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs" onclick="closeMemberNamesModal()">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl border-4 border-amber-400 relative" onclick="event.stopPropagation()">
+                <div class="flex items-center justify-between border-b pb-2.5">
+                    <div class="flex items-center gap-2 text-amber-900 font-black text-sm">
+                        <span class="text-base">✏️</span>
+                        <span>自訂 4 位成員分帳稱號 / 姓名</span>
+                    </div>
+                    <button type="button" onclick="closeMemberNamesModal()" class="text-stone-400 hover:text-stone-600 text-lg font-bold">✕</button>
+                </div>
+                <p class="text-xs text-stone-500 leading-relaxed">
+                    您可以自由修改每位成員在分帳看板中顯示的稱呼或姓名，修改後將即時同步更新至結算卡片、墊付選單與匯款指引！
+                </p>
+
+                <div class="space-y-3 text-left">
+                    <div>
+                        <label class="text-xs font-bold text-stone-700 block mb-1 flex items-center gap-1.5">
+                            <span>🌸</span> <span>第 1 位成員 (原阿純)：</span>
+                        </label>
+                        <input type="text" id="member-input-achun" class="w-full bg-stone-50 border border-stone-200 focus:bg-white focus:border-amber-400 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none transition" placeholder="例如：首席導遊 阿純">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-stone-700 block mb-1 flex items-center gap-1.5">
+                            <span>🐻</span> <span>第 2 位成員 (原阿嚕)：</span>
+                        </label>
+                        <input type="text" id="member-input-alu" class="w-full bg-stone-50 border border-stone-200 focus:bg-white focus:border-amber-400 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none transition" placeholder="例如：總務大臣 阿嚕">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-stone-700 block mb-1 flex items-center gap-1.5">
+                            <span>🌼</span> <span>第 3 位成員 (原阿姨)：</span>
+                        </label>
+                        <input type="text" id="member-input-ayee" class="w-full bg-stone-50 border border-stone-200 focus:bg-white focus:border-amber-400 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none transition" placeholder="例如：美食評鑑官 阿姨">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-stone-700 block mb-1 flex items-center gap-1.5">
+                            <span>🎩</span> <span>第 4 位成員 (原姨丈)：</span>
+                        </label>
+                        <input type="text" id="member-input-yijhang" class="w-full bg-stone-50 border border-stone-200 focus:bg-white focus:border-amber-400 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none transition" placeholder="例如：榮譽總指揮 姨丈">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-stone-100 gap-2">
+                    <button type="button" onclick="resetMemberNamesToSchemeA()" class="px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold text-xs transition">
+                        🔄 恢復方案A職責
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeMemberNamesModal()" class="px-3 py-2 rounded-xl border border-stone-200 text-stone-500 font-bold text-xs hover:bg-stone-50 transition">
+                            取消
+                        </button>
+                        <button type="button" onclick="saveCustomMemberNames()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-black text-xs shadow-md transition active:scale-95">
+                            💾 儲存並套用
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -38,17 +38,17 @@
     let charMarkers = {};        // 4 位角色頭頂的 2D 浮動位置指標 DOM 元素
 
     const ROLE_NAMES = {
-        achun: '🧶 阿純',
-        yijhang: '🕶️ 姨丈',
-        ayee: '🍡 阿姨',
-        alu: '🐻 阿嚕'
+        achun: '🧭 首席導遊 阿純',
+        yijhang: '🎩 榮譽總指揮 姨丈',
+        ayee: '⭐ 美食評鑑官 阿姨',
+        alu: '💰 總務大臣 阿嚕'
     };
 
     const ROLE_MARKER_STYLES = {
-        achun:   { label: '🧶 阿純', bg: '#fef3c7', border: '#d97706', text: '#92400e', pin: '#f59e0b' },
-        yijhang: { label: '🕶️ 姨丈', bg: '#dbeafe', border: '#2563eb', text: '#1e40af', pin: '#3b82f6' },
-        ayee:    { label: '🍡 阿姨', bg: '#ffe4e6', border: '#e11d48', text: '#9f1239', pin: '#f43f5e' },
-        alu:     { label: '🐻 阿嚕', bg: '#ffedd5', border: '#ea580c', text: '#9a3412', pin: '#f97316' }
+        achun:   { label: '🧭 首席導遊', bg: '#fef3c7', border: '#d97706', text: '#92400e', pin: '#f59e0b' },
+        yijhang: { label: '🎩 榮譽總指揮', bg: '#dbeafe', border: '#2563eb', text: '#1e40af', pin: '#3b82f6' },
+        ayee:    { label: '⭐ 美食評鑑官', bg: '#ffe4e6', border: '#e11d48', text: '#9f1239', pin: '#f43f5e' },
+        alu:     { label: '💰 總務大臣', bg: '#ffedd5', border: '#ea580c', text: '#9a3412', pin: '#f97316' }
     };
     const ROLE_SPOT_STATUSES = {
         achun: [
