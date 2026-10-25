@@ -47,11 +47,13 @@
         for (let i = 0; i < FIREWORK_POOL_SIZE; i++) {
             const geom = new THREE.BufferGeometry();
             const positions = new Float32Array(FIREWORK_PCOUNT * 3);
+            const colors = new Float32Array(FIREWORK_PCOUNT * 3);
             geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
             const mat = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 0.55,
+                vertexColors: true,
+                size: 0.58,
                 sizeAttenuation: true,
                 transparent: true,
                 opacity: 1.0,
@@ -77,6 +79,7 @@
                 geom,
                 mat,
                 positions,
+                colors,
                 velocities,
                 active: false,
                 stage: 'launch',
@@ -112,10 +115,8 @@
         }
         if (!slot) return;
 
-        const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
-        slot.mat.color.setHex(color);
         slot.mat.opacity = 1.0;
-        slot.mat.size = 0.55;
+        slot.mat.size = 0.58;
 
         slot.sx = sx;
         slot.sy = sy;
@@ -125,11 +126,39 @@
         slot.explodeX = sx + (Math.random() - 0.5) * 1.2;
         slot.explodeZ = sz + (Math.random() - 0.5) * 1.2;
 
+        // 多色彩頂級花火調色盤（每發煙火綻放豐富斑斕的多彩粒子）
+        const PALETTES = [
+            // 1. 七彩慶典 (Festive Rainbow)
+            [0xff3b30, 0xff9500, 0xffd700, 0x34c759, 0x00f0ff, 0xaf52de, 0xff2d55, 0xffffff],
+            // 2. 櫻花璀璨 (Sakura & Sunset Glow)
+            [0xff2a85, 0xff7597, 0xfecdd3, 0xffb703, 0xfb8500, 0xffffff, 0xff007f],
+            // 3. 香檳流金 (Champagne Gold & Sparkles)
+            [0xffd700, 0xffe066, 0xffaa00, 0xfff3b0, 0xffffff, 0xff9e00, 0xfceade],
+            // 4. 幻彩極光 (Aurora Borealis)
+            [0x00f5d4, 0x7b2cbf, 0x9d4edd, 0x38bdf8, 0x06d6a0, 0xffffff, 0x5856d6],
+            // 5. 寶石琉璃 (Jeweled Night)
+            [0xff0054, 0x9e0059, 0xff5400, 0xffbd00, 0x00bbf9, 0x00f5d4, 0xffffff]
+        ];
+        const selectedPalette = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+        const colArr = slot.colors;
+        const colorHelper = new THREE.Color();
+
         const posArr = slot.positions;
         for (let i = 0; i < FIREWORK_PCOUNT; i++) {
             posArr[i * 3 + 0] = sx;
             posArr[i * 3 + 1] = sy;
             posArr[i * 3 + 2] = sz;
+
+            // 粒子多彩交織：70% 主題色 + 18% 純白璀璨星鑽 + 12% 金黃碎星
+            let hex;
+            const r = Math.random();
+            if (r < 0.18) hex = 0xffffff;
+            else if (r < 0.30) hex = 0xffd700;
+            else hex = selectedPalette[Math.floor(Math.random() * selectedPalette.length)];
+            colorHelper.setHex(hex);
+            colArr[i * 3 + 0] = colorHelper.r;
+            colArr[i * 3 + 1] = colorHelper.g;
+            colArr[i * 3 + 2] = colorHelper.b;
 
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos(Math.random() * 2 - 1);
@@ -139,6 +168,7 @@
             slot.velocities[i].vz = Math.cos(phi) * spd;
         }
 
+        slot.geom.attributes.color.needsUpdate = true;
         slot.geom.attributes.position.needsUpdate = true;
         slot.stage = 'launch';
         slot.age = 0;
@@ -2547,6 +2577,9 @@
                 charGroup.position.set(worldX, van.position.y + seat.y + jumpBoost, worldZ);
                 charGroup.rotation.y = vanAngle;
                 charGroup.userData.baseY = van.position.y + seat.y;
+                charGroup.userData.prevX = worldX;
+                charGroup.userData.prevZ = worldZ;
+                charGroup.userData.wasAboard = true;
 
                 window.KyushuIsland.Characters.animateCharacterPose(
                     charGroup,
@@ -2603,6 +2636,14 @@
                 const doorSideX = vanPos.x + (doorLocalX * cosA + doorLocalZ * sinA);
                 const doorSideZ = vanPos.z + (-doorLocalX * sinA + doorLocalZ * cosA);
                 const doorSideY = van.position.y;
+
+                // 剛下車防瞬移安全錨定：若剛下車或 prevX 殘留遠端舊坐標，強制重置起點為車門旁！
+                if (charGroup.userData.wasAboard || charGroup.userData.prevX === undefined || Math.hypot(charGroup.userData.prevX - doorSideX, charGroup.userData.prevZ - doorSideZ) > 3.2) {
+                    charGroup.userData.prevX = doorSideX;
+                    charGroup.userData.prevZ = doorSideZ;
+                    charGroup.position.set(doorSideX, doorSideY, doorSideZ);
+                    charGroup.userData.wasAboard = false;
+                }
 
                 let spotAnchorX, spotAnchorZ, spotAnchorY;
                 if (isSummitSpot) {
@@ -2701,7 +2742,7 @@
 
             // 核心優化：僅在「景點停靠自由散步」且正在說話時，平緩定點避免氣泡大幅漂移；在公路上行走時持續等速並行，絕不定格或瞬間跳躍！
             const isSpeakingNow = (activeSpeaker === role);
-            if (isStoppedAtLandmark && isSpeakingNow && boardElapsed < 0 && charGroup.userData.prevX !== undefined) {
+            if (isStoppedAtLandmark && isSpeakingNow && boardElapsed < 0 && charGroup.userData.prevX !== undefined && Math.hypot(charGroup.userData.prevX - vanPos.x, charGroup.userData.prevZ - vanPos.z) < 3.2) {
                 cx = charGroup.userData.prevX;
                 cz = charGroup.userData.prevZ;
                 isMovingOutside = false;

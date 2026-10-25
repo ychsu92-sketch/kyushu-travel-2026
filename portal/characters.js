@@ -1157,6 +1157,14 @@
                 if (ud.laptopGroup) ud.laptopGroup.visible = true;
                 if (ud.cupGroup) ud.cupGroup.visible = true;
             }
+            // 行走邁步時：阿姨嚴格收納野餐墊（絕不帶野餐墊走路！），手上拿著提袋與烤糰子
+            if (ud.role === 'ayee') {
+                if (ud.picnicMatGroup) {
+                    ud.picnicMatGroup.visible = false;
+                    ud.matScale = 0;
+                    ud.picnicMatGroup.scale.setScalar(0.001);
+                }
+            }
             // 行走時四肢擺動與輕快彈跳 + 隨機邊走邊做小動作
             const stride = Math.sin(phase) * 0.58;
             ud.legL.rotation.x = stride;
@@ -1342,10 +1350,10 @@
                         ud.matScale = Math.min(1.0, (ud.matScale || 0) + delta * 4.0);
                         ud.picnicMatGroup.visible = true;
                     } else {
-                        ud.matScale = Math.max(0, (ud.matScale || 0) - delta * 6.0);
-                        if (ud.matScale <= 0.01) ud.picnicMatGroup.visible = false;
+                        ud.matScale = 0;
+                        ud.picnicMatGroup.visible = false;
                     }
-                    ud.picnicMatGroup.scale.setScalar(ud.matScale);
+                    ud.picnicMatGroup.scale.setScalar(Math.max(0.001, ud.matScale));
                 }
 
                 if (ud.isSpotBusy) {
