@@ -505,6 +505,8 @@ def build():
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }}
 
         .soft-countdown {{
@@ -1748,8 +1750,9 @@ def build():
                 <!-- 優惠券地區篩選列 -->
                 <div class="flex flex-wrap items-center justify-between gap-2 bg-amber-50/60 p-3 rounded-2xl border border-amber-200 text-xs font-bold">
                     <div class="flex flex-wrap items-center gap-1.5">
-                        <span class="text-stone-500 text-[11px] font-black">📍 地區篩選：</span>
-                        <button type="button" onclick="filterCoupons('all')" id="cfilter-all" class="cfilter-btn px-3 py-1 rounded-full bg-red-600 text-white shadow-xs transition text-[11px]">全部優惠 (6)</button>
+                        <span class="text-stone-500 text-[11px] font-black">📍 分類篩選：</span>
+                        <button type="button" onclick="filterCoupons('all')" id="cfilter-all" class="cfilter-btn px-3 py-1 rounded-full bg-red-600 text-white shadow-xs transition text-[11px] font-bold">全部優惠 (12)</button>
+                        <button type="button" onclick="filterCoupons('gov_tourism')" id="cfilter-gov_tourism" class="cfilter-btn px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-amber-100 transition text-[11px]">🏛️ 地方政府/觀光通行券 (6)</button>
                         <button type="button" onclick="filterCoupons('kumamoto')" id="cfilter-kumamoto" class="cfilter-btn px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-amber-100 transition text-[11px]">📍 熊本市區</button>
                         <button type="button" onclick="filterCoupons('kagoshima')" id="cfilter-kagoshima" class="cfilter-btn px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-amber-100 transition text-[11px]">📍 鹿兒島市區</button>
                         <button type="button" onclick="filterCoupons('miyazaki')" id="cfilter-miyazaki" class="cfilter-btn px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-amber-100 transition text-[11px]">📍 宮崎・日南</button>
@@ -2598,101 +2601,248 @@ def build():
 
         // ======================= 優惠券與折價券資料系統 =======================
         const COUPONS_DATA = [
+            // ── 1. 商業綜合通路與藥妝免稅 (附官方核銷連結) ──
             {{
                 id: "c_donki",
                 title: "驚安殿堂 唐吉訶德 (Don Quijote)",
-                title_jp: "ドン・キホーテ 免税＋特別優待",
+                title_jp: "ドン・キホーテ 免税＋特別優待電子クーポン",
+                category: "shopping",
                 tag: "免稅 10% + 最高折 7%",
-                discount: "10% 免稅 + 最高 7% 現折",
+                discount: "10% 免稅 + 最高 7% 現折 (官方電子券)",
                 condition: "滿 10,000 日圓折 5% ｜ 滿 30,000 日圓折 7%",
                 barcode: "9900123456789",
-                area: "kumamoto_kagoshima",
+                official_url: "https://japanportal.donki-global.com/coupon/?ptcd=0076000703",
+                official_name: "唐吉訶德官方電子折價券",
+                usage_guide: "⚠️ 唐吉訶德門市結帳時，店員須在手機開啟的官方網頁上點擊金額核銷，靜態截圖不被接受，請點擊上方按鈕出示官方網頁！",
+                area: "kumamoto_kagoshima_chain",
                 area_tag: "kumamoto",
-                area_name: "熊本市區・鹿兒島市區",
+                area_name: "熊本下通・鹿兒島天文館",
                 stores: "熊本下通店、鹿兒島天文館店",
                 google_maps: "https://www.google.com/maps/search/?api=1&query=ドン・キホーテ+熊本下通店",
-                expiry: "2026/12/31 止",
-                note: "結帳前務必主動出示護照與本條碼讓店員掃描"
+                expiry: "長期有效 (2026/12 聖誕適用)",
+                note: "結帳前務必開啟官方網頁並出示護照由店員核銷點擊"
             }},
             {{
                 id: "c_bic",
                 title: "Bic Camera / Kojima 電器綜合免稅",
-                title_jp: "ビックカメラ / コジマ 特別割引",
+                title_jp: "ビックカメラ / コジマ 特別割引クーポン",
+                category: "shopping",
                 tag: "免稅 10% + 7% / 5% 折扣",
-                discount: "10% 免稅 + 電器相機 7% / 藥妝 5%",
-                condition: "相機電器玩具享額外 7% ｜ 保溫杯藥妝享額外 5%",
+                discount: "10% 免稅 + 電器相機 7% / 藥妝保溫瓶 5% / 日本酒 3%",
+                condition: "相機、電器、保溫瓶出示條碼即享免稅外加折抵優惠",
                 barcode: "9900987654321",
+                official_url: "https://www.biccamera.com.t.dj.hp.transer.com/service/campaign/coupon/",
+                official_name: "Bic Camera 官方外國旅客專屬優惠券",
+                usage_guide: "結帳時直接由店員掃描本卡片條碼或開啟官方網頁條碼即可折抵，可刷台灣信用卡。",
                 area: "kumamoto_kagoshima",
                 area_tag: "kagoshima",
-                area_name: "熊本・鹿兒島市區",
+                area_name: "熊本市區・鹿兒島中央站",
                 stores: "Kojima x BicCamera 熊本店、Bic Camera 鹿兒島中央站店",
                 google_maps: "https://www.google.com/maps/search/?api=1&query=ビックカメラ+鹿児島中央駅店",
                 expiry: "2026/12/31 止",
-                note: "出示手機條碼直接折抵，可刷台灣信用卡"
+                note: "相機鏡頭、大容量保溫杯、刮鬍刀、Dyson 吹風機超划算"
             }},
             {{
                 id: "c_matsukiyo",
                 title: "松本清藥妝 (Matsumoto Kiyoshi)",
-                title_jp: "マツモトキヨシ 免税クーポン",
+                title_jp: "マツモトキヨシ 外国人限定 免税クーポン",
+                category: "shopping",
                 tag: "免稅 10% + 最高折 7%",
-                discount: "10% 免稅 + 滿額 3% / 5% / 7%",
+                discount: "10% 免稅 + 滿額加碼折 3% ~ 7%",
                 condition: "滿 1萬折 3% ｜ 滿 3萬折 5% ｜ 滿 5萬折 7%",
                 barcode: "4901234567890",
+                official_url: "https://www.matsukiyococokara-online.com/",
+                official_name: "松本清官方優惠情報網",
+                usage_guide: "出示條碼由收銀台掃描，全九州各大主要商店街皆有門市。",
                 area: "all_kyushu",
                 area_tag: "chain",
                 area_name: "熊本・宮崎・鹿兒島連鎖",
                 stores: "熊本下通店、宮崎橘通店、鹿兒島天文館店",
                 google_maps: "https://www.google.com/maps/search/?api=1&query=マツモトキヨシ+熊本下通",
                 expiry: "2026/12/31 止",
-                note: "九州各大熱門商店街均有門市，買合利他命、面膜超划算"
+                note: "合利他命、EVE止痛藥、WAKAMOTO、雪肌精常備藥補貨首選"
+            }},
+            {{
+                id: "c_sugi",
+                title: "SUGI 杉藥局 (Sugi Pharmacy)",
+                title_jp: "スギ薬局 免税＋インバウンド限定割引",
+                category: "shopping",
+                tag: "免稅 10% + 滿額折 3%~8%",
+                discount: "10% 免稅 + 滿額最高現折 8%",
+                condition: "滿 1 萬折 3% ｜ 滿 3 萬折 5% ｜ 滿 5 萬折 8%",
+                barcode: "4908821901234",
+                official_url: "https://www.sugi-net.jp/",
+                official_name: "SUGI 杉藥局官方網站",
+                usage_guide: "結帳時出示條碼及外國護照，即可享免稅加上額外折抵。",
+                area: "all_kyushu",
+                area_tag: "chain",
+                area_name: "熊本市區・鹿兒島市區",
+                stores: "熊本櫻町店、鹿兒島市區門市",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=スギ薬局+熊本",
+                expiry: "2026/12/31 止",
+                note: "藥品齊全且化妝水保養品常有獨家組合"
             }},
             {{
                 id: "c_daikoku",
-                title: "大國藥妝 / 杉藥局 (Daikoku Drug)",
+                title: "大國藥妝 (Daikoku Drug)",
                 title_jp: "ダイコクドラッグ 免税特別割引",
-                tag: "免稅 10% + 最高折 7%",
-                discount: "10% 免稅 + 現折 3% ~ 7%",
+                category: "shopping",
+                tag: "免稅 10% + 現折 3%~7%",
+                discount: "10% 免稅 + 滿額現折 3% ~ 7%",
                 condition: "熱門零食、常備感冒藥、痠痛貼布滿額現折",
                 barcode: "4909876543210",
+                official_url: "https://daikokudrug.com/",
+                official_name: "大國藥妝官方免稅指引",
+                usage_guide: "出示條碼由收銀人員掃描，常駐中文服務人員。",
                 area: "all_kyushu",
                 area_tag: "chain",
                 area_name: "熊本市區・鹿兒島市區",
                 stores: "熊本新市街店、鹿兒島天文館店",
                 google_maps: "https://www.google.com/maps/search/?api=1&query=ダイコクドラッグ+熊本",
                 expiry: "2026/12/31 止",
-                note: "常有店員講中文，價格透明親民"
+                note: "DHC維他命、休足時間、ROIHI鎮痛貼片價格親民"
             }},
             {{
                 id: "c_tsuruya",
                 title: "熊本鶴屋百貨 外國旅客 5% 貴賓券",
-                title_jp: "鶴屋百貨店 外国人特別優待",
-                tag: "外國旅客 5% 折扣 + 免稅",
+                title_jp: "鶴屋百貨店 外国人特別優待クーポン",
+                category: "shopping",
+                tag: "5% 貴賓券 + 10% 免稅",
                 discount: "全館 5% 折扣 + 10% 免稅退稅",
-                condition: "憑外國護照至本館退稅櫃台出示即可領取貴賓券",
+                condition: "憑外國護照至本館退稅櫃台出示即可領取 5% 貴賓券",
                 barcode: "2978849102401",
+                official_url: "https://www.tsuruya-dept.co.jp/foreign/",
+                official_name: "鶴屋百貨繁體中文官方指南",
+                usage_guide: "至本館退稅櫃台出示護照領取 5% 實體券，結帳即折，東館 1F 旁為熊本熊部長辦公室！",
                 area: "kumamoto",
                 area_tag: "kumamoto",
                 area_name: "熊本市區辛島町/通町筋",
-                stores: "鶴屋百貨本館 (東館 1F 熊本熊廣場旁)",
+                stores: "鶴屋百貨本館 (熊本熊廣場旁)",
                 google_maps: "https://www.google.com/maps/search/?api=1&query=鶴屋百貨店+熊本",
-                expiry: "2026/12/31 止",
-                note: "買九州頂級銘菓、熊本熊限定商品與專櫃化妝品必備"
+                expiry: "長期有效 (2026 全年適用)",
+                note: "買九州頂級銘菓（陣太鼓、武者返）、頂級伴手禮與專櫃精品必逛"
+            }},
+
+            // ── 2. 地方政府促進觀光券・高速通行・交通優惠 (自駕聖誕專用) ──
+            {{
+                id: "c_kep",
+                title: "【高速過路費吃到飽】KEP 九州高速公路通行證",
+                title_jp: "Kyushu Expressway Pass (NEXCO 西日本官方)",
+                category: "government",
+                tag: "🚗 自駕省路費神器・現省數萬日圓",
+                discount: "7 日定額過路費吃到飽 ¥17,200",
+                condition: "本次旅行南九州行程超過 1,000 公里，原價過路費預估高達 ¥28,000+，現省約 ¥11,000！",
+                barcode: "9908882026120",
+                official_url: "https://global.w-nexco.co.jp/tw/kep/",
+                official_name: "NEXCO 西日本 KEP 官方網站申辦指引",
+                usage_guide: "領車時向熊本機場租車公司櫃台（ORIX/Toyota/Nissan）出示預約並租用專用 ETC 卡，即可暢行九州高速公路！",
+                area: "gov_tourism_all",
+                area_tag: "gov_tourism",
+                area_name: "全九州高速公路網 (熊本/阿蘇/宮崎/鹿兒島)",
+                stores: "熊本機場租車櫃檯 (取車時現場加購)",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=阿蘇くまもと空港+レンタカー",
+                expiry: "2026/12/22 ~ 12/28 自駕適用",
+                note: "本趟必辦！上下熊本 IC、益城熊本空港 IC、鹿兒島 IC、蝦野 IC 均享自動吃到飽扣抵"
             }},
             {{
-                id: "c_senganen",
-                title: "仙巖園 ＆ 櫻島渡輪 觀光套票指引",
-                title_jp: "仙巌園・桜島フェリー 共通チケット",
-                tag: "套票優惠 85 折起",
-                discount: "仙巖園＋尚古集成館門票優惠 ｜ 渡輪 CUTE 券",
-                condition: "出示悠遊卡或護照至售票處購買共通券即享折扣",
-                barcode: "8801234567891",
-                area: "kagoshima",
-                area_tag: "kagoshima",
-                area_name: "鹿兒島・櫻島",
-                stores: "鹿兒島中央站觀光所、櫻島渡輪碼頭售票口",
-                google_maps: "https://www.google.com/maps/search/?api=1&query=仙巌園",
-                expiry: "2026/12/31 止",
-                note: "持 Welcome Cute 一日券可無限次搭乘櫻島渡輪與鹿兒島市營巴士"
+                id: "c_kurokawa_pass",
+                title: "【黑川溫泉秘湯】黑川溫泉 入湯手形 (入浴巡禮券)",
+                title_jp: "黒川温泉 入湯手形 (黒川温泉観光旅館協同組合)",
+                category: "government",
+                tag: "♨️ 溫泉協會官方・省 40%",
+                discount: "¥1,500 任選 3 家秘湯露天風呂 或 2 湯 + 1 美食伴手禮",
+                condition: "單泡一家露天風呂原價 ¥600~800，買手形泡 3 家現省近半，更可兌換特約甜點伴手禮",
+                barcode: "9908882026121",
+                official_url: "https://www.kurokawaonsen.or.jp/tegata/",
+                official_name: "黑川溫泉觀光旅館協同組合 (風の舎)",
+                usage_guide: "於黑川溫泉「風の舎」旅客服務中心或任一旅館櫃檯購買，附有精緻天然杉木圓牌，泡完可帶回家當紀念！",
+                area: "gov_tourism_kumamoto",
+                area_tag: "gov_tourism",
+                area_name: "熊本阿蘇・黑川溫泉街",
+                stores: "黑川溫泉觀光中心「風の舎」、各特約溫泉旅館",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=黒川温泉+風の舎",
+                expiry: "購入日起半年內有效 (Day 2-3 適用)",
+                note: "推薦巡禮：新明館「穴風呂」、山之宿「新平山」或黑川街區人氣甜點店"
+            }},
+            {{
+                id: "c_kagoshima_cute",
+                title: "【鹿兒島觀光交通】Welcome CUTE 共通一日券 / 二日券",
+                title_jp: "かごしま共通パス Welcome CUTE (鹿兒島市交通局官方)",
+                category: "government",
+                tag: "🚢 渡輪+市電吃到飽・仙巖園85折",
+                discount: "1日券 ¥1,300 ｜ 櫻島渡輪無限次搭乘 ＋ 仙巖園等10+設施折扣",
+                condition: "含櫻島觀光渡輪、櫻島 Island View 巴士、鹿兒島市電，並享仙巖園門票優惠！",
+                barcode: "9908882026122",
+                official_url: "https://www.kagoshima-yokanavi.jp/zh-TW/transport/cute",
+                official_name: "鹿兒島市觀光指引 官方 CUTE 券購票說明",
+                usage_guide: "出示外國護照於鹿兒島中央站觀光綜合案內所、櫻島渡輪售票處購買，出示票根即可免費搭車及享仙巖園門票折抵。",
+                area: "gov_tourism_kagoshima",
+                area_tag: "gov_tourism",
+                area_name: "鹿兒島市區・櫻島渡輪・仙巖園",
+                stores: "鹿兒島中央站內觀光案內所、櫻島渡輪碼頭售票窗口",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=鹿児島中央駅+観光案内所",
+                expiry: "2026/12/26 ~ 12/27 鹿兒島段適用",
+                note: "仙巖園入園時主動出示 CUTE 券，全體同伴同享門票團體優惠折扣"
+            }},
+            {{
+                id: "c_kumamoto_1day",
+                title: "【熊本市區通票】わくわく 1day パス (Wakuwaku 1-Day Pass)",
+                title_jp: "熊本市電・バス共通1日乗車券 (熊本市交通局)",
+                category: "government",
+                tag: "🏯 熊本市電無限搭・熊本城8折門票",
+                discount: "市電一日乘車券 ¥800 ｜ 熊本城天守閣 8 折團體優惠",
+                condition: "熊本市電路面電車無限次搭乘，憑票根於熊本城售票口享 8 折優惠",
+                barcode: "9908882026123",
+                official_url: "https://www.kotsu-kumamoto.jp/ticket/Default.aspx?c_id=23",
+                official_name: "熊本市交通局官方通票介紹",
+                usage_guide: "可在熊本市電電車上直接向司機購買，或在辛島町服務中心購買，搭路面電車逛上下通超方便。",
+                area: "gov_tourism_kumamoto",
+                area_tag: "gov_tourism",
+                area_name: "熊本市區・上下通・熊本城",
+                stores: "熊本市電各電車內司機、辛島町旅客案內所",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=熊本市交通局",
+                expiry: "2026/12/22 ~ 12/23 熊本市區適用",
+                note: "進出上下通商圈、辛島町與熊本城，不想開車找停車位時的最佳選擇"
+            }},
+            {{
+                id: "c_miyazaki_pass",
+                title: "【宮崎日南海岸】Visit Miyazaki Bus Pass 外國旅客專屬 1 日券",
+                title_jp: "ビジットミヤザキバスパス (宮崎交通官方)",
+                category: "government",
+                tag: "🗿 宮崎日南限定・外國遊客只要半價",
+                discount: "特惠價 ¥1,500 (原價區間車資超過 ¥3,000)",
+                condition: "外國旅客限定！涵蓋宮崎市區、青島、日南 Sun Messe、鵜戶神宮沿線巴士",
+                barcode: "9908882026124",
+                official_url: "https://www.miyakoh.co.jp/bus/visit_miyazaki_bus_pass/",
+                official_name: "宮崎交通官方 Visit Miyazaki Pass 專頁",
+                usage_guide: "憑外國護照至宮崎站觀光案內所或巴士總站購買，在日南各大觀光設施出示享專屬禮遇。",
+                area: "gov_tourism_miyazaki",
+                area_tag: "gov_tourism",
+                area_name: "宮崎市・青島・日南太陽花園・鵜戶神宮",
+                stores: "宮崎站觀光案內所、宮交巴士總站 (宮崎市橘通)",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=宮交橘営業所+バスセンター",
+                expiry: "2026/12/25 宮崎日南段適用",
+                note: "自駕行程亦可作為日南太陽花園 Moai 石像與鵜戶神宮門票/周邊優惠憑證"
+            }},
+            {{
+                id: "c_kyushu_tourism",
+                title: "【九州官方振興】九州觀光推進機構 自由行觀光應援專頁",
+                title_jp: "一般社団法人 九州観光機構 (WELCOME KYUSHU 官方)",
+                category: "government",
+                tag: "🎌 日本觀光廳・九州地方官方優惠總匯",
+                discount: "官方合作設施優惠、免費多國語景點指南、冬季自駕即時路況",
+                condition: "涵蓋熊本、鹿兒島、宮崎三縣冬季自駕與觀光設施即時特惠公告",
+                barcode: "9908882026125",
+                official_url: "https://www.welcomekyushu.tw/",
+                official_name: "九州觀光機構 (Welcome Kyushu) 繁中官方網站",
+                usage_guide: "出發前或旅途中點擊官方專頁，即可查詢最新各縣觀光推進企劃、冬季降雪情報與景點休館即時公告。",
+                area: "gov_tourism_all",
+                area_tag: "gov_tourism",
+                area_name: "全九州 (熊本・阿蘇・宮崎・鹿兒島)",
+                stores: "九州觀光機構官方平台線上即時更新",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=熊本駅+総合観光案内所",
+                expiry: "2026 冬季最新官方情報",
+                note: "提供最權威的阿蘇火山管制警戒等級與冬季高山道路防滑管制即時通報"
             }}
         ];
 
@@ -2749,7 +2899,7 @@ def build():
 
         function filterCoupons(area) {{
             currentCouponFilter = area;
-            ['all', 'kumamoto', 'kagoshima', 'miyazaki', 'chain'].forEach(a => {{
+            ['all', 'gov_tourism', 'kumamoto', 'kagoshima', 'miyazaki', 'chain'].forEach(a => {{
                 const btn = document.getElementById(`cfilter-${{a}}`);
                 if (btn) {{
                     if (a === area) {{
@@ -2769,13 +2919,15 @@ def build():
 
             const list = COUPONS_DATA.filter(c => {{
                 if (currentCouponFilter === 'all') return true;
-                if (currentCouponFilter === 'chain' && (c.area_tag === 'chain' || c.area === 'all_kyushu')) return true;
+                if (currentCouponFilter === 'gov_tourism') return c.category === 'government' || c.area_tag === 'gov_tourism' || c.area.includes('gov_tourism');
+                if (currentCouponFilter === 'chain' && (c.area_tag === 'chain' || c.area.includes('chain') || c.area === 'all_kyushu')) return true;
                 return c.area.includes(currentCouponFilter) || c.area_tag === currentCouponFilter;
             }});
 
             list.forEach(c => {{
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-3xl p-5 border-2 border-red-200 hover:border-red-400 space-y-3.5 shadow-sm hover:shadow-md transition flex flex-col justify-between';
+                const isGov = c.category === 'government';
+                card.className = `bg-white rounded-3xl p-5 border-2 ${{isGov ? 'border-amber-300 hover:border-amber-500 bg-amber-50/20' : 'border-red-200 hover:border-red-400'}} space-y-3.5 shadow-sm hover:shadow-md transition flex flex-col justify-between`;
 
                 const barcodeSvg = renderBarcodeSvg(c.barcode, 200, 45);
                 const qrSvg = renderQrSvg(c.barcode, 16);
@@ -2783,46 +2935,58 @@ def build():
                 card.innerHTML = `
                     <div class="space-y-2.5">
                         <div class="flex items-center justify-between gap-1 flex-wrap">
-                            <span class="cute-pill bg-red-100 text-red-700 font-black">${{c.tag}}</span>
+                            <span class="cute-pill ${{isGov ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-red-100 text-red-700'}} font-black">${{c.tag}}</span>
                             <span class="text-[11px] font-bold text-stone-400">📍 ${{c.area_name}}</span>
                         </div>
 
                         <div>
-                            <h4 class="text-sm font-black text-stone-800">${{c.title}}</h4>
+                            <h4 class="text-sm font-black text-stone-800 leading-snug">${{c.title}}</h4>
                             <div class="text-[11px] text-stone-400 italic">${{c.title_jp}}</div>
                         </div>
 
-                        <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-2.5 space-y-1 text-xs">
-                            <div class="font-black text-red-700 flex items-center gap-1 text-[11px]">
-                                <span>🎁 優惠詳情：</span>
-                                <span>${{c.discount}}</span>
+                        <!-- 優惠詳情 (點擊直接導跳官方電子券/官網) -->
+                        <div class="${{isGov ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:border-amber-400' : 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200 hover:border-red-400'}} border rounded-2xl p-2.5 space-y-1.5 text-xs cursor-pointer hover:shadow-xs transition group" onclick="window.open('${{c.official_url}}', '_blank')" title="點擊直接開啟官方優惠券網頁">
+                            <div class="font-black text-red-700 flex items-center justify-between gap-1 text-[11px]">
+                                <div class="flex items-center gap-1">
+                                    <span>🎁 優惠詳情：</span>
+                                    <span>${{c.discount}}</span>
+                                </div>
+                                <span class="text-[10px] text-red-600 font-black group-hover:underline flex items-center gap-0.5 shrink-0">
+                                    <span>開啟官方券</span> <span>↗</span>
+                                </span>
                             </div>
                             <div class="text-[11px] text-stone-600 font-bold">${{c.condition}}</div>
+                            <div class="text-[10px] text-amber-800 bg-white/70 px-2 py-1 rounded-lg border border-amber-200/60 font-medium">
+                                💡 點擊此框可直接跳轉至【${{c.official_name || '官方核銷頁面'}}】
+                            </div>
                         </div>
 
                         <!-- 條碼與 QRcode 掃描展示區 -->
                         <div class="p-3 bg-stone-50 rounded-2xl border-2 border-stone-200 space-y-2 text-center">
                             <div class="flex items-center justify-between gap-2">
-                                <div class="flex-1 bg-white p-2 rounded-xl border border-stone-200 cursor-pointer" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大條碼">
+                                <div class="flex-1 bg-white p-2 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大條碼">
                                     ${{barcodeSvg}}
                                     <div class="font-mono text-xs font-bold text-stone-700 tracking-wider mt-1">${{c.barcode}}</div>
                                 </div>
-                                <div class="bg-white p-1.5 rounded-xl border border-stone-200 cursor-pointer shrink-0" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大二維碼">
+                                <div class="bg-white p-1.5 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition shrink-0" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大二維碼">
                                     ${{qrSvg}}
                                 </div>
                             </div>
-                            <div class="text-[10px] text-stone-400 font-medium">💡 結帳時點擊「條碼」可直接全螢幕放大讓店員掃描</div>
+                            <div class="text-[10px] text-stone-500 font-medium">${{c.usage_guide ? c.usage_guide : '💡 結帳時點擊「條碼」可直接全螢幕放大讓店員掃描'}}</div>
                         </div>
 
-                        <div class="text-[11px] text-stone-500 bg-stone-50 p-2 rounded-xl border border-stone-100">
-                            <strong>適用門市：</strong>${{c.stores}}
+                        <div class="text-[11px] text-stone-500 bg-stone-50 p-2 rounded-xl border border-stone-100 leading-relaxed">
+                            <strong>適用/申辦地點：</strong>${{c.stores}}
                         </div>
                     </div>
 
-                    <div class="pt-2 border-t border-stone-100 flex items-center gap-2">
-                        <button type="button" onclick="openBarcodeModal('${{c.id}}')" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs flex items-center justify-center gap-1 shadow-sm transition">
+                    <div class="pt-2 border-t border-stone-100 flex items-center gap-2 flex-wrap">
+                        <button type="button" onclick="openBarcodeModal('${{c.id}}')" class="flex-1 min-w-[120px] py-2 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs flex items-center justify-center gap-1 shadow-sm transition">
                             <span>🔍</span> 放大條碼供掃描
                         </button>
+                        <a href="${{c.official_url}}" target="_blank" class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs flex items-center justify-center gap-1 transition" title="開啟官方網頁">
+                            <span>🌐</span> 官方電子券 ↗
+                        </a>
                         <a href="${{c.google_maps}}" target="_blank" class="py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center justify-center gap-1 transition" title="Google Maps 導航">
                             <span>🗺️</span> 導航
                         </a>
@@ -2841,12 +3005,29 @@ def build():
             const barcodeNumEl = document.getElementById('modal-barcode-num');
             const qrSvgEl = document.getElementById('modal-qr-svg');
             const condEl = document.getElementById('modal-coupon-condition');
+            const officialBtn = document.getElementById('modal-official-link-btn');
+            const alertEl = document.getElementById('modal-coupon-alert');
 
             if (titleEl) titleEl.textContent = c.title;
             if (barcodeSvgEl) barcodeSvgEl.innerHTML = renderBarcodeSvg(c.barcode, 260, 65);
             if (barcodeNumEl) barcodeNumEl.textContent = c.barcode;
             if (qrSvgEl) qrSvgEl.innerHTML = renderQrSvg(c.barcode, 24);
-            if (condEl) condEl.textContent = `${{c.discount}} ｜ ${{c.condition}} ｜ 有效期至 ${{c.expiry}}`;
+            if (condEl) condEl.textContent = `${{c.discount}} ｜ ${{c.condition}} ｜ 有效期：${{c.expiry}}`;
+
+            if (officialBtn) {{
+                officialBtn.href = c.official_url;
+                officialBtn.textContent = `🌐 開啟官方電子券網頁 (${{c.official_name || '店員現場核銷專用'}}) ↗`;
+            }}
+
+            if (alertEl) {{
+                if (c.usage_guide) {{
+                    alertEl.textContent = c.usage_guide;
+                    alertEl.classList.remove('hidden');
+                }} else {{
+                    alertEl.textContent = '💡 請將手機螢幕亮度調至最大，直接出示給店員掃描；若店員要求點擊折價券，請點擊下方「開啟官方電子券網頁」！';
+                    alertEl.classList.remove('hidden');
+                }}
+            }}
 
             if (modal) modal.classList.remove('hidden');
         }}
@@ -4188,11 +4369,11 @@ function doGet(e) {{
                     div.onclick = () => toggleChecklistItem(item.id, groupKey);
 
                     div.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="${{isChecked ? 'text-emerald-600' : 'text-stone-300'}} text-sm">${{isChecked ? '❄️' : '⚪'}}</span>
-                            <span>${{item.item}}</span>
+                        <div class="flex items-center gap-2 min-w-0 flex-1 pr-2">
+                            <span class="${{isChecked ? 'text-emerald-600' : 'text-stone-300'}} text-sm shrink-0">${{isChecked ? '❄️' : '⚪'}}</span>
+                            <span class="truncate sm:overflow-visible sm:whitespace-normal font-bold">${{item.item}}</span>
                         </div>
-                        ${{item.critical ? '<span class="cute-pill bg-red-100 text-red-700">必帶</span>' : ''}}
+                        ${{item.critical ? '<span class="cute-pill bg-red-100 text-red-700 shrink-0 whitespace-nowrap text-[10px] font-black">必帶</span>' : ''}}
                     `;
                     container.appendChild(div);
                 }});
@@ -5363,12 +5544,12 @@ function doGet(e) {{
 
         <!-- 條碼全螢幕放大 Modal -->
         <div id="barcode-modal" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs" onclick="closeBarcodeModal()">
-            <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl border-4 border-red-500" onclick="event.stopPropagation()">
+            <div class="bg-white rounded-3xl p-6 max-w-md w-full space-y-4 text-center shadow-2xl border-4 border-red-500" onclick="event.stopPropagation()">
                 <div class="flex items-center justify-between border-b pb-2">
                     <span class="font-black text-sm text-stone-800" id="modal-coupon-title">優惠券條碼</span>
-                    <button onclick="closeBarcodeModal()" class="text-stone-400 hover:text-stone-600 text-base font-bold">✕</button>
+                    <button type="button" onclick="closeBarcodeModal()" class="text-stone-400 hover:text-stone-600 text-base font-bold">✕</button>
                 </div>
-                <div class="bg-amber-50 text-amber-900 text-xs font-bold p-2.5 rounded-xl border border-amber-200 leading-snug">
+                <div id="modal-coupon-alert" class="bg-amber-50 text-amber-900 text-xs font-bold p-2.5 rounded-xl border border-amber-200 leading-snug text-left">
                     💡 請將手機螢幕亮度調至最大，直接出示給店員掃描
                 </div>
                 <div class="p-4 bg-white rounded-2xl border-2 border-stone-300 flex flex-col items-center justify-center space-y-2">
@@ -5377,9 +5558,15 @@ function doGet(e) {{
                 </div>
                 <div id="modal-qr-svg" class="flex justify-center p-2 bg-stone-50 rounded-xl border border-stone-200"></div>
                 <p class="text-[11px] text-stone-500 font-medium leading-relaxed" id="modal-coupon-condition"></p>
-                <button onclick="closeBarcodeModal()" class="w-full py-2.5 rounded-2xl bg-stone-800 text-white font-bold text-xs hover:bg-stone-900 transition">
-                    關閉放大視窗
-                </button>
+                
+                <div class="space-y-2 pt-1">
+                    <a id="modal-official-link-btn" href="#" target="_blank" class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md transition">
+                        <span>🌐</span> 開啟官方電子券網頁 (現場核銷專用) ↗
+                    </a>
+                    <button type="button" onclick="closeBarcodeModal()" class="w-full py-2.5 rounded-2xl bg-stone-100 text-stone-700 font-bold text-xs hover:bg-stone-200 transition">
+                        關閉放大視窗
+                    </button>
+                </div>
             </div>
         </div>
 
