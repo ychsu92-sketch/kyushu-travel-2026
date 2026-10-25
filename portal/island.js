@@ -2386,17 +2386,17 @@
                     const lz = currentLandmark.renderZ !== undefined ? currentLandmark.renderZ : currentLandmark.z;
                     const ly = currentLandmark.renderY !== undefined ? currentLandmark.renderY : getGroundY(lx, lz);
                     const sc = currentLandmark.scaleVal || 1.20;
-                    const summitSpread = (idx - 1.5) * 0.65;
-                    spotAnchorX = lx + summitSpread * 0.85;
-                    spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.38 * sc : 0.22 * sc);
+                    const summitSpread = (idx - 1.5) * 1.15;
+                    spotAnchorX = lx + summitSpread * 1.10;
+                    spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.45 * sc : 0.32 * sc);
                     spotAnchorY = ly + ((currentLandmark.id === 'aso_crater') ? 1.22 * sc : 0.80 * sc);
                 } else {
-                    // 其他景點：四位家人各自有獨立的賞景扇區錨點（完全錯開彼此初始區域）
+                    // 大幅擴增下車自由漫步範圍（半徑擴大至 2.2~3.8 米，自由舒展，極具探險旅行感！）
                     const roamAnchorsLocal = [
-                        { x: -1.15, z: 1.10 }, // 阿純：車前左側開筆電席地打物治紀錄區
-                        { x:  0.85, z: 0.95 }, // 姨丈：車前右側路旁專心玩試管手遊區
-                        { x: -0.35, z: 1.55 }, // 阿姨：前方中央散步採買餵食區
-                        { x:  0.95, z: 1.65 }  // 阿嚕：遠端高視角相機取景拍照區
+                        { x: -2.35, z: 2.10 }, // 阿純：在開闊草地展開小木桌打病歷
+                        { x:  1.65, z: 1.50 }, // 姨丈：在路旁觀景避車彎靠著護欄玩手遊
+                        { x: -0.85, z: 3.20 }, // 阿姨：走進景觀前沿開心採買與拍照
+                        { x:  2.40, z: 3.50 }  // 阿嚕：跑到最前緣高點架相機取景
                     ];
                     const ra = roamAnchorsLocal[idx];
                     spotAnchorX = vanPos.x + (ra.x * cosA + ra.z * sinA);
@@ -2404,15 +2404,24 @@
                     spotAnchorY = Math.max(doorSideY, getGroundY(spotAnchorX, spotAnchorZ) + 0.05);
                 }
 
-                // 景點專屬漫步微動控制：
-                // 阿純席地而坐打字、姨丈站立玩手遊、阿嚕舉相機取景 ➔ 定點定格 (不位移，確保坐姿與拍照持續穩定不亂晃！)
-                // 阿姨 ➔ 散步時微幅走動，展開野餐墊茶席時保持原地不動避免野餐墊穿模滑動
+                // 景點自由生動漫步：阿姨與阿嚕在廣闊區域內自由踱步賞景，阿純與姨丈定點時亦有悠閒身體微動
                 let wanderX = 0;
                 let wanderZ = 0;
-                if (role === 'ayee' && !charGroup.userData.isSpotBusy) {
-                    const wPhase = elapsed * 1.4 + idx * 2.1;
-                    wanderX = Math.sin(wPhase) * 0.10 * roamWeight;
-                    wanderZ = Math.cos(wPhase * 0.8) * 0.08 * roamWeight;
+                if (role === 'ayee') {
+                    // 阿姨逛特產店、四處走動：半徑達 0.55m 的自由探索八字形動態軌跡
+                    const wPhase = elapsed * 1.1 + idx * 1.7;
+                    wanderX = (Math.sin(wPhase) * 0.55) * roamWeight;
+                    wanderZ = (Math.cos(wPhase * 0.7) * 0.45) * roamWeight;
+                } else if (role === 'alu') {
+                    // 阿嚕舉著相機換視角取景：前後左右找最佳拍攝角度
+                    const wPhase = elapsed * 0.95 + idx * 2.3;
+                    wanderX = (Math.sin(wPhase * 0.8) * 0.42) * roamWeight;
+                    wanderZ = (Math.cos(wPhase * 1.2) * 0.36) * roamWeight;
+                } else if (role === 'yijhang') {
+                    // 姨丈路旁踱步推墨鏡
+                    const wPhase = elapsed * 0.6 + idx * 3.1;
+                    wanderX = (Math.sin(wPhase) * 0.22) * roamWeight;
+                    wanderZ = (Math.cos(wPhase * 0.9) * 0.18) * roamWeight;
                 }
 
                 cx = doorSideX + (spotAnchorX - doorSideX) * roamWeight + wanderX;
@@ -2586,8 +2595,22 @@
             // 判定是否正處於景點專屬個性動作持續進行期 (已就位且尚未準備上車)
             const isInSpotActivity = c.isStoppedAtLandmark && (c.roamWeight >= 0.75) && (boardElapsed < 0);
             if (isInSpotActivity) {
-                moving = false; // 嚴格保持靜態動作，絕不誤觸行走動畫！確保阿純席地坐姿穩定不站起
-                c.cRotY = vanAngle + (c.idx - 1.5) * 0.35; // 面向風景席地或站立
+                // 阿純定點打字、姨丈定點玩試管；阿姨與阿嚕在景點大範圍漫步時保持靈活步伐動畫
+                if (c.role === 'achun') {
+                    moving = false; // 確保阿純席地坐姿穩定不站起
+                    c.cRotY = vanAngle + 0.25;
+                } else if (c.role === 'ayee' || c.role === 'alu') {
+                    moving = moveSpd > 0.05; // 景點大範圍隨意走動時自然邁步
+                    if (moving) {
+                        const targetYaw = Math.atan2(vx, vz);
+                        c.cRotY = targetYaw;
+                    } else {
+                        c.cRotY = vanAngle + (c.idx - 1.5) * 0.40;
+                    }
+                } else {
+                    moving = moveSpd > 0.06;
+                    c.cRotY = vanAngle - 0.20;
+                }
             } else if (c.isSpeakingNow && c.isStoppedAtLandmark) {
                 moving = false;
                 c.cRotY = Math.sin(elapsed * 0.9 + c.idx) * 0.25;
