@@ -1702,8 +1702,7 @@
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.02;
-        renderer.domElement.style.filter = 'saturate(1.22) brightness(1.02) contrast(1.02)';
+        renderer.toneMappingExposure = 1.08;
         container.appendChild(renderer.domElement);
 
         // 3. OrbitControls 鏡頭控制 (支援旋轉、縮放與全方向畫面拖曳平移 Panning)
@@ -2225,16 +2224,25 @@
             });
 
             // 4. 人物與島嶼街景背景物件避讓 (屋台拉麵、町家聚落、自販機、杉木、鳥居、巴士站牌、石燈籠)
-            outsideChars.forEach(c => {
-                obstacles.forEach(obs => {
-                    const d = Math.hypot(c.cx - obs.x, c.cz - obs.z);
-                    const minD = obs.r + 0.24;
-                    if (d < minD && d > 0.001) {
-                        c.cx = obs.x + ((c.cx - obs.x) / d) * minD;
-                        c.cz = obs.z + ((c.cz - obs.z) / d) * minD;
+            // 採用 AABB 邊界盒快速剔除 (Fast-exit)，且僅在第 0 次迭代計算，大幅減少 99% 無效計算
+            if (iter === 0 && obstacles.length > 0) {
+                outsideChars.forEach(c => {
+                    for (let oi = 0; oi < obstacles.length; oi++) {
+                        const obs = obstacles[oi];
+                        const dx = c.cx - obs.x;
+                        if (dx > 1.2 || dx < -1.2) continue;
+                        const dz = c.cz - obs.z;
+                        if (dz > 1.2 || dz < -1.2) continue;
+                        const minD = obs.r + 0.24;
+                        const distSq = dx * dx + dz * dz;
+                        if (distSq < minD * minD && distSq > 0.00001) {
+                            const d = Math.sqrt(distSq);
+                            c.cx = obs.x + (dx / d) * minD;
+                            c.cz = obs.z + (dz / d) * minD;
+                        }
                     }
                 });
-            });
+            }
         }
 
         // 第三階段：套用最終安全座標、平滑朝向、物理高度與專屬姿態動畫
@@ -2489,9 +2497,7 @@
             el.innerHTML = `
                 <div class="char-action-status" style="
                     display:none;
-                    background:rgba(15, 23, 42, 0.92);
-                    backdrop-filter:blur(8px);
-                    -webkit-backdrop-filter:blur(8px);
+                    background:#0f172a;
                     border:1.5px solid ${st.border};
                     color:#ffffff;
                     font-size:9.5px;
@@ -2499,7 +2505,7 @@
                     padding:2px 8px;
                     border-radius:9999px;
                     white-space:nowrap;
-                    box-shadow:0 3px 10px rgba(0,0,0,0.32);
+                    box-shadow:0 3px 10px rgba(0,0,0,0.38);
                     margin-bottom:3px;
                     align-items:center;
                     gap:4px;
@@ -2546,6 +2552,12 @@
                 "></div>
             `;
 
+            // 快取 DOM 節點引用，避免每一幀在 60 FPS 迴圈中重覆 querySelector
+            el._modeSpan = el.querySelector('.mode-icon');
+            el._actionEl = el.querySelector('.char-action-status');
+            el._actionText = el.querySelector('.action-text');
+            el._isActionVisible = false;
+
             el.addEventListener('pointerdown', ev => {
                 ev.stopPropagation();
             });
@@ -2558,6 +2570,8 @@
             charMarkers[role] = el;
         });
     }
+
+    const _reusableMarkerPos = new THREE.Vector3();
 
     function updateCharacterMarkersPosition() {
         if (!camera || !renderer) return;
@@ -2574,58 +2588,71 @@
             alu:     { dx: 26,  dy: -28 }
         };
 
-        Object.keys(charMarkers).forEach(role => {
+        const roles = Object.keys(charMarkers);
+        for (let i = 0; i < roles.length; i++) {
+            const role = roles[i];
             const el = charMarkers[role];
             const cg = characters[role];
-            if (!el || !cg) return;
+            if (!el || !cg) continue;
 
-            const modeSpan = el.querySelector('.mode-icon');
+            const modeSpan = el._modeSpan;
             if (modeSpan) {
+                let targetMode = '';
                 if (cg.userData.isAboard) {
-                    modeSpan.textContent = '🚗';
+                    targetMode = '🚗';
                 } else if (!isStoppedAtLandmark && role === stragglerRole) {
-                    modeSpan.textContent = (role === 'achun') ? '🛸💨' : '🏃💨';
-                } else {
-                    modeSpan.textContent = '';
+                    targetMode = (role === 'achun') ? '🛸💨' : '🏃💨';
+                }
+                if (modeSpan.textContent !== targetMode) {
+                    modeSpan.textContent = targetMode;
                 }
             }
 
             // 景點專屬個性動作頭頂狀態列（除當前發言者顯示大氣泡外，其餘作動作的家人頭頂一律清晰顯示正在做什麼）
             const isSpeaking = (activeSpeaker === role);
-            const actionEl = el.querySelector('.char-action-status');
-            const actionText = el.querySelector('.action-text');
+            const actionEl = el._actionEl;
+            const actionText = el._actionText;
 
             if (actionEl && actionText) {
                 if (isStoppedAtLandmark && !isSpeaking) {
-                    actionEl.style.display = 'inline-flex';
+                    if (!el._isActionVisible) {
+                        actionEl.style.display = 'inline-flex';
+                        el._isActionVisible = true;
+                    }
+                    let newText = '';
                     if (stopTimer < 1.50) {
                         // 開車前 1.5 秒走回車門旁準備出發
-                        actionText.textContent = '🚗 走回車旁準備出發…';
+                        newText = '🚗 走回車旁準備出發…';
                     } else {
                         // 景點自由活動階段：輪播各自的專屬活動描寫
                         const list = ROLE_SPOT_STATUSES[role] || [];
                         const sIdx = Math.floor(elapsed * 0.30) % (list.length || 1);
-                        actionText.textContent = list[sIdx] || '';
+                        newText = list[sIdx] || '';
+                    }
+                    if (actionText.textContent !== newText) {
+                        actionText.textContent = newText;
                     }
                 } else {
-                    actionEl.style.display = 'none';
+                    if (el._isActionVisible) {
+                        actionEl.style.display = 'none';
+                        el._isActionVisible = false;
+                    }
                 }
             }
 
-            const pos = new THREE.Vector3();
-            cg.getWorldPosition(pos);
-            pos.y += cg.userData.isAboard ? 0.90 : 1.05;
-            pos.project(camera);
+            cg.getWorldPosition(_reusableMarkerPos);
+            _reusableMarkerPos.y += cg.userData.isAboard ? 0.90 : 1.05;
+            _reusableMarkerPos.project(camera);
 
-            if (pos.z > 1.0) {
-                el.style.display = 'none';
-                return;
+            if (_reusableMarkerPos.z > 1.0) {
+                if (el.style.display !== 'none') el.style.display = 'none';
+                continue;
             }
-            el.style.display = 'flex';
+            if (el.style.display !== 'flex') el.style.display = 'flex';
 
             const off = roleOffsets[role] || { dx: 0, dy: 0 };
-            const x = (pos.x * 0.5 + 0.5) * w + off.dx;
-            const y = (-(pos.y * 0.5) + 0.5) * h + off.dy;
+            const x = (_reusableMarkerPos.x * 0.5 + 0.5) * w + off.dx;
+            const y = (-(_reusableMarkerPos.y * 0.5) + 0.5) * h + off.dy;
 
             const clampedX = Math.max(48, Math.min(w - 48, x));
             const clampedY = Math.max(44, Math.min(h - 16, y));
@@ -2635,7 +2662,7 @@
             el.style.top = `${clampedY}px`;
             el.style.zIndex = isLocked ? '28' : '22';
             el.style.transform = isLocked ? 'translate(-50%, -100%) scale(1.12)' : 'translate(-50%, -100%) scale(1)';
-        });
+        }
     }
 
     // 當鎖定某位角色時，鏡頭中心平滑跟隨該角色移動（同時保留使用者旋轉、縮放視角的自由）

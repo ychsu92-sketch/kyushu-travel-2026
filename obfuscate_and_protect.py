@@ -106,12 +106,13 @@ def obfuscate_javascript_code(js_code: str) -> str:
         'npx', '--yes', 'javascript-obfuscator', src_path,
         '--output', out_path,
         '--compact', 'true',
-        '--control-flow-flattening', 'true',
-        '--control-flow-flattening-threshold', '0.4',
+        '--control-flow-flattening', 'false',
+        '--dead-code-injection', 'false',
         '--string-array', 'true',
-        '--string-array-encoding', 'base64',
-        '--string-array-threshold', '0.7',
-        '--identifier-names-generator', 'hexadecimal'
+        '--string-array-encoding', 'none',
+        '--string-array-threshold', '0.4',
+        '--identifier-names-generator', 'hexadecimal',
+        '--simplify', 'true'
     ]
     
     try:

@@ -693,6 +693,9 @@ def build_preview_page():
 
     </main>
 
+    <script>
+        /* __KYUSHU_INLINE_DATA__ */
+    </script>
     <script src="./portal/env.js"></script>
     <script src="./portal/terrain.js"></script>
     <script src="./portal/landmarks.js"></script>
@@ -702,6 +705,14 @@ def build_preview_page():
     <script src="./portal/preview.js"></script>
 </body>
 </html>"""
+    with open(os.path.join(PORTAL_DIR, 'data', 'kyushu_coast.json'), 'r', encoding='utf-8') as f:
+        coast_json = f.read().strip()
+    with open(os.path.join(PORTAL_DIR, 'data', 'route.json'), 'r', encoding='utf-8') as f:
+        route_json = f.read().strip()
+
+    inline_script = f"window.KYUSHU_INLINE_DATA = {{\n            coast: {coast_json},\n            route: {route_json}\n        }};"
+    preview_html = preview_html.replace('/* __KYUSHU_INLINE_DATA__ */', inline_script)
+
     preview_path = os.path.join(BASE_DIR, 'preview.html')
     with open(preview_path, 'w', encoding='utf-8') as f:
         f.write(preview_html)

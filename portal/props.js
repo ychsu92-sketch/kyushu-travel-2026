@@ -1337,18 +1337,15 @@
             });
         }
 
-        // 8. 全島 92 棵覆雪杉木與銀杏樹隨冬日微風自然輕柔搖擺 (Winter Wind Tree Sway)
+        // 8. 全島 92 棵覆雪杉木與銀杏樹隨冬日微風自然輕柔搖擺 (輕量化高效單軸微風，維持 60 FPS)
         if (propState.trees) {
-            propState.trees.forEach(t => {
-                const phase = elapsed * 1.55 + (t.userData.windPhase || 0);
-                const gust = Math.sin(elapsed * 0.42 + (t.userData.windPhase || 0) * 0.5) * 0.25 + 0.75;
-                if (t.userData.foliageGroup) {
-                    t.userData.foliageGroup.rotation.z = Math.sin(phase) * (0.048 * gust);
-                    t.userData.foliageGroup.rotation.x = Math.cos(phase * 0.82) * (0.032 * gust);
-                } else {
-                    t.rotation.z = Math.sin(phase) * (0.032 * gust);
-                }
-            });
+            const windTime = elapsed * 1.6;
+            for (let i = 0; i < propState.trees.length; i++) {
+                const t = propState.trees[i];
+                const phase = windTime + (t.userData.windPhase || 0);
+                const target = t.userData.foliageGroup || t;
+                target.rotation.z = Math.sin(phase) * 0.042;
+            }
         }
 
         // 9. 鄉間巴士站圓形站牌微風輕擺

@@ -15,11 +15,28 @@
     let routeDataCache = null;
 
     async function initPreviewGallery() {
-        const resp = await fetch('./portal/data/route.json');
-        routeDataCache = await resp.json();
+        try {
+            if (window.KYUSHU_INLINE_DATA && window.KYUSHU_INLINE_DATA.route) {
+                routeDataCache = window.KYUSHU_INLINE_DATA.route;
+            } else {
+                const resp = await fetch('./portal/data/route.json');
+                routeDataCache = await resp.json();
+            }
+        } catch (e) {
+            console.warn('⚠️ 載入 route.json 失敗，嘗試使用預設路徑資料', e);
+            if (window.KYUSHU_INLINE_DATA && window.KYUSHU_INLINE_DATA.route) {
+                routeDataCache = window.KYUSHU_INLINE_DATA.route;
+            }
+        }
 
         // 1. 初始化完整南九州島預覽區
-        await window.KyushuIsland.Portal.initPortalIsland('full-island-container');
+        if (window.KyushuIsland && window.KyushuIsland.Portal && window.KyushuIsland.Portal.initPortalIsland) {
+            try {
+                await window.KyushuIsland.Portal.initPortalIsland('full-island-container');
+            } catch (err) {
+                console.error('❌ 初始化 3D 完整大島失敗:', err);
+            }
+        }
 
         // 2. 初始化右側單項 360° 放大檢視台 (3D Turntable Inspector)
         const stage = document.getElementById('turntable-canvas-container');
@@ -255,7 +272,9 @@
     window.selectPreviewItem = selectCatalogItem;
     window.toggleCharPoseMode = toggleCharPoseMode;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPreviewGallery);
+    } else {
         initPreviewGallery();
-    });
+    }
 })();
