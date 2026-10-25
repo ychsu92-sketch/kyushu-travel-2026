@@ -1,3 +1,8 @@
+(function () {
+    window.KyushuIsland = window.KyushuIsland || {};
+
+    let scene, camera, renderer, controls, clock;
+
     // 歡呼專屬熱血/逗趣台詞庫（全家四人自我意識與幸福感爆棚）
     const CHEER_QUOTES = {
         achun: [
@@ -49,16 +54,16 @@
     }
 
     function createSingleFirework(sx, sy, sz) {
-        const pCount = 75;
+        const pCount = 120;
         const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
         const geom = new THREE.BufferGeometry();
         const positions = new Float32Array(pCount * 3);
         const velocities = [];
 
-        // 煙火爆發中心點（從車頂升空 1.6~2.6m 後炸開）
-        const explodeY = sy + 1.6 + Math.random() * 0.9;
-        const explodeX = sx + (Math.random() - 0.5) * 0.8;
-        const explodeZ = sz + (Math.random() - 0.5) * 0.8;
+        // 煙火爆發中心點（從車頂升空 2.2~3.6m 後在高空華麗炸開，極度醒目！）
+        const explodeY = sy + 2.2 + Math.random() * 1.4;
+        const explodeX = sx + (Math.random() - 0.5) * 1.2;
+        const explodeZ = sz + (Math.random() - 0.5) * 1.2;
 
         for (let i = 0; i < pCount; i++) {
             positions[i * 3 + 0] = sx;
@@ -79,7 +84,8 @@
 
         const mat = new THREE.PointsMaterial({
             color: color,
-            size: 0.16,
+            size: 0.55,
+            sizeAttenuation: true,
             transparent: true,
             opacity: 1.0,
             blending: THREE.AdditiveBlending,
@@ -127,7 +133,7 @@
             } else {
                 const expT = fw.age / fw.maxAge;
                 fw.pSystem.material.opacity = Math.max(0, 1.0 - expT * expT);
-                fw.pSystem.material.size = Math.max(0.04, 0.18 * (1.0 - expT * 0.6));
+                fw.pSystem.material.size = Math.max(0.12, 0.55 * (1.0 - expT * 0.5));
                 for (let k = 0; k < arr.length / 3; k++) {
                     const v = fw.velocities[k];
                     arr[k * 3 + 0] += v.vx * delta;
@@ -156,10 +162,7 @@
  * - 驅動紅色小巴沿真实自駕路線行駛，並在各景點停留讓 4 位家人（阿純、姨丈、阿姨、阿嚕）下車散步、做專屬動作與顯示對應景點台詞
  * - 支援點擊角色/景點互動、鏡頭聚焦、自動旋轉開關、飄雪開關
  */
-(function () {
-    window.KyushuIsland = window.KyushuIsland || {};
 
-    let scene, camera, renderer, controls, clock;
     let islandRoot;
     let envState, terrainState, landmarkState, propState;
     let characters = {};
@@ -3665,7 +3668,7 @@
         });
 
         // 1. 車頂彩色煙火連續爆發！
-        launchFireworksFromCar(4);
+        launchFireworksFromCar(5);
 
         // 2. 隨機指定一人大聲講出專屬歡呼台詞
         const luckyRole = roles[Math.floor(Math.random() * roles.length)];
