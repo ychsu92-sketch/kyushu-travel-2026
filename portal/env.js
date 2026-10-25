@@ -19,9 +19,9 @@
             varying vec3 vWorldPosition;
             void main() {
                 float h = normalize(vWorldPosition + vec3(0.0, 18.0, 0.0)).y;
-                vec3 zenithColor = vec3(0.55, 0.76, 0.94);   // 冬日清澈淡天藍
-                vec3 midColor    = vec3(0.84, 0.91, 0.97);   // 柔和淺霧藍
-                vec3 horizonColor= vec3(0.99, 0.91, 0.80);   // 12月低角度冬陽暖杏色
+                vec3 zenithColor = vec3(0.53, 0.72, 0.88);   // 清透溫潤冬日晴空藍
+                vec3 midColor    = vec3(0.80, 0.88, 0.94);   // 柔和淺天藍
+                vec3 horizonColor= vec3(0.95, 0.88, 0.79);   // 冬日暖陽杏米色地平線
                 vec3 col = mix(horizonColor, midColor, smoothstep(0.0, 0.28, max(h, 0.0)));
                 col = mix(col, zenithColor, smoothstep(0.28, 0.78, max(h, 0.0)));
                 gl_FragColor = vec4(col, 1.0);
@@ -40,17 +40,17 @@
     }
 
     function setupWinterLights(scene) {
-        // 1. 柔和冬季環境光
-        const ambient = new THREE.AmbientLight(0xfff5eb, 0.62);
+        // 1. 柔和冬季環境光 (自然溫潤、不灰暗也不過曝)
+        const ambient = new THREE.AmbientLight(0xfff5eb, 0.54);
         scene.add(ambient);
 
-        // 2. 天空與大地半球反射光 (Heart-Island 溫潤立體感關鍵)
-        const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0xd6c7b2, 0.48);
+        // 2. 天空與大地半球反射光
+        const hemiLight = new THREE.HemisphereLight(0xd6e6f5, 0xc9b9a3, 0.42);
         hemiLight.position.set(0, 35, 0);
         scene.add(hemiLight);
 
-        // 3. 12 月冬季低角度暖陽 (產生柔和長陰影)
-        const sunLight = new THREE.DirectionalLight(0xffe0b2, 1.15);
+        // 3. 12 月冬季低角度暖陽 (產生柔和長陰影，色澤溫暖清透)
+        const sunLight = new THREE.DirectionalLight(0xffdeb8, 0.98);
         sunLight.position.set(26, 22, 18);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
@@ -66,7 +66,7 @@
         scene.add(sunLight);
 
         // 4. 背光側暖色補光，避免暗部死黑
-        const fillLight = new THREE.DirectionalLight(0xc7d2fe, 0.32);
+        const fillLight = new THREE.DirectionalLight(0xb8c4d9, 0.24);
         fillLight.position.set(-22, 14, -18);
         scene.add(fillLight);
 
@@ -75,11 +75,11 @@
         sunGroup.position.set(42, 34, -36);
         const sunCore = new THREE.Mesh(
             new THREE.SphereGeometry(3.2, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xffedd5 })
+            new THREE.MeshBasicMaterial({ color: 0xf7e6cc })
         );
         const sunHalo = new THREE.Mesh(
             new THREE.SphereGeometry(5.2, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xfde68a, transparent: true, opacity: 0.28 })
+            new THREE.MeshBasicMaterial({ color: 0xeed6a4, transparent: true, opacity: 0.22 })
         );
         sunGroup.add(sunCore);
         sunGroup.add(sunHalo);
@@ -91,113 +91,129 @@
     function createOcean(scene) {
         const oceanGroup = new THREE.Group();
 
-        // 1. 深海底層
+        // 1. 深海襯底層
         const deepGeo = new THREE.CircleGeometry(98, 48);
         deepGeo.rotateX(-Math.PI / 2);
-        const deepMat = new THREE.MeshLambertMaterial({ color: 0x16425b });
+        const deepMat = new THREE.MeshLambertMaterial({ color: 0x264b5e });
         const deepMesh = new THREE.Mesh(deepGeo, deepMat);
         deepMesh.position.y = -1.65;
         oceanGroup.add(deepMesh);
 
-        // 2. 表層 Low-poly 動態折面波浪海面 (拉高細分與波峰立體起伏、隨浪高動態變色)
-        const seaGeo = new THREE.PlaneGeometry(130, 130, 76, 76);
+        // 2. 平靜溫潤的冬日海面 (清透海藍搭配白色線條波紋，符合插畫微縮模型風格)
+        const seaGeo = new THREE.PlaneGeometry(130, 130, 32, 32);
         seaGeo.rotateX(-Math.PI / 2);
-        const posAttr = seaGeo.attributes.position;
-        const baseX = new Float32Array(posAttr.count);
-        const baseZ = new Float32Array(posAttr.count);
-        const colors = new Float32Array(posAttr.count * 3);
-        const randJitter = new Float32Array(posAttr.count);
-
-        for (let i = 0; i < posAttr.count; i++) {
-            // 加入微幅水平擾動讓 Low-poly 三角網格更有不規則海浪切面感
-            const x = posAttr.getX(i) + (Math.random() - 0.5) * 0.45;
-            const z = posAttr.getZ(i) + (Math.random() - 0.5) * 0.45;
-            posAttr.setX(i, x);
-            posAttr.setZ(i, z);
-            baseX[i] = x;
-            baseZ[i] = z;
-            randJitter[i] = Math.random() * Math.PI * 2;
-            colors[i * 3] = 0.22;
-            colors[i * 3 + 1] = 0.54;
-            colors[i * 3 + 2] = 0.68;
-        }
-        seaGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        seaGeo.userData = { baseX, baseZ, randJitter };
-
-        const seaMat = new THREE.MeshPhongMaterial({
-            vertexColors: true,
-            emissive: 0x0b2942,
-            emissiveIntensity: 0.22,
-            specular: 0xe0f2fe,
-            shininess: 48,
-            flatShading: true,
+        const seaMat = new THREE.MeshLambertMaterial({
+            color: 0x3d7ea0,
             transparent: true,
-            opacity: 0.92
+            opacity: 0.94
         });
         const seaMesh = new THREE.Mesh(seaGeo, seaMat);
         seaMesh.position.y = -0.32;
         seaMesh.receiveShadow = true;
         oceanGroup.add(seaMesh);
 
-        // 3. 海面動態白色湧浪白沫條 (Whitecaps / Wave Crests) 與陽光粼粼閃光點
-        const crestsGroup = new THREE.Group();
-        const crestMat = new THREE.MeshBasicMaterial({
-            color: 0xf0f9ff,
-            transparent: true,
-            opacity: 0.72
-        });
-        const waveCrests = [];
-        for (let i = 0; i < 46; i++) {
-            const angle = (i / 46) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
-            const dist = 11.5 + Math.random() * 16.0;
+        // 3. 插畫風白色線條波紋 (Minimalist White Line Ripples)
+        const linesGroup = new THREE.Group();
+        const waveLines = [];
+
+        // 生成手繪感波紋線段 (~~~~~~ 與長短雙線組合)
+        function createWaveLineUnit(width, style) {
+            const g = new THREE.Group();
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0xf1f5f9,
+                transparent: true,
+                opacity: 0.72
+            });
+
+            if (style === 'wavy') {
+                // 連續波浪曲線細線條
+                const pts = [];
+                const segs = 16;
+                for (let s = 0; s <= segs; s++) {
+                    const u = (s / segs) - 0.5;
+                    const x = u * width;
+                    const z = Math.sin((s / segs) * Math.PI * 3.0) * 0.11;
+                    pts.push(new THREE.Vector3(x, 0, z));
+                }
+                const curve = new THREE.CatmullRomCurve3(pts);
+                const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.032, 5, false);
+                tubeGeo.scale(1.0, 0.25, 1.0);
+                const mesh = new THREE.Mesh(tubeGeo, mat);
+                g.add(mesh);
+
+                // 伴隨一條短平行白線增加插畫層次
+                const subBar = new THREE.Mesh(new THREE.BoxGeometry(width * 0.42, 0.015, 0.045), mat);
+                subBar.position.set(width * 0.15, 0, 0.22);
+                g.add(subBar);
+            } else {
+                // 簡約雙重平行白細線波紋
+                const mainLine = new THREE.Mesh(new THREE.BoxGeometry(width, 0.015, 0.05), mat);
+                const subLine = new THREE.Mesh(new THREE.BoxGeometry(width * 0.55, 0.015, 0.045), mat);
+                subLine.position.set(-width * 0.18, 0, 0.18);
+                g.add(mainLine, subLine);
+            }
+            g.userData.mat = mat;
+            return g;
+        }
+
+        // 外海環狀分布的白線波紋 (64 組)
+        for (let i = 0; i < 64; i++) {
+            const angle = (i / 64) * Math.PI * 2 + (Math.random() - 0.5) * 0.18;
+            const dist = 10.5 + (i % 5) * 3.6 + Math.random() * 1.8;
             const cx = Math.cos(angle) * dist * 0.88;
             const cz = Math.sin(angle) * dist * 1.15;
-            const w = 0.85 + Math.random() * 1.25;
-            const crestGeo = new THREE.BoxGeometry(w, 0.05, 0.16);
-            const crest = new THREE.Mesh(crestGeo, crestMat.clone());
-            crest.position.set(cx, -0.18, cz);
-            crest.rotation.y = -angle + Math.PI / 2 + (Math.random() - 0.5) * 0.35;
-            crest.userData = {
+            const width = 1.15 + (i % 3) * 0.45;
+            const lineUnit = createWaveLineUnit(width, i % 2 === 0 ? 'wavy' : 'double');
+
+            lineUnit.position.set(cx, -0.28, cz);
+            lineUnit.rotation.y = -angle + Math.PI / 2 + (Math.random() - 0.5) * 0.25;
+            lineUnit.userData = {
+                mat: lineUnit.userData.mat,
                 baseX: cx,
                 baseZ: cz,
                 dirX: -Math.cos(angle),
                 dirZ: -Math.sin(angle),
-                speed: 0.55 + Math.random() * 0.45,
-                phase: Math.random() * Math.PI * 2,
-                baseScaleX: 0.7 + Math.random() * 0.6
+                speed: 0.65 + (i % 4) * 0.15,
+                phase: i * 0.65,
+                amp: 0.35 + (i % 3) * 0.12
             };
-            crestsGroup.add(crest);
-            waveCrests.push(crest);
+            linesGroup.add(lineUnit);
+            waveLines.push(lineUnit);
         }
 
-        // 錦江灣與日南海岸近岸湧浪線
-        const coastalWaveSpots = [
-            { x: -3.2, z: 7.4, rot: 0.2 },   { x: -3.0, z: 9.2, rot: -0.3 },  // 錦江灣
-            { x: 9.2,  z: 2.2, rot: 1.4 },   { x: 8.8,  z: 4.8, rot: 1.35 },  // 宮崎青島外海
-            { x: 8.2,  z: 7.4, rot: 1.25 },  { x: 6.2,  z: 10.2, rot: 1.0 },  // 日南鵜戶海岸
-            { x: -6.2, z: -9.8, rot: -1.2 }, { x: -5.8, z: -7.2, rot: -1.3 }, // 天草灘
-            { x: -5.5, z: 11.8, rot: -0.8 }, { x: -1.8, z: 12.8, rot: 0.4 }   // 指宿與佐多岬外海
+        // 錦江灣、宮崎日南海岸、天草海域與薩摩半島近岸白線波紋 (18 組)
+        const coastalLineSpots = [
+            { x: -3.2, z: 7.3,  rot: 0.15, w: 1.1 },  { x: -3.1, z: 9.2,  rot: -0.2, w: 1.1 }, // 錦江灣
+            { x: -1.8, z: 7.6,  rot: 0.4,  w: 0.9 },  { x: -2.0, z: 9.5,  rot: -0.4, w: 1.0 },
+            { x: 9.0,  z: 1.8,  rot: 1.45, w: 1.5 },  { x: 8.8,  z: 4.5,  rot: 1.38, w: 1.5 }, // 宮崎日向灘
+            { x: 8.2,  z: 7.2,  rot: 1.25, w: 1.4 },  { x: 6.4,  z: 10.1, rot: 1.05, w: 1.5 }, // 日南海岸
+            { x: 9.5,  z: -3.5, rot: 1.50, w: 1.5 },  { x: 9.2,  z: -7.2, rot: 1.55, w: 1.4 },
+            { x: -6.2, z: -9.8, rot: -1.25,w: 1.4 },  { x: -5.8, z: -6.8, rot: -1.35,w: 1.4 }, // 天草灘
+            { x: -4.8, z: -3.2, rot: -1.45,w: 1.3 },  { x: -5.2, z: 2.5,  rot: -1.40,w: 1.4 }, // 八代海・薩摩西岸
+            { x: -6.2, z: 7.8,  rot: -1.30,w: 1.5 },  { x: -5.5, z: 11.8, rot: -0.75,w: 1.5 },
+            { x: -2.2, z: 12.8, rot: 0.15, w: 1.4 },  { x: 1.8,  z: 12.2, rot: 0.65, w: 1.5 }  // 指宿與佐多岬外海
         ];
-        coastalWaveSpots.forEach((cw, idx) => {
-            const crest = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.06, 0.20), crestMat.clone());
-            crest.position.set(cw.x, -0.16, cw.z);
-            crest.rotation.y = cw.rot;
-            crest.userData = {
-                baseX: cw.x,
-                baseZ: cw.z,
-                dirX: Math.sin(cw.rot),
-                dirZ: Math.cos(cw.rot),
-                speed: 0.85,
-                phase: idx * 0.9,
-                baseScaleX: 1.0
+        coastalLineSpots.forEach((cl, idx) => {
+            const lineUnit = createWaveLineUnit(cl.w, idx % 2 === 0 ? 'wavy' : 'double');
+            lineUnit.position.set(cl.x, -0.27, cl.z);
+            lineUnit.rotation.y = cl.rot;
+            lineUnit.userData = {
+                mat: lineUnit.userData.mat,
+                baseX: cl.x,
+                baseZ: cl.z,
+                dirX: Math.sin(cl.rot),
+                dirZ: Math.cos(cl.rot),
+                speed: 0.80,
+                phase: idx * 0.85,
+                amp: 0.28
             };
-            crestsGroup.add(crest);
-            waveCrests.push(crest);
+            linesGroup.add(lineUnit);
+            waveLines.push(lineUnit);
         });
 
-        oceanGroup.add(crestsGroup);
+        oceanGroup.add(linesGroup);
         scene.add(oceanGroup);
-        return { oceanGroup, seaMesh, waveCrests };
+        return { oceanGroup, seaMesh, waveLines };
     }
 
     function createClouds(scene) {
@@ -276,61 +292,27 @@
     }
 
     function updateEnvironment(envState, elapsed, delta) {
-        // 1. 海面多頻率 Gerstner 風格立體波浪 + 波峰白浪花與波谷深海漸層色動態變化
+        // 1. 海面微幅平緩起伏
         if (envState.seaMesh) {
-            const geo = envState.seaMesh.geometry;
-            const pos = geo.attributes.position;
-            const col = geo.attributes.color;
-            const { baseX, baseZ, randJitter } = geo.userData;
-
-            for (let i = 0; i < pos.count; i++) {
-                const bx = baseX[i];
-                const bz = baseZ[i];
-                const jit = randJitter[i];
-
-                // 三組不同方向與波長的湧浪疊加 + 向島嶼中心傳遞的環狀波紋
-                const distFromCenter = Math.hypot(bx * 0.85, bz * 0.72);
-                const w1 = Math.sin(bx * 0.42 + bz * 0.18 + elapsed * 1.85) * 0.15;
-                const w2 = Math.cos(bz * 0.48 - bx * 0.22 + elapsed * 1.45) * 0.13;
-                const w3 = Math.sin(distFromCenter * 0.65 - elapsed * 2.15 + jit * 0.3) * 0.09;
-                const chop = Math.sin(elapsed * 3.2 + jit) * 0.04;
-
-                const waveH = w1 + w2 + w3 + chop;
-
-                // 水平微幅往復擺動 (模擬真實海浪湧動感)
-                pos.setX(i, bx + Math.cos(bx * 0.35 + elapsed * 1.6) * 0.10);
-                pos.setY(i, waveH);
-                pos.setZ(i, bz + Math.sin(bz * 0.35 + elapsed * 1.4) * 0.10);
-
-                // 依據波浪高低與離岸距離動態混色：波谷深海藍 -> 中層清澈海藍 -> 波峰亮白青浪花
-                const normH = Math.max(0, Math.min(1, (waveH + 0.32) / 0.68));
-                const foamBoost = normH > 0.74 ? (normH - 0.74) * 2.2 : 0.0;
-                const shallowBoost = Math.max(0, 1.0 - distFromCenter / 18.0) * 0.12;
-
-                const r = Math.min(0.96, 0.16 + normH * 0.24 + shallowBoost * 0.25 + foamBoost * 0.52);
-                const g = Math.min(0.98, 0.44 + normH * 0.28 + shallowBoost * 0.38 + foamBoost * 0.32);
-                const b = Math.min(1.00, 0.62 + normH * 0.24 + shallowBoost * 0.22 + foamBoost * 0.20);
-                col.setXYZ(i, r, g, b);
-            }
-            pos.needsUpdate = true;
-            col.needsUpdate = true;
-            geo.computeVertexNormals();
+            envState.seaMesh.position.y = -0.32 + Math.sin(elapsed * 1.4) * 0.025;
         }
 
-        // 2. 海面動態白色湧浪條 (Wave Crests) 推進與呼吸起伏
-        if (envState.waveCrests) {
-            envState.waveCrests.forEach(crest => {
-                const u = crest.userData;
+        // 2. 插畫風白色線條波紋 (White Line Ripples) 優雅推進與呼吸淡入淡出
+        if (envState.waveLines) {
+            envState.waveLines.forEach(line => {
+                const u = line.userData;
                 const cycle = (elapsed * u.speed + u.phase) % (Math.PI * 2);
-                const slide = Math.sin(cycle) * 0.65;
+                const slide = Math.sin(cycle) * u.amp;
                 const pulse = (Math.cos(cycle) + 1) * 0.5; // 0 ~ 1
 
-                crest.position.x = u.baseX + u.dirX * slide;
-                crest.position.z = u.baseZ + u.dirZ * slide;
-                crest.position.y = -0.22 + Math.sin(elapsed * 2.2 + u.phase) * 0.09;
-                crest.scale.x = u.baseScaleX * (0.65 + pulse * 0.75);
-                crest.scale.z = 0.7 + pulse * 0.8;
-                crest.material.opacity = 0.18 + pulse * 0.68;
+                line.position.x = u.baseX + u.dirX * slide;
+                line.position.z = u.baseZ + u.dirZ * slide;
+                line.position.y = -0.27 + Math.sin(elapsed * 1.4) * 0.025;
+                const s = 0.72 + pulse * 0.45;
+                line.scale.set(s, 1.0, 1.0);
+                if (u.mat) {
+                    u.mat.opacity = 0.15 + pulse * 0.65;
+                }
             });
         }
 
@@ -338,12 +320,12 @@
         if (envState.foamMeshes) {
             envState.foamMeshes.forEach((fm, idx) => {
                 if (!fm) return;
-                const tide = Math.sin(elapsed * 2.1 + idx * 1.4);
-                fm.position.y = -0.20 + tide * 0.04;
-                const s = 1.018 + tide * 0.008;
+                const tide = Math.sin(elapsed * 1.8 + idx * 1.4);
+                fm.position.y = -0.22 + tide * 0.025;
+                const s = 1.015 + tide * 0.007;
                 fm.scale.set(s, 1.0, s);
                 if (fm.material) {
-                    fm.material.opacity = 0.62 + tide * 0.22;
+                    fm.material.opacity = 0.52 + tide * 0.20;
                 }
             });
         }

@@ -188,10 +188,13 @@
         if (category === 'character') {
             const spec = window.KyushuIsland.Characters.CHARACTER_SPECS.find(c => c.code === code);
             currentShowcaseRoot = window.KyushuIsland.Characters.createCharacter(code);
-            currentShowcaseRoot.scale.setScalar(1.15);
+            currentShowcaseRoot.scale.setScalar(0.95);
+            currentShowcaseRoot.userData.baseY = 0;
+            currentShowcaseRoot.position.y = 0;
             inspectorScene.add(currentShowcaseRoot);
-            inspectorCamera.position.set(0, 1.55, 2.95);
+            inspectorCamera.position.set(0, 1.15, 3.65);
             inspectorControls.target.set(0, 0.65, 0);
+            inspectorControls.update();
 
             if (spec) {
                 codeBadge.textContent = spec.code;
@@ -203,10 +206,11 @@
         } else if (category === 'landmark') {
             const lm = routeDataCache.landmarks.find(l => l.code === code);
             currentShowcaseRoot = window.KyushuIsland.Landmarks.createLandmarkByCode(code);
-            currentShowcaseRoot.scale.setScalar(1.1);
+            currentShowcaseRoot.scale.setScalar(1.0);
             inspectorScene.add(currentShowcaseRoot);
-            inspectorCamera.position.set(0, 1.85, 3.4);
-            inspectorControls.target.set(0, 0.45, 0);
+            inspectorCamera.position.set(0, 1.85, 3.85);
+            inspectorControls.target.set(0, 0.55, 0);
+            inspectorControls.update();
 
             if (lm) {
                 codeBadge.textContent = lm.code;
@@ -220,10 +224,11 @@
         } else if (category === 'prop') {
             const p = window.KyushuIsland.Props.PROP_SPECS.find(x => x.code === code);
             currentShowcaseRoot = window.KyushuIsland.Props.createPropByCode(code);
-            currentShowcaseRoot.scale.setScalar(1.35);
+            currentShowcaseRoot.scale.setScalar(1.18);
             inspectorScene.add(currentShowcaseRoot);
-            inspectorCamera.position.set(0, 1.45, 2.85);
-            inspectorControls.target.set(0, 0.35, 0);
+            inspectorCamera.position.set(0, 1.50, 3.45);
+            inspectorControls.target.set(0, 0.45, 0);
+            inspectorControls.update();
 
             if (p) {
                 codeBadge.textContent = p.code;

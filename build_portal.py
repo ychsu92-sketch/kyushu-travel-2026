@@ -272,6 +272,14 @@ def build_portal(release_mode: bool = False):
                     </h2>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
+                    <button id="btn-unlock-char" onclick="unlockCharacter()" class="hidden px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white border border-red-700 text-xs font-black flex items-center gap-1 shadow-sm transition animate-pulse">
+                        <span>🔓</span>
+                        <span id="unlock-char-text">解除鎖定</span>
+                    </button>
+                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                        <span>✋</span>
+                        <span id="pan-mode-text">左鍵模式：旋轉視角 🔄</span>
+                    </button>
                     <button onclick="toggleSnow()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
                         <span>❄️</span>
                         <span id="snow-text">冬日飄雪：開</span>
@@ -292,7 +300,7 @@ def build_portal(release_mode: bool = False):
             </div>
 
             <!-- 3D WebGL 畫布容器 -->
-            <div id="island-canvas-container" class="relative mt-3 bg-gradient-to-b from-[#bae6fd] via-[#e0f2fe] to-[#fef3c7]/40">
+            <div id="island-canvas-container" class="relative mt-3 bg-gradient-to-b from-[#cbd5e1] via-[#e2e8f0] to-[#f5ebe1]/40">
                 <!-- 動態跟隨角色的對話氣泡 -->
                 <div id="char-speech-bubble" class="island-speech-bubble">
                     <div class="flex items-center justify-between gap-2 border-b border-stone-200 pb-0.5 mb-1">
@@ -305,39 +313,39 @@ def build_portal(release_mode: bool = False):
                 </div>
 
                 <!-- 浮動在畫布角落的引導提示 -->
-                <div class="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2">
-                    <span>👆 拖曳 360° 旋轉縮放島嶼 ｜ 點擊家人或 17 處景點模型可觸發專屬動作與對話！</span>
+                <div class="absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
+                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
                 </div>
             </div>
 
-            <!-- 下方 4 位家族角色名牌列 (快速定位點擊) -->
+            <!-- 下方 4 位家族角色名牌列 (點擊鎖定跟隨 / 再次點擊取消鎖定) -->
             <div class="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3 pt-3 border-t border-sky-200/70 text-xs">
-                <button onclick="focusCharacter('achun')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-amber-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-amber-400 shadow-xs text-left">
+                <button id="char-btn-achun" onclick="focusCharacter('achun')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-amber-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-amber-400 shadow-xs text-left">
                     <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-base shrink-0">🧶</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿純 <span class="text-[10px] text-amber-700 font-bold">｜行程總召</span></div>
-                        <div class="text-[10px] text-stone-500 font-medium truncate">黃色毛球帽・自拍揮手</div>
+                        <div class="truncate">阿純 <span class="text-[10px] text-amber-700 font-bold">｜吃貨睡神</span></div>
+                        <span id="char-lock-status-achun" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
-                <button onclick="focusCharacter('yijhang')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-blue-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-blue-400 shadow-xs text-left">
+                <button id="char-btn-yijhang" onclick="focusCharacter('yijhang')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-blue-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-blue-400 shadow-xs text-left">
                     <span class="w-7 h-7 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-base shrink-0">🕶️</span>
                     <div class="min-w-0">
-                        <div class="truncate">姨丈 <span class="text-[10px] text-blue-700 font-bold">｜專業司機</span></div>
-                        <div class="text-[10px] text-stone-500 font-medium truncate">帥氣墨鏡・雪地駕駛</div>
+                        <div class="truncate">姨丈 <span class="text-[10px] text-blue-700 font-bold">｜沉默酷哥</span></div>
+                        <span id="char-lock-status-yijhang" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
-                <button onclick="focusCharacter('ayee')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-rose-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-rose-400 shadow-xs text-left">
+                <button id="char-btn-ayee" onclick="focusCharacter('ayee')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-rose-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-rose-400 shadow-xs text-left">
                     <span class="w-7 h-7 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-base shrink-0">🍡</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿姨 <span class="text-[10px] text-rose-700 font-bold">｜美食鑑賞</span></div>
-                        <div class="text-[10px] text-stone-500 font-medium truncate">吃烤糰子・提伴手禮</div>
+                        <div class="truncate">阿姨 <span class="text-[10px] text-rose-700 font-bold">｜餵食話匣子</span></div>
+                        <span id="char-lock-status-ayee" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
-                <button onclick="focusCharacter('alu')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-orange-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-orange-400 shadow-xs text-left">
+                <button id="char-btn-alu" onclick="focusCharacter('alu')" class="p-2.5 rounded-2xl bg-white/90 hover:bg-white border-2 border-orange-200 font-black text-stone-800 flex items-center gap-2.5 transition hover:border-orange-400 shadow-xs text-left">
                     <span class="w-7 h-7 rounded-xl bg-orange-100 text-orange-900 flex items-center justify-center text-base shrink-0">🐻</span>
                     <div class="min-w-0">
-                        <div class="truncate">阿嚕 <span class="text-[10px] text-orange-800 font-bold">｜貪吃棕熊</span></div>
-                        <div class="text-[10px] text-stone-500 font-medium truncate">紅圍巾・摸圓滾肚肚</div>
+                        <div class="truncate">阿嚕 <span class="text-[10px] text-orange-800 font-bold">｜哲學AI熊</span></div>
+                        <span id="char-lock-status-alu" class="text-[10px] text-stone-500 font-medium truncate block">🎯 點擊鎖定鏡頭</span>
                     </div>
                 </button>
             </div>
@@ -583,7 +591,9 @@ def build_preview_page():
                     </div>
                     <p class="text-xs text-stone-500 font-medium mt-0.5">含錦江灣、櫻島活火山、冬季暖陽長陰影、波浪海面、雲朵飄雪與環島自駕路線</p>
                 </div>
-                <div class="flex items-center gap-1.5 text-xs font-bold">
+                <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+                    <button id="btn-unlock-char" onclick="unlockCharacter()" class="hidden px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white font-black"><span id="unlock-char-text">🔓 解除鎖定</span></button>
+                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="pan-mode-text">左鍵模式：旋轉視角 🔄</span></button>
                     <span id="current-spot-badge" class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">🏯 熊本城</span>
                     <button onclick="toggleSnow()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="snow-text">冬日飄雪：開</span></button>
                     <button onclick="toggleAutoRotate()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="rotate-text">環島旋轉：開</span></button>
@@ -591,7 +601,7 @@ def build_preview_page():
                 </div>
             </div>
 
-            <div id="full-island-container" class="bg-sky-100">
+            <div id="full-island-container" class="bg-stone-200">
                 <div id="char-speech-bubble" class="island-speech-bubble">
                     <div class="flex items-center justify-between gap-2 border-b border-stone-200 pb-0.5 mb-0.5">
                         <span id="bubble-speaker-name" class="text-[10px] font-black text-red-600">🧶 阿純</span>
@@ -602,10 +612,10 @@ def build_preview_page():
             </div>
 
             <div class="grid grid-cols-4 gap-2 text-xs">
-                <button onclick="focusCharacter('achun')" class="py-1.5 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black border border-amber-200">鏡頭追 C1 阿純</button>
-                <button onclick="focusCharacter('yijhang')" class="py-1.5 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-black border border-blue-200">鏡頭追 C2 姨丈</button>
-                <button onclick="focusCharacter('ayee')" class="py-1.5 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 font-black border border-rose-200">鏡頭追 C3 阿姨</button>
-                <button onclick="focusCharacter('alu')" class="py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-900 font-black border border-orange-200">鏡頭追 C4 阿嚕</button>
+                <button id="char-btn-achun" onclick="focusCharacter('achun')" class="py-1.5 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black border border-amber-200">鎖定/取消 C1 阿純</button>
+                <button id="char-btn-yijhang" onclick="focusCharacter('yijhang')" class="py-1.5 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 font-black border border-blue-200">鎖定/取消 C2 姨丈</button>
+                <button id="char-btn-ayee" onclick="focusCharacter('ayee')" class="py-1.5 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 font-black border border-rose-200">鎖定/取消 C3 阿姨</button>
+                <button id="char-btn-alu" onclick="focusCharacter('alu')" class="py-1.5 px-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-900 font-black border border-orange-200">鎖定/取消 C4 阿嚕</button>
             </div>
         </section>
 

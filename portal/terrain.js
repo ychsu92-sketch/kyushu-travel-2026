@@ -168,8 +168,8 @@
         cliffMesh.receiveShadow = true;
         group.add(cliffMesh);
 
-        // 4. 第一階：沿海平原草地層 (Coastal Lowland Meadow - 柔和暖抹茶綠)
-        const turfTex1 = createMicroTerrainTexture(options.turfHex1 || '#88a66e', '#6f8f56', 0.32);
+        // 4. 第一階：沿海平原草地層 (Coastal Lowland Meadow - 溫潤自然抹茶綠)
+        const turfTex1 = createMicroTerrainTexture(options.turfHex1 || '#7f9968', '#688252', 0.30);
         const turfGeo1 = new THREE.ExtrudeGeometry(shape, {
             depth: 0.28,
             bevelEnabled: true,
@@ -180,12 +180,12 @@
         });
         turfGeo1.rotateX(-Math.PI / 2);
         const turfMat1 = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
+            color: 0xfafaf9,
             map: turfTex1,
             bumpMap: turfTex1,
             bumpScale: 0.04,
-            roughness: 0.88,
-            metalness: 0.02,
+            roughness: 0.90,
+            metalness: 0.01,
             flatShading: true
         });
         const turfMesh1 = new THREE.Mesh(turfGeo1, turfMat1);
@@ -196,7 +196,7 @@
 
         // 5. 第二階與第三階：內陸等高線階梯台地 (Stepped Contour Terraces - 解決扁平單調感！)
         if (options.enableTerraces) {
-            // 第二階：內陸丘陵台地 (縮放 0.82，深一階的冬日橄欖抹茶色)
+            // 第二階：內陸丘陵台地 (縮放 0.82，溫潤冬日橄欖抹茶綠)
             const shapeT2 = createPolygonShape(pts, 0.82, options.center);
             const geoT2 = new THREE.ExtrudeGeometry(shapeT2, {
                 depth: 0.24,
@@ -207,13 +207,13 @@
                 bevelThickness: 0.10
             });
             geoT2.rotateX(-Math.PI / 2);
-            const texT2 = createMicroTerrainTexture('#73915c', '#5c7847', 0.35);
+            const texT2 = createMicroTerrainTexture('#6e8759', '#587046', 0.32);
             const matT2 = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
+                color: 0xfafaf9,
                 map: texT2,
                 bumpMap: texT2,
                 bumpScale: 0.05,
-                roughness: 0.90,
+                roughness: 0.91,
                 flatShading: true
             });
             const meshT2 = new THREE.Mesh(geoT2, matT2);
@@ -233,9 +233,9 @@
                 bevelThickness: 0.12
             });
             geoT3.rotateX(-Math.PI / 2);
-            const texT3 = createMicroTerrainTexture('#688252', '#8a795d', 0.38);
+            const texT3 = createMicroTerrainTexture('#637a50', '#847459', 0.35);
             const matT3 = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
+                color: 0xfafaf9,
                 map: texT3,
                 bumpMap: texT3,
                 bumpScale: 0.06,
@@ -575,8 +575,8 @@
 
         // 1. 南九州主島（含 3 層立體等高線階梯台地 + 程序化微縮模型凹凸貼圖）
         const mainland = buildLayeredLandmass(coastData.mainland, {
-            turfHex1: '#86a56c',
-            cliffHex: '#8c583a',
+            turfHex1: '#7f9968',
+            cliffHex: '#865639',
             cliffDepth: 1.95,
             enableTerraces: true,
             center: [0.8, -2.0]
@@ -585,8 +585,8 @@
 
         // 2. 錦江灣中央的櫻島活火山島
         const sakurajima = buildLayeredLandmass(coastData.sakurajima, {
-            turfHex1: '#688253',
-            cliffHex: '#5c4033',
+            turfHex1: '#647b50',
+            cliffHex: '#593e32',
             cliffDepth: 1.65,
             enableTerraces: false,
             center: [-2.7, 8.5]
@@ -597,8 +597,8 @@
         if (coastData.amakusa) {
             coastData.amakusa.forEach(poly => {
                 const ama = buildLayeredLandmass(poly, {
-                    turfHex1: '#8ba872',
-                    cliffHex: '#936040',
+                    turfHex1: '#829b6b',
+                    cliffHex: '#8c5c3e',
                     cliffDepth: 1.45,
                     enableTerraces: false
                 });

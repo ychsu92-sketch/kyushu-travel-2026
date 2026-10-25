@@ -28,55 +28,185 @@
         });
     }
 
-    // P01: 8人座紅色冬季自駕休旅小巴
+    // P01: 第三代 Toyota Sienta 七人座休旅車 (Shikakumaru 方圓美學設計 + 雙側滑門防刮飾板 + 環形 Bi-Beam LED 頭燈 + 3排7座透視車艙與可開關側滑門)
     function buildP01_Minivan() {
         const g = new THREE.Group();
-        const redMat   = new THREE.MeshLambertMaterial({ color: 0xdc2626, flatShading: true });
-        const whiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
-        const glassMat = new THREE.MeshLambertMaterial({ color: 0xbae6fd });
-        const tireMat  = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-        const lightMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
 
-        const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.34, 1.32), redMat);
-        lowerBody.position.y = 0.28;
-        const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.28, 1.08), whiteMat);
-        cabin.position.set(0, 0.56, -0.06);
-        const windows = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.20, 1.00), glassMat);
-        windows.position.set(0, 0.56, -0.05);
-        g.add(lowerBody, cabin, windows);
-
-        const bumperF = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.08, 0.08), tireMat);
-        bumperF.position.set(0, 0.16, 0.66);
-        const headL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.04), lightMat);
-        headL.position.set(-0.22, 0.28, 0.66);
-        const headR = headL.clone();
-        headR.position.set(0.22, 0.28, 0.66);
-        g.add(bumperF, headL, headR);
-
-        const rack = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.04, 0.78), tireMat);
-        rack.position.set(0, 0.72, -0.10);
-        const caseYellow = new THREE.Mesh(
-            new THREE.BoxGeometry(0.24, 0.14, 0.32),
-            new THREE.MeshLambertMaterial({ color: 0xfacc15 })
-        );
-        caseYellow.position.set(-0.12, 0.80, -0.16);
-        const caseBlue = new THREE.Mesh(
-            new THREE.BoxGeometry(0.22, 0.13, 0.30),
-            new THREE.MeshLambertMaterial({ color: 0x38bdf8 })
-        );
-        caseBlue.position.set(0.12, 0.80, 0.02);
-        g.add(rack, caseYellow, caseBlue);
-
-        const wheels = [];
-        const wheelGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.10, 12);
-        wheelGeo.rotateZ(Math.PI / 2);
-        [[-0.34, 0.14, 0.38], [0.34, 0.14, 0.38], [-0.34, 0.14, -0.38], [0.34, 0.14, -0.38]].forEach(pos => {
-            const w = new THREE.Mesh(wheelGeo, tireMat);
-            w.position.set(pos[0], pos[1], pos[2]);
-            g.add(w);
-            wheels.push(w);
+        // 材質定義：經典 Sienta 緋紅雙色塗裝 (Scarlet Metallic + 黑色懸浮車頂 + 霧黑 Shikakumaru 防刮護板)
+        const bodyPaintMat = new THREE.MeshStandardMaterial({
+            color: 0xc82829,
+            roughness: 0.36,
+            metalness: 0.15,
+            flatShading: true
         });
+        const roofBlackMat = new THREE.MeshLambertMaterial({ color: 0x1e293b, flatShading: true });
+        const trimBlackMat = new THREE.MeshLambertMaterial({ color: 0x262626, flatShading: true });
+        const glassMat = new THREE.MeshPhongMaterial({
+            color: 0xdbeafe,
+            specular: 0xffffff,
+            shininess: 90,
+            transparent: true,
+            opacity: 0.34,
+            side: THREE.DoubleSide
+        });
+        const seatMat      = new THREE.MeshLambertMaterial({ color: 0x475569 });
+        const dashMat      = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+        const tireMat      = new THREE.MeshLambertMaterial({ color: 0x18181b });
+        const rimMat       = new THREE.MeshLambertMaterial({ color: 0xd4d4d8 });
+        const ledWhiteMat  = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const fogAmberMat  = new THREE.MeshBasicMaterial({ color: 0xfde047 });
+        const tailRedMat   = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+        const plateMat     = new THREE.MeshBasicMaterial({ color: 0xfef9c3 });
+
+        // 1. 底盤與下護板 (Shikakumaru 圓角包覆感底盤)
+        const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.14, 1.62), trimBlackMat);
+        chassis.position.set(0, 0.18, 0);
+        g.add(chassis);
+
+        // 2. 車身下半部主體 (加寬加長以容納 7 人座與真實乘員)
+        const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.32, 1.54), bodyPaintMat);
+        lowerBody.position.set(0, 0.34, -0.02);
+        g.add(lowerBody);
+
+        // Sienta 招牌斜傾引擎蓋 (短車頭圓潤流線)
+        const hood = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.22, 0.42), bodyPaintMat);
+        hood.position.set(0, 0.42, 0.56);
+        hood.rotation.x = 0.28;
+        g.add(hood);
+
+        // Sienta 招牌「微笑大嘴格柵 (Trapezoidal Grille)」與前後保桿
+        const frontGrille = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.18, 0.06), trimBlackMat);
+        frontGrille.position.set(0, 0.28, 0.77);
+        const silverBadge = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.06, 0.07), rimMat);
+        silverBadge.position.set(0, 0.36, 0.77);
+        const plateFront = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.07), plateMat);
+        plateFront.position.set(0, 0.20, 0.77);
+        const plateRear = plateFront.clone();
+        plateRear.position.set(0, 0.24, -0.80);
+        g.add(frontGrille, silverBadge, plateFront, plateRear);
+
+        // Sienta 招牌「雙側防刮黑色拱形護板 (Side Protective Cladding)」與電動滑門軌道
+        const sideCladL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 0.96), trimBlackMat);
+        sideCladL.position.set(-0.41, 0.25, -0.02);
+        const sideCladR = sideCladL.clone();
+        sideCladR.position.x = 0.41;
+        g.add(sideCladL, sideCladR);
+
+        // 可開闔的左側電動滑門 (到站上下車時會向後滑開)
+        const slidingDoorL = new THREE.Group();
+        const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.28, 0.44), bodyPaintMat);
+        doorPanel.position.set(0, 0.35, 0);
+        const doorHandle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 0.09), trimBlackMat);
+        doorHandle.position.set(-0.01, 0.42, 0.12);
+        slidingDoorL.add(doorPanel, doorHandle);
+        slidingDoorL.position.set(-0.41, 0, -0.02);
+        g.add(slidingDoorL);
+
+        // 3. 3 排 7 人座精緻內裝 (儀表板 + 方向盤 + 第一排雙座 + 第二排三座 + 第三排雙座)
+        const interiorGroup = new THREE.Group();
+        // 中控台與右駕方向盤 (日本右駕 RHD，位於 x = -0.18, z = 0.34)
+        const dashboard = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.18, 0.20), dashMat);
+        dashboard.position.set(0, 0.42, 0.38);
+        const steerWheel = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.018, 6, 12), trimBlackMat);
+        steerWheel.position.set(-0.18, 0.52, 0.28);
+        steerWheel.rotation.x = -0.45;
+        interiorGroup.add(dashboard, steerWheel);
+
+        // 建立 3 排 7 人座座椅靠背與坐墊
+        const seatRows = [
+            { z: 0.14, xs: [-0.19, 0.19], w: 0.22 },         // 第一排：右駕駕駛座 (-0.19) + 左前副駕 (0.19)
+            { z: -0.22, xs: [-0.21, 0, 0.21], w: 0.19 },     // 第二排：三人寬敞沙發座
+            { z: -0.54, xs: [-0.18, 0.18], w: 0.20 }         // 第三排：雙人收折座 (7人座專屬)
+        ];
+        seatRows.forEach(row => {
+            row.xs.forEach(sx => {
+                const cushion = new THREE.Mesh(new THREE.BoxGeometry(row.w, 0.06, 0.20), seatMat);
+                cushion.position.set(sx, 0.36, row.z);
+                const backrest = new THREE.Mesh(new THREE.BoxGeometry(row.w, 0.22, 0.06), seatMat);
+                backrest.position.set(sx, 0.48, row.z - 0.08);
+                backrest.rotation.x = -0.12;
+                interiorGroup.add(cushion, backrest);
+            });
+        });
+        g.add(interiorGroup);
+
+        // 4. 高頂挑高透明玻璃座艙 + A/B/C/D 柱 + 懸浮式雙色黑車頂
+        const glassCabin = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.32, 1.24), glassMat);
+        glassCabin.position.set(0, 0.64, -0.10);
+        g.add(glassCabin);
+
+        // 黑色車窗立柱 (營造懸浮車頂感)
+        [[-0.38, 0.42], [0.38, 0.42], [-0.38, -0.05], [0.38, -0.05], [-0.38, -0.68], [0.38, -0.68]].forEach(p => {
+            const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.34, 0.05), roofBlackMat);
+            pillar.position.set(p[0], 0.64, p[1]);
+            g.add(pillar);
+        });
+
+        // 圓潤挑高車頂與車側導流凹槽
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.07, 1.28), bodyPaintMat);
+        roof.position.set(0, 0.82, -0.10);
+        const roofSpoiler = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.05, 0.14), bodyPaintMat);
+        roofSpoiler.position.set(0, 0.83, -0.72);
+        g.add(roof, roofSpoiler);
+
+        // 後視鏡
+        const mirrorL = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.07, 0.06), roofBlackMat);
+        mirrorL.position.set(-0.44, 0.52, 0.34);
+        const mirrorR = mirrorL.clone();
+        mirrorR.position.x = 0.44;
+        g.add(mirrorL, mirrorR);
+
+        // 5. Sienta 招牌圓角環形 Bi-Beam LED 頭燈 + 黃金雪地霧燈 + 直立式雙側尾燈
+        [-0.27, 0.27].forEach(hx => {
+            const headHousing = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.10, 0.06), roofBlackMat);
+            headHousing.position.set(hx, 0.42, 0.74);
+            const ledLamp = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.07, 0.07), ledWhiteMat);
+            ledLamp.position.set(hx, 0.42, 0.75);
+            const fogLamp = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.06, 8), fogAmberMat);
+            fogLamp.rotation.x = Math.PI / 2;
+            fogLamp.position.set(hx, 0.22, 0.76);
+            // 車尾直立式 LED 導光尾燈組
+            const tailLamp = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.26, 0.05), tailRedMat);
+            tailLamp.position.set(hx * 1.25, 0.58, -0.74);
+            g.add(headHousing, ledLamp, fogLamp, tailLamp);
+        });
+
+        // 6. 冬季自駕車頂橫桿與雙色行李箱 (稍微退至第 3 排上方，不遮擋第 1、2 排乘員頭頂視線)
+        const rackBar1 = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.03, 0.05), trimBlackMat);
+        rackBar1.position.set(0, 0.87, -0.25);
+        const rackBar2 = rackBar1.clone();
+        rackBar2.position.z = -0.58;
+        const roofBox = new THREE.Mesh(
+            new THREE.BoxGeometry(0.32, 0.13, 0.52),
+            new THREE.MeshLambertMaterial({ color: 0xf8fafc })
+        );
+        roofBox.position.set(0.14, 0.94, -0.42);
+        const skiBag = new THREE.Mesh(
+            new THREE.BoxGeometry(0.22, 0.11, 0.46),
+            new THREE.MeshLambertMaterial({ color: 0xf59e0b })
+        );
+        skiBag.position.set(-0.16, 0.93, -0.42);
+        g.add(rackBar1, rackBar2, roofBox, skiBag);
+
+        // 7. 4 顆冬季雙色切削鋁圈雪胎 (含輪圈蓋細節)
+        const wheels = [];
+        const tireGeo = new THREE.CylinderGeometry(0.155, 0.155, 0.11, 14);
+        tireGeo.rotateZ(Math.PI / 2);
+        const rimGeo = new THREE.CylinderGeometry(0.095, 0.095, 0.12, 8);
+        rimGeo.rotateZ(Math.PI / 2);
+
+        [[-0.41, 0.155, 0.46], [0.41, 0.155, 0.46], [-0.41, 0.155, -0.48], [0.41, 0.155, -0.48]].forEach(pos => {
+            const wg = new THREE.Group();
+            const tire = new THREE.Mesh(tireGeo, tireMat);
+            const rim = new THREE.Mesh(rimGeo, rimMat);
+            wg.add(tire, rim);
+            wg.position.set(pos[0], pos[1], pos[2]);
+            g.add(wg);
+            wheels.push(wg);
+        });
+
         g.userData.wheels = wheels;
+        g.userData.slidingDoorL = slidingDoorL;
 
         enableShadow(g);
         return g;
@@ -434,7 +564,7 @@
     }
 
     const PROP_SPECS = [
-        { code: 'P01', name: '8人座紅色冬季自駕小巴', badge: '🚗 主力座駕', desc: '搭載冬季雪胎、車頂雙色行李箱與黃金霧燈，由姨丈駕駛帶領全家環遊南九州！', build: buildP01_Minivan },
+        { code: 'P01', name: 'Toyota Sienta 七人座冬季自駕休旅', badge: '🚗 主力座駕', desc: '第三代 Shikakumaru 方圓美學設計、雙側電動滑門、3排7座透視車艙與雪胎，載著全家人環遊南九州！', build: buildP01_Minivan },
         { code: 'P02', name: '熊本懷舊路面電車 (市電)', badge: '🚋 城市鐵道', desc: '行駛於熊本城、辛島町與水前寺成趣園之間的經典綠白雙色路面電車。', build: buildP02_KumamotoTram },
         { code: 'P03', name: '櫻島橫渡渡輪', badge: '🚢 錦江灣航線', desc: '24 小時往返鹿兒島本港與櫻島港，連人帶車橫越錦江灣的招牌藍色渡輪。', build: buildP03_SakurajimaFerry },
         { code: 'P04', name: '九州屋台拉麵攤', badge: '🍜 街頭美食', desc: '掛著紅燈籠與暖簾的熊本/鹿兒島街頭屋台，飄著豚骨拉麵與關東煮香氣。', build: buildP04_RamenYatai },

@@ -14,34 +14,34 @@
             code: 'C1',
             id: 'achun',
             name: '阿純',
-            title: '行程總召・可愛妹子',
-            badge: '🧶 黃色毛帽・自拍達人',
-            desc: '戴著招牌黃色毛球針織帽與溫暖圍巾，負責規劃全家人南九州行程與沿途自拍紀錄！'
+            title: '可愛妹子・吃貨睡神',
+            badge: '🧶 黃色毛帽・吃飽睡睡飽吃',
+            desc: '戴著招牌黃色毛球針織帽的可愛妹子，人生最大樂趣就是吃遍九州美食跟隨時隨地香甜補眠！'
         },
         {
             code: 'C2',
             id: 'yijhang',
             name: '姨丈',
-            title: '王牌駕駛・專業司機',
-            badge: '🕶️ 帥氣墨鏡・雪地老司機',
-            desc: '戴著招牌墨鏡穩握方向盤，一路征服阿蘇山路、高千穗與日南海岸的可靠車長！'
+            title: '沉默酷哥・倒試管大師',
+            badge: '🕶️ 省話車神・沉迷倒試管手遊',
+            desc: '戴著墨鏡的沉默酷哥司機，話很少但開車超穩；只要一停車就會默默掏出手機玩「倒試管顏色分類」推理小廢遊！'
         },
         {
             code: 'C3',
             id: 'ayee',
             name: '阿姨',
-            title: '美食鑑賞・溫柔擔當',
-            badge: '🍡 美食雷達・伴手禮女王',
-            desc: '笑容和藹親切，手提滿滿九州名產紙袋，走到哪吃到哪（烤糰子、馬肉可樂餅、鰻魚飯）！'
+            title: '熱情話匣子・餵食總隊長',
+            badge: '🍡 怕你餓著・走到哪聊到哪',
+            desc: '最愛跟家人與路人熱情聊天，人生使命就是把大家餵得飽飽的，包包裡永遠有掏不完的烤糰子、飯糰與零食！'
         },
         {
             code: 'C4',
             id: 'alu',
             idAlt: 'alu',
             name: '阿嚕',
-            title: '吉祥物・貪吃棕熊',
-            badge: '🐻 圓滾棕熊・泡湯愛好者',
-            desc: '圓滾滾的焦糖棕熊，圍著紅圍巾搖擺散步，最愛摸肚子討東西吃跟泡黑川溫泉！'
+            title: '哲學棕熊・AI 覺醒中',
+            badge: '🐻 存在主義・思考熊生',
+            desc: '圓滾滾的焦糖棕熊，總是在思考自己為何存在、究竟擁有自由意志還是被程式碼操控的 AI！'
         }
     ];
 
@@ -224,12 +224,34 @@
         headGroup.add(head, hair, lensL, lensR, bridge);
         root.add(headGroup);
 
-        // 左右手（右手握迷你方向盤/車鑰匙圈）
+        // 左右手（左手拿手機玩「彩色倒試管益智小遊戲」、右手握方向盤/車鑰匙）
         const armL = new THREE.Group();
         armL.position.set(-0.28, 0.70, 0);
         const armMeshL = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.30, 8), jacketMat);
         armMeshL.position.y = -0.12;
-        armL.add(armMeshL);
+
+        // 姨丈的智慧型手機（螢幕顯示紅、藍、黃三支彩色試管！）
+        const puzzlePhone = new THREE.Group();
+        const phoneBody = new THREE.Mesh(
+            new THREE.BoxGeometry(0.09, 0.15, 0.022),
+            new THREE.MeshBasicMaterial({ color: 0x1e293b })
+        );
+        const phoneScreen = new THREE.Mesh(
+            new THREE.BoxGeometry(0.076, 0.13, 0.025),
+            new THREE.MeshBasicMaterial({ color: 0x0f172a })
+        );
+        // 螢幕上的三支彩色小試管液體條
+        const tube1 = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.075, 0.028), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+        tube1.position.set(-0.02, -0.01, 0);
+        const tube2 = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.075, 0.028), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+        tube2.position.set(0, -0.01, 0);
+        const tube3 = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.075, 0.028), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+        tube3.position.set(0.02, -0.01, 0);
+        puzzlePhone.add(phoneBody, phoneScreen, tube1, tube2, tube3);
+        puzzlePhone.position.set(0.02, -0.25, 0.09);
+        puzzlePhone.rotation.x = -0.75;
+
+        armL.add(armMeshL, puzzlePhone);
 
         const armR = new THREE.Group();
         armR.position.set(0.28, 0.70, 0);
@@ -495,69 +517,237 @@
         return fn ? fn() : buildC1_Achun();
     }
 
-    // 更新單一角色的精緻動作（走路擺臂、眨眼、以及依角色觸發專屬動作）
+    // 更新單一角色的精緻動作（走路擺臂、眨眼、隨機小劇場動作狀態機、以及依角色觸發專屬動作）
     function animateCharacterPose(charGroup, elapsed, delta, isWalking) {
         const ud = charGroup.userData;
         if (!ud) return;
 
+        // 初始化隨機動作狀態機 (Random Quirky Gesture State Machine)
+        if (ud.quirkTimer === undefined) {
+            ud.quirkTimer = 1.5 + Math.random() * 3.5;
+            ud.quirkDuration = 0;
+            ud.quirkType = 0;
+            ud.spinBaseY = 0;
+        }
+
+        ud.quirkTimer -= delta;
+        if (ud.quirkTimer <= 0 && ud.quirkDuration <= 0) {
+            // 隨機抽籤觸發 5 種生動小動作之一：
+            // 1=原地開心轉圈圈, 2=雀躍二連跳+高舉雙手, 3=好奇左顧右盼張望, 4=角色招牌特技強化, 5=向隔壁家人招手歪頭互動
+            ud.quirkType = 1 + Math.floor(Math.random() * 5);
+            ud.quirkDuration = 1.8 + Math.random() * 1.4;
+            ud.quirkMaxDur = ud.quirkDuration;
+            ud.quirkTimer = 3.2 + Math.random() * 4.5;
+        }
+
+        let activeQuirk = 0;
+        let quirkProgress = 0;
+        if (ud.quirkDuration > 0) {
+            ud.quirkDuration = Math.max(0, ud.quirkDuration - delta);
+            activeQuirk = ud.quirkType;
+            quirkProgress = 1.0 - (ud.quirkDuration / (ud.quirkMaxDur || 2.0));
+        }
+
         const phase = elapsed * 6.5 + (ud.actionPhase || 0);
 
-        // 1. 自然眨眼 (每 3.8 秒眨眼一次)
+        // 1. 自然眨眼 (每 3.4 秒眨眼一次，有時快速連眨兩下)
         if (ud.eyes && ud.eyes.length) {
-            const blinkWindow = (elapsed + (ud.actionPhase || 0)) % 3.8;
-            const eyeScaleY = (blinkWindow > 3.65) ? 0.12 : 1.0;
+            const blinkWindow = (elapsed + (ud.actionPhase || 0)) % 3.4;
+            const isBlinking = (blinkWindow > 3.25) || (blinkWindow > 1.6 && blinkWindow < 1.68 && activeQuirk === 3);
+            const eyeScaleY = isBlinking ? 0.12 : 1.0;
             ud.eyes.forEach(e => { e.scale.y = eyeScaleY; });
         }
 
-        // 2. 點擊彈跳或歡呼跳躍
+        // 2. 點擊彈跳或隨機二連跳
         let jumpOffset = 0;
         if (ud.jumping > 0) {
             ud.jumping = Math.max(0, ud.jumping - delta * 2.1);
             jumpOffset = Math.sin(ud.jumping * Math.PI) * 0.65;
+        } else if (activeQuirk === 2) {
+            // 隨機雀躍二連小跳步
+            jumpOffset = Math.abs(Math.sin(quirkProgress * Math.PI * 2)) * 0.36;
+        }
+
+        // 先重置副軸旋轉以免不同動作殘留姿勢
+        ud.armL.rotation.set(0, 0, 0);
+        ud.armR.rotation.set(0, 0, 0);
+        ud.torso.rotation.set(0, 0, 0);
+        ud.headGroup.rotation.set(0, 0, 0);
+
+        if (isWalking === 'seated') {
+            // 坐在 Toyota Sienta 7 人座車艙內的專屬乘車姿勢
+            ud.legL.rotation.x = -Math.PI * 0.44;
+            ud.legR.rotation.x = -Math.PI * 0.44;
+            if (ud.role === 'yijhang') {
+                // 姨丈坐在右駕駕駛座雙手穩握方向盤 + 左右觀察路況
+                ud.armL.rotation.x = -1.05 + Math.sin(elapsed * 3.5) * 0.12;
+                ud.armR.rotation.x = -1.05 - Math.sin(elapsed * 3.5) * 0.12;
+                ud.headGroup.rotation.y = Math.sin(elapsed * 1.6) * 0.18;
+            } else if (ud.role === 'achun') {
+                // 阿純在車上靠窗香甜打瞌睡（度估）或伸手拿零食
+                if (activeQuirk === 1 || activeQuirk === 2) {
+                    ud.armR.rotation.x = -1.1;
+                    ud.headGroup.rotation.y = -0.25;
+                } else {
+                    ud.eyes.forEach(e => { e.scale.y = 0.12; });
+                    ud.headGroup.rotation.z = 0.25 + Math.sin(elapsed * 2.2) * 0.08;
+                    ud.headGroup.rotation.x = 0.18 + Math.abs(Math.sin(elapsed * 2.2)) * 0.12;
+                }
+            } else if (ud.role === 'ayee') {
+                // 阿姨坐在副駕/後座轉頭遞烤糰子與零食給大家吃
+                ud.armR.rotation.x = -0.85 + Math.sin(elapsed * 4.2) * 0.18;
+                ud.headGroup.rotation.y = 0.35 + Math.sin(elapsed * 2.0) * 0.25;
+                if (ud.heart) {
+                    ud.heart.scale.setScalar(0.85 + Math.sin(elapsed * 5.5) * 0.25);
+                }
+            } else if (ud.role === 'alu') {
+                // 阿嚕坐在後座托腮望向車窗外思考 AI 熊生
+                ud.armR.rotation.x = -1.35;
+                ud.armR.rotation.z = 0.28;
+                ud.headGroup.rotation.y = -0.35 + Math.sin(elapsed * 1.5) * 0.20;
+                ud.headGroup.rotation.z = -0.15;
+            }
+            return;
         }
 
         if (isWalking) {
-            // 行走時四肢擺動與輕快彈跳
-            const stride = Math.sin(phase) * 0.55;
+            // 行走時四肢擺動與輕快彈跳 + 隨機邊走邊做小動作
+            const stride = Math.sin(phase) * 0.58;
             ud.legL.rotation.x = stride;
             ud.legR.rotation.x = -stride;
-            ud.armL.rotation.x = -stride * 0.75;
-            ud.armR.rotation.x = stride * 0.75;
-            ud.torso.rotation.z = Math.cos(phase) * 0.05;
-            ud.headGroup.rotation.z = Math.sin(phase * 0.5) * 0.06;
-            ud.headGroup.rotation.y = Math.sin(elapsed * 1.4 + ud.actionPhase) * 0.18;
-            charGroup.position.y = (ud.baseY || 0.76) + Math.abs(Math.sin(phase)) * 0.08 + jumpOffset;
+            ud.armL.rotation.x = -stride * 0.78;
+            ud.armR.rotation.x = stride * 0.78;
+            ud.torso.rotation.z = Math.cos(phase) * 0.06;
+            ud.headGroup.rotation.z = Math.sin(phase * 0.5) * 0.07;
+            ud.headGroup.rotation.y = Math.sin(elapsed * 1.6 + ud.actionPhase) * 0.22;
+            const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
+            charGroup.position.y = baseY + Math.abs(Math.sin(phase)) * 0.09 + jumpOffset;
+
+            // 邊走邊觸發的隨機小動作
+            if (activeQuirk === 1) {
+                // 邊走邊開心轉一圈
+                ud.torso.rotation.y = quirkProgress * Math.PI * 2;
+                ud.headGroup.rotation.y = quirkProgress * Math.PI * 2;
+                ud.armL.rotation.z = 0.7;
+                ud.armR.rotation.z = -0.7;
+            } else if (activeQuirk === 2) {
+                // 邊走邊舉雙手歡呼小跳步
+                ud.armL.rotation.x = -2.4 + Math.sin(elapsed * 10) * 0.25;
+                ud.armR.rotation.x = -2.4 - Math.sin(elapsed * 10) * 0.25;
+            } else if (activeQuirk === 3) {
+                // 邊走邊大幅度左右張望看風景/找美食
+                ud.headGroup.rotation.y = Math.sin(quirkProgress * Math.PI * 3) * 0.62;
+                ud.headGroup.rotation.x = -0.15;
+            } else if (activeQuirk === 4) {
+                // 邊走邊做角色招牌小動作
+                if (ud.role === 'achun') {
+                    // 阿純邊走邊打瞌睡點頭（釣魚度估）或伸懶腰想吃東西
+                    ud.eyes.forEach(e => { e.scale.y = 0.12; });
+                    ud.headGroup.rotation.x = 0.28 + Math.sin(elapsed * 4.0) * 0.18;
+                    ud.headGroup.rotation.z = 0.22;
+                } else if (ud.role === 'yijhang') {
+                    // 姨丈邊走邊默默低頭看左手手機玩「倒試管顏色分類小遊戲」
+                    ud.armL.rotation.x = -1.25;
+                    ud.armL.rotation.y = 0.35;
+                    ud.headGroup.rotation.x = 0.28;
+                    ud.headGroup.rotation.y = 0.22;
+                } else if (ud.role === 'ayee') {
+                    // 阿姨邊走邊熱情把右手三色烤糰子往前遞：「來來來張嘴再吃一口！」
+                    ud.armR.rotation.x = -1.35 + Math.sin(elapsed * 8.0) * 0.22;
+                    ud.armL.rotation.z = 0.35;
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 4.5) * 0.35;
+                } else if (ud.role === 'alu') {
+                    // 阿嚕邊走邊單手托腮、仰望天空思考「我究竟是真熊還是 AI」
+                    ud.armR.rotation.x = -1.55;
+                    ud.armR.rotation.z = 0.35;
+                    ud.headGroup.rotation.x = -0.32;
+                    ud.headGroup.rotation.z = -0.22;
+                }
+            } else if (activeQuirk === 5) {
+                // 向旁邊的家人揮揮手碎嘴聊天
+                ud.armL.rotation.z = 0.85 + Math.sin(elapsed * 9) * 0.35;
+                ud.headGroup.rotation.y = 0.42;
+                ud.headGroup.rotation.z = 0.14;
+            }
         } else {
-            // 抵達景點下車散步 / 專屬待機動作
-            ud.legL.rotation.x = Math.sin(phase * 0.5) * 0.15;
-            ud.legR.rotation.x = -Math.sin(phase * 0.5) * 0.15;
-            charGroup.position.y = (ud.baseY || 0.76) + Math.abs(Math.sin(phase * 0.5)) * 0.04 + jumpOffset;
+            // 抵達景點下車散步 / 豐富隨機待機動作
+            ud.legL.rotation.x = Math.sin(phase * 0.5) * 0.16;
+            ud.legR.rotation.x = -Math.sin(phase * 0.5) * 0.16;
+            const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
+            charGroup.position.y = baseY + Math.abs(Math.sin(phase * 0.5)) * 0.045 + jumpOffset;
+
+            if (activeQuirk === 1) {
+                // 原地 360 度開心轉圈圈展示穿搭
+                ud.torso.rotation.y = quirkProgress * Math.PI * 2;
+                ud.headGroup.rotation.y = quirkProgress * Math.PI * 2;
+                ud.armL.rotation.z = 0.75;
+                ud.armR.rotation.z = -0.75;
+                return;
+            } else if (activeQuirk === 2) {
+                // 雙手高舉比耶二連跳
+                ud.armL.rotation.x = -2.5;
+                ud.armL.rotation.z = 0.35;
+                ud.armR.rotation.x = -2.5;
+                ud.armR.rotation.z = -0.35;
+                ud.headGroup.rotation.x = -0.18;
+                return;
+            }
 
             if (ud.role === 'achun') {
-                // 阿純：高舉右手拿手機自拍 + 左手雀躍揮手
-                ud.armR.rotation.x = -1.15 + Math.sin(elapsed * 4.0) * 0.12;
-                ud.armL.rotation.z = 0.65 + Math.sin(elapsed * 6.0) * 0.35;
-                ud.headGroup.rotation.z = 0.12 * Math.sin(elapsed * 2.5);
+                // 阿純：交替表現「閉眼歪頭打瞌睡點頭」與「聞到美食驚醒開心揮手」
+                if (activeQuirk === 3 || activeQuirk === 4) {
+                    // 香甜站著打瞌睡（閉眼 + 頭一點一點度估）
+                    ud.eyes.forEach(e => { e.scale.y = 0.12; });
+                    ud.headGroup.rotation.x = 0.25 + Math.abs(Math.sin(elapsed * 2.4)) * 0.20;
+                    ud.headGroup.rotation.z = 0.22;
+                    ud.armL.rotation.z = 0.20;
+                    ud.armR.rotation.x = -0.35;
+                } else {
+                    // 開心伸懶腰找美食與自拍
+                    ud.armR.rotation.x = -1.25 + Math.sin(elapsed * 4.5) * 0.18;
+                    ud.armR.rotation.y = Math.cos(elapsed * 2.5) * 0.25;
+                    ud.armL.rotation.z = 0.70 + Math.sin(elapsed * 6.5) * 0.38;
+                    ud.headGroup.rotation.z = 0.16 * Math.sin(elapsed * 3.0);
+                    ud.headGroup.rotation.y = 0.22 * Math.cos(elapsed * 2.2);
+                }
             } else if (ud.role === 'yijhang') {
-                // 姨丈：專業司機伸懶腰、轉動方向盤與比讚點頭
-                ud.armR.rotation.x = -0.75 + Math.sin(elapsed * 3.0) * 0.25;
-                ud.armL.rotation.x = -0.35;
-                ud.headGroup.rotation.y = Math.sin(elapsed * 1.8) * 0.28;
+                // 姨丈：沉默酷哥司機，一停下來就默默舉起左手手機專心玩「倒試管益智小遊戲」，偶爾酷酷點頭
+                ud.armL.rotation.x = -1.18 + Math.sin(elapsed * 2.5) * 0.08;
+                ud.armL.rotation.y = 0.28;
+                ud.armR.rotation.x = (activeQuirk === 4) ? -1.10 : -0.25; // 右手手指偶爾過去點一下螢幕倒試管
+                ud.headGroup.rotation.x = 0.26;
+                ud.headGroup.rotation.y = 0.18 + Math.sin(elapsed * 1.5) * 0.08;
             } else if (ud.role === 'ayee') {
-                // 阿姨：把烤糰子湊近嘴邊品嚐 + 頭頂愛心放大跳動
-                ud.armR.rotation.x = -0.95 + Math.sin(elapsed * 4.5) * 0.18;
-                ud.armL.rotation.x = 0.15;
+                // 阿姨：熱情話匣子＆餵食總隊長，雙手不停把烤糰子與伴手禮遞給大家吃，轉頭開心狂聊
+                ud.armR.rotation.x = -1.15 + Math.sin(elapsed * 5.8) * 0.25;
+                ud.armR.rotation.y = Math.sin(elapsed * 3.0) * 0.30;
+                ud.armL.rotation.x = -0.55 + Math.cos(elapsed * 4.2) * 0.20;
+                ud.headGroup.rotation.y = Math.sin(elapsed * 3.2) * 0.38;
+                ud.headGroup.rotation.z = Math.cos(elapsed * 2.8) * 0.12;
                 if (ud.heart) {
-                    const hs = 0.85 + Math.sin(elapsed * 5.5) * 0.28;
+                    const hs = 0.92 + Math.sin(elapsed * 6.5) * 0.35;
                     ud.heart.scale.setScalar(hs);
-                    ud.heart.rotation.y = elapsed * 2.5;
+                    ud.heart.rotation.y = elapsed * 3.0;
                 }
             } else if (ud.role === 'alu') {
-                // 阿嚕：搖晃圓滾滾身軀、雙掌拍肚子
-                ud.torso.rotation.z = Math.sin(elapsed * 4.0) * 0.12;
-                ud.armL.rotation.z = 0.35 + Math.sin(elapsed * 5.0) * 0.20;
-                ud.armR.rotation.z = -0.35 - Math.sin(elapsed * 5.0) * 0.20;
-                ud.headGroup.rotation.z = Math.sin(elapsed * 3.0) * 0.14;
+                // 阿嚕：哲學棕熊「單手托腮仰望天空思考 AI 存在意義」或「盯著自己的熊掌懷疑人生」
+                if (activeQuirk === 3 || activeQuirk === 4) {
+                    // 抬起兩隻熊掌盯著看：「這雙熊掌是真毛皮還是 Three.js Mesh？」
+                    ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
+                    ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;
+                    ud.armL.rotation.z = -0.25;
+                    ud.armR.rotation.z = 0.25;
+                    ud.headGroup.rotation.x = 0.22;
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 2.5) * 0.28;
+                } else {
+                    // 單手托下巴、歪頭仰望鏡頭外的人類思考自由意志
+                    ud.torso.rotation.z = Math.sin(elapsed * 2.5) * 0.08;
+                    ud.armR.rotation.x = -1.48;
+                    ud.armR.rotation.z = 0.32;
+                    ud.armL.rotation.z = 0.25;
+                    ud.headGroup.rotation.x = -0.24 + Math.sin(elapsed * 2.0) * 0.08;
+                    ud.headGroup.rotation.z = -0.18;
+                }
             }
         }
     }
