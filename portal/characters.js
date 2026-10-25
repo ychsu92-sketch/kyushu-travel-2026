@@ -636,7 +636,11 @@
 
         let activeQuirk = 0;
         let quirkProgress = 0;
-        if (ud.quirkDuration > 0) {
+        if (ud.isSpotBusy) {
+            // 在景點執行專屬動作期間（如席地打筆電、拍照、玩手遊），暫停隨機轉圈或亂跳，專注呈現沉浸動作
+            activeQuirk = 0;
+            ud.quirkDuration = 0;
+        } else if (ud.quirkDuration > 0) {
             ud.quirkDuration = Math.max(0, ud.quirkDuration - delta);
             activeQuirk = ud.quirkType;
             quirkProgress = 1.0 - (ud.quirkDuration / (ud.quirkMaxDur || 2.0));

@@ -1994,8 +1994,8 @@
 
             if (remainTransitMs > 120) {
                 const handoffDelayMs = remainTransitMs + 200;
-                // 停留節奏明快（約 6.5~7.5 秒）：既能讀完台詞並欣賞便條紙動作，又不會讓自駕巡航停頓太久
-                stopTimer = Math.min(8.5, ((handoffDelayMs + spotDurationMs) / 1000) + 2.2);
+                // 停留時間充分延長（約 13.5~15 秒）：確保所有人有長達 9~11 秒完整時間持續沉浸做動作（如阿純席地打病歷）
+                stopTimer = Math.max(14.0, ((handoffDelayMs + spotDurationMs) / 1000) + 7.5);
                 stopTotalDuration = stopTimer;
                 dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
                 spotArrivalQueueTimer = setTimeout(() => {
@@ -2003,7 +2003,7 @@
                     triggerCustomBanterScript(spotScript, true);
                 }, handoffDelayMs);
             } else {
-                stopTimer = Math.min(7.5, Math.max(5.5, (spotDurationMs / 1000) + 2.0));
+                stopTimer = Math.max(12.8, (spotDurationMs / 1000) + 7.0);
                 stopTotalDuration = stopTimer;
                 triggerCustomBanterScript(spotScript, true);
             }
@@ -2076,11 +2076,11 @@
             let roamWeight = 0;
 
             if (isStoppedAtLandmark && currentLandmark) {
-                // 計算停留階段權重：剛停車 0.7 秒內從車旁散開 (0➔1)、停留期間自由走動 (1)、開車前最後 1.2 秒走回車旁 (1➔0)
+                // 計算停留階段權重：剛停車 1.2 秒內從車旁散開 (0➔1)、停留期間就位做各自動作、開車前最後 1.8 秒走回車旁 (1➔0)
                 const elapsedInStop = Math.max(0, stopTotalDuration - stopTimer);
-                const leaveCarFactor = Math.min(1.0, elapsedInStop / 0.80);
-                const returnCarFactor = Math.min(1.0, stopTimer / 1.50);
-                roamWeight = leaveCarFactor * returnCarFactor; // 0 = 在車旁集合，1 = 在景點隨意走動
+                const leaveCarFactor = Math.min(1.0, elapsedInStop / 1.20);
+                const returnCarFactor = Math.min(1.0, stopTimer / 1.80);
+                roamWeight = leaveCarFactor * returnCarFactor; // 0 = 在車旁集合，1 = 在景點定位定點
 
                 // Sienta 左側電動滑門旁集合點 (車身外側 0.82m，沿車身長度均勻間隔 0.48m，完全避免人物與車身及相互穿模)
                 const doorLocalX = -0.82;
@@ -2114,11 +2114,16 @@
                     spotAnchorY = getGroundY(spotAnchorX, spotAnchorZ) + 0.04;
                 }
 
-                // 每個角色各自平滑漫步的偏移軌跡 (不同頻率與相位，微幅自然晃動)
-                const wPhase = elapsed * (1.35 + idx * 0.25) + idx * 2.1;
-                const wanderAmp = isSummitSpot ? 0.18 : 0.22;
-                const wanderX = (Math.sin(wPhase) * wanderAmp + Math.cos(wPhase * 0.65) * 0.08) * roamWeight;
-                const wanderZ = (Math.cos(wPhase * 0.85) * (wanderAmp * 0.75)) * roamWeight;
+                // 景點專屬漫步微動控制：
+                // 阿純席地而坐打字、姨丈站立玩手遊、阿嚕舉相機取景 ➔ 定點定格 (不位移，確保坐姿與拍照持續穩定不亂晃！)
+                // 阿姨 ➔ 保持微幅自然走動分送點心
+                let wanderX = 0;
+                let wanderZ = 0;
+                if (role === 'ayee') {
+                    const wPhase = elapsed * 1.4 + idx * 2.1;
+                    wanderX = Math.sin(wPhase) * 0.10 * roamWeight;
+                    wanderZ = Math.cos(wPhase * 0.8) * 0.08 * roamWeight;
+                }
 
                 cx = doorSideX + (spotAnchorX - doorSideX) * roamWeight + wanderX;
                 cz = doorSideZ + (spotAnchorZ - doorSideZ) * roamWeight + wanderZ;
@@ -2287,11 +2292,16 @@
             const moveSpd = Math.hypot(vx, vz);
             let moving = moveSpd > 0.08;
 
-            if (c.isSpeakingNow && c.isStoppedAtLandmark) {
+            // 判定是否正處於景點專屬個性動作持續進行期 (已就位且尚未準備上車)
+            const isInSpotActivity = c.isStoppedAtLandmark && (c.roamWeight >= 0.75) && (stopTimer >= 1.80);
+            if (isInSpotActivity) {
+                moving = false; // 嚴格保持靜態動作，絕不誤觸行走動畫！確保阿純席地坐姿穩定不站起
+                c.cRotY = vanAngle + (c.idx - 1.5) * 0.35; // 面向風景席地或站立
+            } else if (c.isSpeakingNow && c.isStoppedAtLandmark) {
                 moving = false;
                 c.cRotY = Math.sin(elapsed * 0.9 + c.idx) * 0.25;
             } else if (c.isStoppedAtLandmark) {
-                if (moving && moveSpd > 0.12) {
+                if (moving && moveSpd > 0.08) {
                     const targetYaw = Math.atan2(vx, vz);
                     const curYaw = charGroup.rotation.y || 0;
                     let diff = targetYaw - curYaw;
@@ -2315,11 +2325,11 @@
                 ? 0.42
                 : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(c.cx, c.cz, rawCharY));
 
-            // 景點專屬個性動作標記：在停留漫步階段 (roamWeight > 0.40) 且停步或說話時觸發各人代表性活動
-            // 阿純席地打物理治療紀錄、阿嚕舉相機取景閃光、姨丈滑手機倒試管、阿姨四處熱情餵食
-            charGroup.userData.isSpotBusy = c.isStoppedAtLandmark && (c.roamWeight > 0.20);
+            // 景點專屬個性動作標記：在抵達定點期間 (isInSpotActivity) 完整持續保持動作
+            // 阿純席地而坐狂敲物治紀錄、阿嚕雙手舉相機閃光取景、姨丈滑手機倒試管、阿姨熱情分送點心
+            charGroup.userData.isSpotBusy = isInSpotActivity;
 
-            // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊；景點漫步或走回車旁時亦播放雙腳邁步動畫
+            // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊；景點散開漫步或走回車旁時亦播放雙腳邁步動畫
             const animElapsed = (c.role === stragglerRole && !c.isStoppedAtLandmark) ? elapsed * 1.65 : elapsed;
             window.KyushuIsland.Characters.animateCharacterPose(
                 charGroup,
