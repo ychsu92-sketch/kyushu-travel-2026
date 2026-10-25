@@ -783,6 +783,7 @@
         spotDeparture: []
     };
     let spokenRolesInCurrentSpot = new Set();
+    let hasPlayedSpotMidstay = false;
     let hasPlayedSpotDepartureCall = false;
 
     function pickRandomNonRepeating(pool, historyArray, maxHistory = 4) {
@@ -1944,10 +1945,11 @@
                         }
                     }
                 } else {
-                    // 景點停留期間：消除冷場空白時刻！隨時接續第二波現場互動與出發前收尾呼喊
+                    // 景點停留期間：消除冷場空白時刻！隨時接續第二波現場互動與出發前收尾呼喊（每種台詞至多觸發一次，保證準時啟程）
                     if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 260) {
-                        if (stopTimer > 2.8) {
-                            // 景點中段（Mid-Stay）：未發言家人接話 或 現場動作吐槽小劇場
+                        if (!hasPlayedSpotMidstay && !hasPlayedSpotDepartureCall && stopTimer > 6.0) {
+                            // 景點中段（Mid-Stay）：未發言家人接話 或 現場動作吐槽小劇場（單次停靠至多觸發一次）
+                            hasPlayedSpotMidstay = true;
                             const unspoken = ['achun', 'yijhang', 'ayee', 'alu'].filter(r => !spokenRolesInCurrentSpot.has(r));
                             if (unspoken.length > 0 && Math.random() < 0.55 && currentLandmark && currentLandmark.dialogs) {
                                 unspoken.sort(() => Math.random() - 0.5);
@@ -1962,9 +1964,10 @@
                                 const banter = pickRandomNonRepeating(SPOT_MIDSTAY_BANTERS, recentScriptHistories.spotMidstay, 4);
                                 if (banter) triggerCustomBanterScript(banter, true);
                             }
-                        } else if (stopTimer > 0.85 && !hasPlayedSpotDepartureCall) {
-                            // 景點收尾（Departure Call）：姨丈從口袋變出小巴，提醒大家準備上車
+                        } else if (!hasPlayedSpotDepartureCall && stopTimer <= 6.0 && stopTimer > 0.85) {
+                            // 景點收尾（Departure Call）：姨丈從口袋變出小巴，提醒大家準備上車（單次停靠至多呼喊一次）
                             hasPlayedSpotDepartureCall = true;
+                            hasPlayedSpotMidstay = true; // 標記中段已結束，防止出發後或重疊時意外倒流觸發
                             const depCall = pickRandomNonRepeating(SPOT_DEPARTURE_CALLS, recentScriptHistories.spotDeparture, 3);
                             if (depCall) triggerCustomBanterScript(depCall, true);
                         }
@@ -2008,7 +2011,7 @@
             // 景點停留明快舒適 (~6-7.5秒)，欣賞完動作與台詞後順暢啟程，避免整座島頻繁原地停滯
             if (stopTimer <= 0) {
                 isStoppedAtLandmark = false;
-                driveCooldown = 7.2; // 剛出發後至少暢快行駛 7.2 秒巡航賞景，才允許再次靠站
+                driveCooldown = 2.4; // 啟程後維持約 2.4 秒起步巡航，兼顧每站打卡與公路節奏
                 // 離開景點準備啟程：全家全員坐在全景敞篷 Toyota Sienta 內兜風賞景，徹底消除人物落後車輛與瞬間閃現回車旁的穿模現象！
                 travelMode = 'all_aboard';
                 stragglerRole = null;
@@ -2152,6 +2155,7 @@
             visitedLandmarksInLap.add(nearest.id);
             isStoppedAtLandmark = true;
             spokenRolesInCurrentSpot.clear();
+            hasPlayedSpotMidstay = false;
             hasPlayedSpotDepartureCall = false;
             updateLocationBanner(nearest);
 
@@ -2578,7 +2582,7 @@
 
         // 若在景點停靠中，自動延展景點停留時間，確保對話完全播完且讀完後才啟程
         if (isStoppedAtLandmark) {
-            const neededSec = (cumulativeDelay / 1000) + 2.8;
+            const neededSec = (cumulativeDelay / 1000) + 2.2;
             if (stopTimer < neededSec) {
                 stopTimer = neededSec;
                 stopTotalDuration = Math.max(stopTotalDuration, stopTimer);
@@ -3368,6 +3372,20 @@
         focusLandmark,
         cheerEveryone,
         toggleAutoRotate,
-        toggleSnow
+        toggleSnow,
+        debug: {
+            getRouteProgress: () => routeProgress,
+            getStopTimer: () => stopTimer,
+            isStopped: () => isStoppedAtLandmark,
+            getCurrentLandmark: () => currentLandmark ? currentLandmark.id : null,
+            getVisitedLandmarks: () => Array.from(visitedLandmarksInLap),
+            getDriveCooldown: () => driveCooldown,
+            getTravelMode: () => travelMode,
+            getDialogBusyUntil: () => dialogBusyUntilMs,
+            getPerformanceNow: () => performance.now(),
+            getActiveSpeaker: () => activeSpeaker,
+            getHasPlayedDepCall: () => hasPlayedSpotDepartureCall,
+            getSpokenRoles: () => Array.from(spokenRolesInCurrentSpot)
+        }
     };
 })();
