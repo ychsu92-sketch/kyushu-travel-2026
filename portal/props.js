@@ -408,17 +408,25 @@
 
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.32, 6), trunkMat);
         trunk.position.y = 0.16;
+        g.add(trunk);
+
+        // 建立微風搖擺樹冠群組 (foliageGroup，支點位於樹幹頂端 y = 0.24)
+        const foliageGroup = new THREE.Group();
+        foliageGroup.position.y = 0.24;
+
         const foliage1 = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.46, 7), pineMat);
-        foliage1.position.y = 0.42;
+        foliage1.position.y = 0.18;
         const foliage2 = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.38, 7), pineMat);
-        foliage2.position.y = 0.66;
-        g.add(trunk, foliage1, foliage2);
+        foliage2.position.y = 0.42;
+        foliageGroup.add(foliage1, foliage2);
 
         if (!isGinkgo) {
             const snowCap = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.24, 7), snowMat);
-            snowCap.position.y = 0.78;
-            g.add(snowCap);
+            snowCap.position.y = 0.54;
+            foliageGroup.add(snowCap);
         }
+        g.add(foliageGroup);
+        g.userData.foliageGroup = foliageGroup;
 
         if (variant !== 'tree_only') {
             const smBottom = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 10), snowMat);
@@ -640,6 +648,7 @@
         const roundSign = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.02, 16), signMat);
         roundSign.rotation.x = Math.PI / 2;
         roundSign.position.set(0.32, 0.46, 0.06);
+        g.userData.roundSign = roundSign;
         const innerDot = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.025, 12), textMat);
         innerDot.rotation.x = Math.PI / 2;
         innerDot.position.set(0.32, 0.46, 0.06);
@@ -1092,13 +1101,17 @@
             [-4.08, -8.16, 0.80, 'tree_only'],[-3.72, -3.12, 0.80, 'ginkgo'],[-4.32, 0.72,  0.80, 'tree_only'],
             [-3.96, 4.80,  0.80, 'snow'],   [-4.68, 7.20,  0.80, 'ginkgo'], [-2.04, -12.48, 0.80, 'snow']
         ];
+        const trees = [];
         treeCoords.forEach((tc, idx) => {
             const pos = nudgeOffRoadAndLandmarks(tc[0], tc[1], 0.90, 0.95);
             const t = buildP09_WinterPineAndSnowman(tc[3]);
             t.scale.setScalar(1.05 + (idx % 3) * 0.22);
             t.position.set(pos.x, pos.y, pos.z);
             t.rotation.y = idx * 1.1;
+            t.userData.windPhase = idx * 0.73;
             propsGroup.add(t);
+            trees.push(t);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.38 });
         });
 
         parent.add(propsGroup);
@@ -1137,6 +1150,7 @@
             { x: -3.84, z: 7.92,   rot: -0.3 }, // 鹿兒島北側山道站
             { x: -0.96, z: -4.32,  rot: 0.2 }   // 球磨川沿岸站
         ];
+        const busStops = [];
         busStopCoords.forEach(bc => {
             const pos = nudgeOffRoadAndLandmarks(bc.x, bc.z, 0.88, 0.92);
             const bs = buildP16_BusStop();
@@ -1144,6 +1158,7 @@
             bs.position.set(pos.x, pos.y, pos.z);
             bs.rotation.y = bc.rot;
             propsGroup.add(bs);
+            busStops.push(bs);
             sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.42 });
         });
 
@@ -1232,7 +1247,7 @@
 
         window.KyushuIsland.Obstacles = sceneObstacles;
 
-        return { propsGroup, minivan, tram, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, sampleGroundY: getGroundY };
+        return { propsGroup, minivan, tram, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, trees, busStops, sampleGroundY: getGroundY };
     }
 
     function updatePropsAnimation(propState, tramCurve, elapsed) {
@@ -1319,6 +1334,29 @@
                 boat.position.y = -0.06 + Math.sin(phase) * 0.025;
                 boat.rotation.z = Math.sin(phase * 0.8) * 0.05;
                 boat.rotation.x = Math.cos(phase * 0.9) * 0.035;
+            });
+        }
+
+        // 8. 全島 92 棵覆雪杉木與銀杏樹隨冬日微風自然輕柔搖擺 (Winter Wind Tree Sway)
+        if (propState.trees) {
+            propState.trees.forEach(t => {
+                const phase = elapsed * 1.55 + (t.userData.windPhase || 0);
+                const gust = Math.sin(elapsed * 0.42 + (t.userData.windPhase || 0) * 0.5) * 0.25 + 0.75;
+                if (t.userData.foliageGroup) {
+                    t.userData.foliageGroup.rotation.z = Math.sin(phase) * (0.048 * gust);
+                    t.userData.foliageGroup.rotation.x = Math.cos(phase * 0.82) * (0.032 * gust);
+                } else {
+                    t.rotation.z = Math.sin(phase) * (0.032 * gust);
+                }
+            });
+        }
+
+        // 9. 鄉間巴士站圓形站牌微風輕擺
+        if (propState.busStops) {
+            propState.busStops.forEach((bs, idx) => {
+                if (bs.userData.roundSign) {
+                    bs.userData.roundSign.rotation.z = Math.sin(elapsed * 2.2 + idx * 0.8) * 0.045;
+                }
             });
         }
     }

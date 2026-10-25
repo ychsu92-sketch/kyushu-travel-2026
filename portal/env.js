@@ -40,17 +40,17 @@
     }
 
     function setupWinterLights(scene) {
-        // 1. 柔和冬季環境光 (自然溫潤、不灰暗也不過曝)
-        const ambient = new THREE.AmbientLight(0xfff5eb, 0.56);
+        // 1. 柔和冬季環境光 (自然溫潤、明暗對比適度提升)
+        const ambient = new THREE.AmbientLight(0xfff7ed, 0.52);
         scene.add(ambient);
 
-        // 2. 天空與大地半球反射光
-        const hemiLight = new THREE.HemisphereLight(0xd6e6f5, 0xc9b9a3, 0.44);
+        // 2. 天空與大地半球反射光 (清透天藍與溫暖大地)
+        const hemiLight = new THREE.HemisphereLight(0xd0e6ff, 0xc7b299, 0.46);
         hemiLight.position.set(0, 35, 0);
         scene.add(hemiLight);
 
-        // 3. 12 月冬季低角度暖陽 (產生柔和長陰影，色澤溫暖清透)
-        const sunLight = new THREE.DirectionalLight(0xffdeb8, 1.00);
+        // 3. 12 月冬季低角度暖金陽光 (光影立體感微幅提升，色澤溫暖清透)
+        const sunLight = new THREE.DirectionalLight(0xffe2bf, 1.10);
         sunLight.position.set(26, 22, 18);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
@@ -65,8 +65,8 @@
         sunLight.shadow.bias = -0.0006;
         scene.add(sunLight);
 
-        // 4. 背光側暖色補光，避免暗部死黑
-        const fillLight = new THREE.DirectionalLight(0xb8c4d9, 0.25);
+        // 4. 背光側清透天光補光，加強陰影層次與通透感
+        const fillLight = new THREE.DirectionalLight(0xb8d4f0, 0.28);
         fillLight.position.set(-22, 14, -18);
         scene.add(fillLight);
 

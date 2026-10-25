@@ -1702,8 +1702,8 @@
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.00;
-        renderer.domElement.style.filter = 'saturate(1.16) brightness(1.01) contrast(1.01)';
+        renderer.toneMappingExposure = 1.02;
+        renderer.domElement.style.filter = 'saturate(1.22) brightness(1.02) contrast(1.02)';
         container.appendChild(renderer.domElement);
 
         // 3. OrbitControls 鏡頭控制 (支援旋轉、縮放與全方向畫面拖曳平移 Panning)
