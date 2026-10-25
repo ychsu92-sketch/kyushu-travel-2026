@@ -767,10 +767,48 @@
         ]
 ];
 
-    let banterIdx = Math.floor(Math.random() * FAMILY_BANTER_SCRIPTS.length);
     let banterTimers = [];
     let dialogBusyUntilMs = 0;       // 追蹤目前對話（含多句碎嘴佇列）預計完全讀完的時間戳
     let spotArrivalQueueTimer = null; // 若進站時前一段突發對話還剩一點點，排程接續播放景點台詞
+    let lastSpeakerRole = null;       // 追蹤上一位開口的角色，避免單人發言時同個人連續獨白
+
+    // 智慧隨機對話調度器（Smart Random Non-repeating History Controller）
+    const recentScriptHistories = {
+        family: [],
+        inCar: [],
+        walk: [],
+        straggler: { achun: [], alu: [], ayee: [], yijhang: [] },
+        soloQuotes: { achun: [], yijhang: [], ayee: [], alu: [] }
+    };
+
+    function pickRandomNonRepeating(pool, historyArray, maxHistory = 4) {
+        if (!pool || !pool.length) return null;
+        if (pool.length === 1) return pool[0];
+        const maxKeep = Math.min(maxHistory, pool.length - 1);
+        let candidates = [];
+        for (let i = 0; i < pool.length; i++) {
+            if (!historyArray.includes(i)) candidates.push(i);
+        }
+        if (candidates.length === 0) {
+            historyArray.length = 0;
+            for (let i = 0; i < pool.length; i++) candidates.push(i);
+        }
+        const pickedIdx = candidates[Math.floor(Math.random() * candidates.length)];
+        historyArray.push(pickedIdx);
+        if (historyArray.length > maxKeep) {
+            historyArray.shift();
+        }
+        return pool[pickedIdx];
+    }
+
+    function pickRandomSpeaker(excludeLast = true) {
+        const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+        let available = (excludeLast && lastSpeakerRole) ? roles.filter(r => r !== lastSpeakerRole) : roles.slice();
+        if (!available.length) available = roles.slice();
+        const chosen = available[Math.floor(Math.random() * available.length)];
+        lastSpeakerRole = chosen;
+        return chosen;
+    }
 
     // 車廂內行駛時的精簡高頻率碎嘴劇本（2～3 句短對話）
     const IN_CAR_BANTER_SCRIPTS = [
@@ -1542,9 +1580,8 @@
         const list = STRAGGLER_BANTER_SCRIPTS[role];
         if (!list || !list.length) return null;
         if (!Array.isArray(list[0])) return list;
-        const idx = (stragglerScriptIdx[role] || 0) % list.length;
-        stragglerScriptIdx[role] = idx + 1;
-        return list[idx];
+        const history = recentScriptHistories.straggler[role] || (recentScriptHistories.straggler[role] = []);
+        return pickRandomNonRepeating(list, history, Math.max(1, list.length - 1));
     }
 
     // 全家下車散步賞景時的精簡碎嘴劇本群（多款情境輪播）
@@ -1690,12 +1727,8 @@
                 }
         ]
 ];
-    let walkScriptIdx = Math.floor(Math.random() * WALK_TOGETHER_BANTER_SCRIPTS.length);
-
     function pickWalkTogetherScript() {
-        const s = WALK_TOGETHER_BANTER_SCRIPTS[walkScriptIdx % WALK_TOGETHER_BANTER_SCRIPTS.length];
-        walkScriptIdx++;
-        return s;
+        return pickRandomNonRepeating(WALK_TOGETHER_BANTER_SCRIPTS, recentScriptHistories.walk, 5);
     }
 
     async function loadJsonData(url, inlineKey) {
@@ -1811,35 +1844,40 @@
         renderer.domElement.addEventListener('pointerdown', e => onPointerDown(e, routeData));
         window.addEventListener('resize', () => onResize(container));
 
-        // 啟動高頻率短句對話與角色間互相吐槽輪播（留足閱讀時間且不與下一站對話衝突）
-        let roleIdx = 0;
-        let cycleCount = 0;
-        setInterval(() => {
-            if (isStoppedAtLandmark) return;
-            const now = performance.now();
-            if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 320) {
-                // 檢查距離下一個尚未停靠的景點是否還有足夠行車距離，避免剛開講就進站
-                if (terrainState && terrainState.roadCurve) {
-                    const vp = terrainState.roadCurve.getPointAt(routeProgress);
-                    let minUnvisitedD = 999;
-                    routeData.landmarks.forEach(lm => {
-                        if (!visitedLandmarksInLap.has(lm.id)) {
-                            const d = Math.hypot(vp.x - lm.x, vp.z - lm.z);
-                            if (d < minUnvisitedD) minUnvisitedD = d;
+        // 啟動高隨機性生活碎嘴對話（打破固定順序與頻率，自然有機隨機輪播）
+        function scheduleNextDialogue() {
+            setTimeout(() => {
+                if (!isStoppedAtLandmark) {
+                    const now = performance.now();
+                    if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 320) {
+                        // 檢查距離下一個尚未停靠的景點是否還有足夠行車距離，避免剛開講就進站
+                        let canSpeak = true;
+                        if (terrainState && terrainState.roadCurve) {
+                            const vp = terrainState.roadCurve.getPointAt(routeProgress);
+                            let minUnvisitedD = 999;
+                            routeData.landmarks.forEach(lm => {
+                                if (!visitedLandmarksInLap.has(lm.id)) {
+                                    const d = Math.hypot(vp.x - lm.x, vp.z - lm.z);
+                                    if (d < minUnvisitedD) minUnvisitedD = d;
+                                }
+                            });
+                            if (minUnvisitedD < 1.25) canSpeak = false;
                         }
-                    });
-                    if (minUnvisitedD < 1.25) return;
+                        if (canSpeak) {
+                            // 動態隨機決定：62% 多人吐槽小劇場、38% 隨機單人突發隨想
+                            if (Math.random() < 0.62) {
+                                triggerFamilyBanter();
+                            } else {
+                                const role = pickRandomSpeaker(true);
+                                triggerCharacterSpeak(role);
+                            }
+                        }
+                    }
                 }
-                cycleCount++;
-                if (cycleCount % 2 === 1) {
-                    triggerFamilyBanter();
-                } else {
-                    const roles = ['achun', 'yijhang', 'ayee', 'alu'];
-                    roleIdx = (roleIdx + 1) % roles.length;
-                    triggerCharacterSpeak(roles[roleIdx]);
-                }
-            }
-        }, 2200);
+                scheduleNextDialogue();
+            }, 1800 + Math.floor(Math.random() * 1400)); // 隨機間隔 1.8s ~ 3.2s，打破固定節拍感
+        }
+        scheduleNextDialogue();
 
         // 啟動渲染迴圈
         function loop() {
@@ -1882,10 +1920,9 @@
                     travelMode = 'all_aboard';
                     stragglerRole = null;
                     const carScript = (Math.random() < 0.75)
-                        ? IN_CAR_BANTER_SCRIPTS[banterIdx % IN_CAR_BANTER_SCRIPTS.length]
-                        : FAMILY_BANTER_SCRIPTS[banterIdx % FAMILY_BANTER_SCRIPTS.length];
-                    banterIdx++;
-                    triggerCustomBanterScript(carScript, false);
+                        ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                        : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                    if (carScript) triggerCustomBanterScript(carScript, false);
                 } else if (roll < 0.86) {
                     const candidates = ['achun', 'achun', 'alu', 'ayee']; // 提高阿純開飛碟追車的出現比重
                     stragglerRole = candidates[Math.floor(Math.random() * candidates.length)];
@@ -2037,9 +2074,10 @@
             // 若還有剩餘閱讀時間，先讓當前對話完整讀完（絕不腰斬！），再無縫接續播放本景點專屬台詞，並把停留秒數自動延長！
             const nowMs = performance.now();
             const remainTransitMs = Math.max(0, dialogBusyUntilMs - nowMs);
-            const roles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
-            const pickCount = (remainTransitMs > 800) ? 1 : 2;
-            const spotScript = roles.slice(0, pickCount).map(r => ({
+            const rollCount = Math.random();
+            const pickCount = (remainTransitMs > 800) ? 1 : (rollCount < 0.22 ? 1 : (rollCount < 0.72 ? 2 : 3));
+            const shuffledRoles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
+            const spotScript = shuffledRoles.slice(0, pickCount).map(r => ({
                 role: r,
                 text: (nearest.dialogs && nearest.dialogs[r]) ? nearest.dialogs[r] : nearest.desc
             }));
@@ -2453,11 +2491,13 @@
         dialogBusyUntilMs = performance.now() + cumulativeDelay - 280;
     }
 
-    // 抵達景點下車時，觸發該景點專屬的 2 人接力感言
+    // 抵達景點下車時，觸發該景點專屬的接力感言 (1~3人隨機洗牌，發言順序全隨機)
     function triggerLandmarkArrivalDialog(lm) {
         if (lm && lm.dialogs) {
-            const roles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
-            const picked = roles.slice(0, 2);
+            const shuffledRoles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
+            const rollCount = Math.random();
+            const pickCount = (rollCount < 0.22) ? 1 : (rollCount < 0.72 ? 2 : 3);
+            const picked = shuffledRoles.slice(0, pickCount);
             const spotScript = picked
                 .filter(r => lm.dialogs[r])
                 .map(r => ({ role: r, text: lm.dialogs[r] }));
@@ -2469,23 +2509,37 @@
         triggerFamilyBanter();
     }
 
-    // 觸發一段角色間互相吐槽與接話的碎嘴小劇場 (根據目前是否在車上/追車/散步自動切換最適合的劇本)
+    // 觸發一段角色間互相吐槽與接話的碎嘴小劇場 (根據目前狀態智慧無重複隨機輪播)
     function triggerFamilyBanter() {
         if (!isStoppedAtLandmark) {
             if (travelMode.startsWith('straggler_') && stragglerRole && STRAGGLER_BANTER_SCRIPTS[stragglerRole]) {
-                triggerCustomBanterScript(pickStragglerScript(stragglerRole), false);
-                return;
+                const s = pickStragglerScript(stragglerRole);
+                if (s) {
+                    triggerCustomBanterScript(s, false);
+                    return;
+                }
             }
-            if (travelMode === 'all_aboard' && Math.random() < 0.65) {
-                const carScript = IN_CAR_BANTER_SCRIPTS[banterIdx % IN_CAR_BANTER_SCRIPTS.length];
-                banterIdx++;
-                triggerCustomBanterScript(carScript, false);
-                return;
+            if (travelMode === 'all_aboard') {
+                const carScript = (Math.random() < 0.75)
+                    ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                    : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                if (carScript) {
+                    triggerCustomBanterScript(carScript, false);
+                    return;
+                }
+            }
+            if (travelMode === 'everyone_walk') {
+                const walkScript = pickWalkTogetherScript();
+                if (walkScript) {
+                    triggerCustomBanterScript(walkScript, false);
+                    return;
+                }
             }
         }
-        const script = FAMILY_BANTER_SCRIPTS[banterIdx % FAMILY_BANTER_SCRIPTS.length];
-        banterIdx = (banterIdx + 1) % FAMILY_BANTER_SCRIPTS.length;
-        triggerCustomBanterScript(script, false);
+        const script = pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+        if (script) {
+            triggerCustomBanterScript(script, false);
+        }
     }
 
     function triggerCharacterSpeak(role, customText, fromBanter, isSpotDialog) {
@@ -2512,7 +2566,8 @@
         }
         if (!text) {
             const pool = FALLBACK_QUOTES[role] || FALLBACK_QUOTES.achun;
-            text = pool[Math.floor(Math.random() * pool.length)];
+            const history = recentScriptHistories.soloQuotes[role] || (recentScriptHistories.soloQuotes[role] = []);
+            text = pickRandomNonRepeating(pool, history, 4);
         }
 
         const bubble = document.getElementById('char-speech-bubble');
@@ -3156,7 +3211,8 @@
             if (controls) {
                 controls.target.set(info.x, 0.8, info.z);
             }
-            triggerCharacterSpeak('achun', info.dialogs ? info.dialogs.achun : info.desc);
+            const randRole = pickRandomSpeaker(false);
+            triggerCharacterSpeak(randRole, (info.dialogs && info.dialogs[randRole]) ? info.dialogs[randRole] : info.desc);
         }
     }
 
