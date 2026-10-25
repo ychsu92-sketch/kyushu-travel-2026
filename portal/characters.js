@@ -640,31 +640,39 @@
         blushR.position.set(0.15, -0.04, 0.25);
         blushR.rotation.y = 0.35;
 
-        // 優雅溫婉捲髮造型（後頭部包覆與兩側蓬鬆波浪，完全露出臉蛋，笑眼與腮紅清爽呈現，絕不長在頭髮上！）
+        // 優雅溫婉深棕秀髮基底（完美對稱包覆後腦、兩側太陽穴與頭頂，徹底告別禿頭空洞！）
+        // 正臉朝向 +Z (phi = 0.50pi)，臉頰開口從 0.33pi 到 0.67pi (寬度 0.34pi，完整露出和藹笑眼與腮紅)
+        // 秀髮從 0.67pi 經後腦 (1.50pi) 環繞至 0.33pi (總長 1.66pi)，左右嚴格對稱！
         const hairBase = new THREE.Mesh(
-            new THREE.SphereGeometry(0.292, 14, 10, Math.PI * 0.28, Math.PI * 1.44, 0, Math.PI * 0.72),
+            new THREE.SphereGeometry(0.292, 18, 14, Math.PI * 0.67, Math.PI * 1.66, 0, Math.PI * 0.82),
             hairMat
         );
-        hairBase.position.set(0, 0.01, -0.04);
+        hairBase.position.set(0, 0.01, 0);
 
-        // 溫柔側旁分瀏海（位於額頭頂部 y = 0.14~0.18，完全在笑眼上方）
+        // 溫柔側旁分齊瀏海（位於高額頭頂部 y = 0.15~0.19，自然弧度覆蓋額骨，完全在笑眼 y = 0.02 上方）
         const ayeeBangs = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.285, 0.29, 0.07, 10, 1, false, Math.PI * 0.72, Math.PI * 0.55),
+            new THREE.CylinderGeometry(0.288, 0.292, 0.065, 12, 1, false, Math.PI * 0.33, Math.PI * 0.34),
             hairMat
         );
-        ayeeBangs.position.set(0, 0.14, 0.03);
-        ayeeBangs.rotation.x = 0.15;
+        ayeeBangs.position.set(0, 0.15, 0.02);
+        ayeeBangs.rotation.x = 0.12;
 
         headGroup.add(head, eyeL, eyeR, blushL, blushR, hairBase, ayeeBangs);
 
-        // 兩側與後方的蓬鬆髮捲（嚴格分佈於頭部兩側與後頸，不壓迫眼臉）
+        // 兩側與後方的蓬鬆優雅貴婦髮捲（對稱分佈於左右兩側耳際、頭頂與後頸，層次豐盈飽滿）
         const curlPositions = [
-            [-0.22, 0.10, 0.02], [0.22, 0.10, 0.02],
-            [-0.25, -0.04, -0.06], [0.25, -0.04, -0.06],
-            [0, 0.24, -0.10], [-0.15, 0.21, -0.02], [0.15, 0.21, -0.02]
+            // 左右兩側耳際與臉頰旁豐盈波浪捲
+            [-0.22, 0.08, 0.06], [0.22, 0.08, 0.06],
+            [-0.24, -0.04, -0.02], [0.24, -0.04, -0.02],
+            // 頭頂蓬鬆微捲（銜接兩側與頭頂輪廓）
+            [-0.14, 0.21, 0.02], [0.14, 0.21, 0.02],
+            [0, 0.24, -0.05],
+            // 後腦勺與後頸優雅捲髮收口
+            [-0.15, 0.05, -0.16], [0.15, 0.05, -0.16],
+            [0, -0.08, -0.18]
         ];
         curlPositions.forEach(p => {
-            const c = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), hairMat);
+            const c = new THREE.Mesh(new THREE.SphereGeometry(0.088, 8, 8), hairMat);
             c.position.set(p[0], p[1], p[2]);
             headGroup.add(c);
         });
