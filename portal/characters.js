@@ -1240,8 +1240,8 @@
             }
 
             if (ud.role === 'achun') {
-                // 阿純景點動作配件：只有在完全就座定點打紀錄時 (isSpotBusy 且非 moving)，才展開木質露營桌與折疊椅！
-                const shouldShowDesk = !!(ud.isSpotBusy && !moving);
+                // 阿純景點動作配件：只有在完全就座定點打紀錄時 (isSpotBusy 且非行走 moving)，才展開木質露營桌與折疊椅！
+                const shouldShowDesk = !!(ud.isSpotBusy && !isWalking);
                 if (ud.campingDeskGroup) {
                     if (shouldShowDesk) {
                         ud.deskScale = Math.min(1.0, (ud.deskScale || 0) + delta * 4.0);
@@ -1336,8 +1336,8 @@
             } else if (ud.role === 'ayee') {
                 // 阿姨在景點中是大範圍散步採買逛街的美食評鑑官，絕不帶著野餐墊移動！
                 if (ud.picnicMatGroup) {
-                    // 漫步走動時 (moving 或非靜止 busy) 嚴格隱藏收納野餐墊
-                    const shouldShowMat = ud.isSpotBusy && !moving;
+                    // 漫步走動時 (行走 isWalking 或非靜止 busy) 嚴格隱藏收納野餐墊
+                    const shouldShowMat = !!(ud.isSpotBusy && !isWalking);
                     if (shouldShowMat) {
                         ud.matScale = Math.min(1.0, (ud.matScale || 0) + delta * 4.0);
                         ud.picnicMatGroup.visible = true;
