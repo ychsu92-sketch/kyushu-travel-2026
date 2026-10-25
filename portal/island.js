@@ -2616,16 +2616,33 @@
                     spotAnchorZ = lz + ((currentLandmark.id === 'aso_crater') ? 0.36 * sc : 0.25 * sc);
                     spotAnchorY = ly + ((currentLandmark.id === 'aso_crater') ? 1.18 * sc : 0.76 * sc);
                 } else {
-                    // 大幅擴增下車自由漫步範圍（半徑擴大至 2.2~3.8 米，自由舒展，極具探險旅行感！）
+                    // 適度擴展下車漫步範圍（半徑 1.8~2.5 米，既具探索感又保證安全在觀景台/路旁平臺內）
                     const roamAnchorsLocal = [
-                        { x: -2.35, z: 2.10 }, // 阿純：在開闊草地展開小木桌打病歷
-                        { x:  1.65, z: 1.50 }, // 姨丈：在路旁觀景避車彎靠著護欄玩手遊
-                        { x: -0.85, z: 3.20 }, // 阿姨：走進景觀前沿開心採買與拍照
-                        { x:  2.40, z: 3.50 }  // 阿嚕：跑到最前緣高點架相機取景
+                        { x: -1.75, z: 1.45 }, // 阿純：在開闊草地展開小木桌打病歷
+                        { x:  1.35, z: 1.15 }, // 姨丈：在路旁觀景避車彎靠著護欄玩手遊
+                        { x: -0.65, z: 2.05 }, // 阿姨：走進景觀前沿開心採買與拍照
+                        { x:  1.60, z: 2.20 }  // 阿嚕：跑到最前緣高點架相機取景
                     ];
                     const ra = roamAnchorsLocal[idx];
                     spotAnchorX = vanPos.x + (ra.x * cosA + ra.z * sinA);
                     spotAnchorZ = vanPos.z + (-ra.x * sinA + ra.z * cosA);
+
+                    // 景點錨點安全性初篩：若錨點已經超出海岸線，沿射線平滑收縮至陸地內
+                    if (mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
+                        const isInsideSafe = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
+                        if (!isInsideSafe(spotAnchorX, spotAnchorZ)) {
+                            let safeT = 0.0;
+                            for (let step = 1; step <= 8; step++) {
+                                const testT = safeT + (1.0 - safeT) * 0.5;
+                                const tx = doorSideX + (spotAnchorX - doorSideX) * testT;
+                                const tz = doorSideZ + (spotAnchorZ - doorSideZ) * testT;
+                                if (isInsideSafe(tx, tz)) safeT = testT;
+                            }
+                            safeT = Math.max(0.10, safeT - 0.08);
+                            spotAnchorX = doorSideX + (spotAnchorX - doorSideX) * safeT;
+                            spotAnchorZ = doorSideZ + (spotAnchorZ - doorSideZ) * safeT;
+                        }
+                    }
                     spotAnchorY = Math.max(doorSideY, getGroundY(spotAnchorX, spotAnchorZ) + 0.05);
                 }
 
@@ -2692,23 +2709,20 @@
 
             // 嚴格陸地邊界防跌落安全錨定（Coastline Safety Clamping）
             // 解決 1: 鵜戶神宮等靠海狹長景點人物走出陸地掉進海裡
-            // 解決 2: 走出陸地後因高度取樣錯誤導致在空中懸空飄浮
+            // 解決 2: 避免大倍率階躍造成的邊界來回抽搐震顫
             if (isStoppedAtLandmark && !isSummitSpot && mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
                 const isInside = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
                 if (!isInside(cx, cz)) {
-                    // 朝向小巴停車位置（100% 在安全道路陸地）內縮二分法拉回陸地
-                    let safeT = 0.0; // 0 = vanPos, 1 = (cx, cz)
-                    for (let step = 1; step <= 8; step++) {
+                    let safeT = 0.0;
+                    for (let step = 1; step <= 10; step++) {
                         const testT = safeT + (1.0 - safeT) * 0.5;
-                        const tx = vanPos.x + (cx - vanPos.x) * testT;
-                        const tz = vanPos.z + (cz - vanPos.z) * testT;
-                        if (isInside(tx, tz)) {
-                            safeT = testT;
-                        }
+                        const tx = doorSideX + (cx - doorSideX) * testT;
+                        const tz = doorSideZ + (cz - doorSideZ) * testT;
+                        if (isInside(tx, tz)) safeT = testT;
                     }
-                    safeT = Math.max(0.15, safeT * 0.90); // 留出 10% 岸邊緩衝安全餘裕
-                    cx = vanPos.x + (cx - vanPos.x) * safeT;
-                    cz = vanPos.z + (cz - vanPos.z) * safeT;
+                    safeT = Math.max(0.05, safeT - 0.03); // 平滑拉回陸地邊界，保留充足安全餘裕
+                    cx = doorSideX + (cx - doorSideX) * safeT;
+                    cz = doorSideZ + (cz - doorSideZ) * safeT;
                 }
             }
 
@@ -2834,66 +2848,107 @@
                     }
                 });
             }
+
+            // 確保避讓後的最終座標依然不越過陸地邊界，消除障礙物與海岸線邊界互推震盪
+            if (isStoppedAtLandmark && mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
+                const isInside = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
+                outsideChars.forEach(c => {
+                    if (c.isSummitSpot) return;
+                    if (!isInside(c.cx, c.cz)) {
+                        let safeT = 0.0;
+                        for (let step = 1; step <= 8; step++) {
+                            const testT = safeT + (1.0 - safeT) * 0.5;
+                            const tx = doorSideX + (c.cx - doorSideX) * testT;
+                            const tz = doorSideZ + (c.cz - doorSideZ) * testT;
+                            if (isInside(tx, tz)) safeT = testT;
+                        }
+                        safeT = Math.max(0.05, safeT - 0.03);
+                        c.cx = doorSideX + (c.cx - doorSideX) * safeT;
+                        c.cz = doorSideZ + (c.cz - doorSideZ) * safeT;
+                    }
+                });
+            }
         }
 
-        // 第三階段：套用最終安全座標、平滑朝向、物理高度與專屬姿態動畫
+        // 第三階段：套用最終安全座標、平滑插值濾波、朝向阻尼、物理高度與專屬姿態動畫
         outsideChars.forEach(c => {
             const charGroup = c.charGroup;
             const prevX = (charGroup.userData.prevX !== undefined) ? charGroup.userData.prevX : c.cx;
             const prevZ = (charGroup.userData.prevZ !== undefined) ? charGroup.userData.prevZ : c.cz;
-            const vx = (c.cx - prevX) / Math.max(delta, 0.001);
-            const vz = (c.cz - prevZ) / Math.max(delta, 0.001);
+
+            // 平滑插值濾波 (Exponential Smoothing Filter) 徹底消除邊界與碰撞引發的微幅高頻顫抖 (Tremble/Jitter)
+            let finalX = c.cx;
+            let finalZ = c.cz;
+            const distFromPrev = Math.hypot(c.cx - prevX, c.cz - prevZ);
+            if (charGroup.userData.prevX !== undefined && distFromPrev < 1.0) {
+                const smoothAlpha = Math.min(1.0, delta * 15.0);
+                finalX = prevX + (c.cx - prevX) * smoothAlpha;
+                finalZ = prevZ + (c.cz - prevZ) * smoothAlpha;
+            }
+
+            const vx = (finalX - prevX) / Math.max(delta, 0.001);
+            const vz = (finalZ - prevZ) / Math.max(delta, 0.001);
             const moveSpd = Math.hypot(vx, vz);
-            let moving = moveSpd > 0.08;
+
+            // 具有滯後閾值 (Hysteresis) 的移動判定，杜絕狀態在邊界時快速反覆切換導致的配件閃爍
+            let moving = charGroup.userData.wasMoving ? (moveSpd > 0.04) : (moveSpd > 0.09);
+            charGroup.userData.wasMoving = moving;
 
             // 判定是否正處於景點專屬個性動作持續進行期 (已就位且尚未準備上車)
             const isInSpotActivity = c.isStoppedAtLandmark && (c.roamWeight >= 0.75) && (boardElapsed < 0);
+            const curYaw = charGroup.rotation.y || 0;
+            let targetYaw = curYaw;
+
             if (isInSpotActivity) {
                 // 阿純定點打字、姨丈定點玩試管；阿姨與阿嚕在景點大範圍漫步時保持靈活步伐動畫
                 if (c.role === 'achun') {
                     moving = false; // 確保阿純席地坐姿穩定不站起
-                    c.cRotY = vanAngle + 0.25;
+                    targetYaw = vanAngle + 0.25;
                 } else if (c.role === 'ayee' || c.role === 'alu') {
-                    moving = moveSpd > 0.05; // 景點大範圍隨意走動時自然邁步
-                    if (moving) {
-                        const targetYaw = Math.atan2(vx, vz);
-                        c.cRotY = targetYaw;
+                    if (moving && moveSpd > 0.12) {
+                        targetYaw = Math.atan2(vx, vz);
                     } else {
-                        c.cRotY = vanAngle + (c.idx - 1.5) * 0.40;
+                        targetYaw = vanAngle + (c.idx - 1.5) * 0.40;
                     }
                 } else {
-                    moving = moveSpd > 0.06;
-                    c.cRotY = vanAngle - 0.20;
+                    targetYaw = vanAngle - 0.20;
                 }
             } else if (c.isSpeakingNow && c.isStoppedAtLandmark) {
                 moving = false;
-                c.cRotY = Math.sin(elapsed * 0.9 + c.idx) * 0.25;
+                targetYaw = vanAngle + Math.sin(elapsed * 0.9 + c.idx) * 0.25;
             } else if (c.isStoppedAtLandmark) {
-                if (moving && moveSpd > 0.08) {
-                    const targetYaw = Math.atan2(vx, vz);
-                    const curYaw = charGroup.rotation.y || 0;
-                    let diff = targetYaw - curYaw;
-                    while (diff > Math.PI) diff -= Math.PI * 2;
-                    while (diff < -Math.PI) diff += Math.PI * 2;
-                    c.cRotY = curYaw + diff * Math.min(1.0, delta * 9.0);
+                if (moving && moveSpd > 0.12) {
+                    targetYaw = Math.atan2(vx, vz);
                 } else {
-                    c.cRotY = Math.sin(elapsed * 0.9 + c.idx) * 0.28;
+                    targetYaw = vanAngle + Math.sin(elapsed * 0.9 + c.idx) * 0.28;
                 }
+            } else {
+                targetYaw = c.cRotY;
             }
 
-            charGroup.position.x = c.cx;
-            charGroup.position.z = c.cz;
-            charGroup.rotation.y = c.cRotY;
-            charGroup.userData.prevX = c.cx;
-            charGroup.userData.prevZ = c.cz;
+            // 角度差最短路徑平滑插值 (Angular Lerp)，杜絕面朝方向 180 度來回抽搐翻轉 (Flapping)
+            let diff = targetYaw - curYaw;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            const finalRotY = curYaw + diff * Math.min(1.0, delta * 9.0);
 
-            const charOnFerry = (c.cx > -4.56 && c.cx < -3.12 && c.cz > 9.78 && c.cz < 10.62);
+            charGroup.position.x = finalX;
+            charGroup.position.z = finalZ;
+            charGroup.rotation.y = finalRotY;
+            charGroup.userData.prevX = finalX;
+            charGroup.userData.prevZ = finalZ;
+
+            const charOnFerry = (finalX > -4.56 && finalX < -3.12 && finalZ > 9.78 && finalZ < 10.62);
             // 嚴格貼地高度：在景點漫步時，以自身所在座標的地表高度 getGroundY 為準，徹底杜絕因為 vanGroundY 較高而飄浮在空中！
-            const actualGroundY = getGroundY(c.cx, c.cz) + 0.05;
+            const actualGroundY = getGroundY(finalX, finalZ) + 0.05;
             const rawCharY = c.isStoppedAtLandmark ? actualGroundY : Math.max(vanGroundY, actualGroundY);
-            charGroup.userData.baseY = charOnFerry
+            const targetBaseY = charOnFerry
                 ? 0.42
-                : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(c.cx, c.cz, rawCharY));
+                : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(finalX, finalZ, rawCharY));
+
+            // 高度亦進行阻尼平滑，杜絕地表高程微跳導致的垂直抖動與陰影閃爍
+            const prevBaseY = (charGroup.userData.baseY !== undefined) ? charGroup.userData.baseY : targetBaseY;
+            charGroup.userData.baseY = prevBaseY + (targetBaseY - prevBaseY) * Math.min(1.0, delta * 12.0);
 
             // 景點專屬個性動作標記：
             // 只要在移動邁步 (moving)，阿純與阿姨絕對不處於 busy 狀態，徹底杜絕帶著桌子或野餐墊走動！
@@ -3547,11 +3602,14 @@
             _reusableMarkerPos.y += cg.userData.isAboard ? 0.90 : 1.05;
             _reusableMarkerPos.project(camera);
 
-            if (_reusableMarkerPos.z > 1.0) {
-                if (el.style.display !== 'none') el.style.display = 'none';
+            // 視錐與相機前後平滑裁切（增加 0.02 滯後閾值，避免臨界點 display:none 與 flex 反覆頻繁震盪閃爍）
+            const isCurrentlyHidden = (el.style.display === 'none');
+            const shouldHide = isCurrentlyHidden ? (_reusableMarkerPos.z > 0.99) : (_reusableMarkerPos.z > 1.01);
+            if (shouldHide) {
+                if (!isCurrentlyHidden) el.style.display = 'none';
                 continue;
             }
-            if (el.style.display !== 'flex') el.style.display = 'flex';
+            if (isCurrentlyHidden) el.style.display = 'flex';
 
             const off = roleOffsets[role] || { dx: 0, dy: 0 };
             const x = (_reusableMarkerPos.x * 0.5 + 0.5) * w + off.dx;
