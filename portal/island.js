@@ -31,97 +31,157 @@
         ]
     };
 
-    // 煙火粒子特效系統 (Fireworks System)
-    const activeFireworks = [];
+    // 煙火粒子特效系統 (Pre-allocated Object Pool Fireworks System)
+    // 解決動態建立 BufferGeometry / Material 觸發 WebGL 著色器即時編譯與 GC 頓挫問題
+    const FIREWORK_POOL_SIZE = 8;
+    const FIREWORK_PCOUNT = 120;
     const FIREWORK_COLORS = [0xff3b30, 0xff9500, 0xffcc00, 0x34c759, 0x00c7be, 0x32ade6, 0x5856d6, 0xaf52de, 0xff2d55, 0xffffff];
+    let fireworksGroup = null;
+    const fireworkPool = [];
 
-    function launchFireworksFromCar(count = 3) {
+    function initFireworksPool(targetScene) {
+        if (fireworksGroup || !targetScene) return;
+        fireworksGroup = new THREE.Group();
+        fireworksGroup.name = 'fireworks_pool_group';
+
+        for (let i = 0; i < FIREWORK_POOL_SIZE; i++) {
+            const geom = new THREE.BufferGeometry();
+            const positions = new Float32Array(FIREWORK_PCOUNT * 3);
+            geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const mat = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.55,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 1.0,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const pSystem = new THREE.Points(geom, mat);
+            pSystem.frustumCulled = false; // 粒子動態散開時不需每幀重新計算包圍球，消除卡頓
+            pSystem.castShadow = false;
+            pSystem.receiveShadow = false;
+            pSystem.visible = false;
+
+            fireworksGroup.add(pSystem);
+
+            const velocities = [];
+            for (let k = 0; k < FIREWORK_PCOUNT; k++) {
+                velocities.push({ vx: 0, vy: 0, vz: 0 });
+            }
+
+            fireworkPool.push({
+                pSystem,
+                geom,
+                mat,
+                positions,
+                velocities,
+                active: false,
+                stage: 'launch',
+                age: 0,
+                maxAge: 1.85,
+                sx: 0, sy: 0, sz: 0,
+                explodeX: 0, explodeY: 0, explodeZ: 0
+            });
+        }
+
+        targetScene.add(fireworksGroup);
+    }
+
+    function spawnFirework(sx, sy, sz) {
+        if (!fireworkPool.length) return;
+
+        // 優先挑選非活躍槽位；若皆在播放中則複用存活時間最長的一發
+        let slot = null;
+        for (let i = 0; i < fireworkPool.length; i++) {
+            if (!fireworkPool[i].active) {
+                slot = fireworkPool[i];
+                break;
+            }
+        }
+        if (!slot) {
+            let maxAge = -1;
+            for (let i = 0; i < fireworkPool.length; i++) {
+                if (fireworkPool[i].age > maxAge) {
+                    maxAge = fireworkPool[i].age;
+                    slot = fireworkPool[i];
+                }
+            }
+        }
+        if (!slot) return;
+
+        const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+        slot.mat.color.setHex(color);
+        slot.mat.opacity = 1.0;
+        slot.mat.size = 0.55;
+
+        slot.sx = sx;
+        slot.sy = sy;
+        slot.sz = sz;
+        // 煙火爆發中心點（從車頂升空 2.2~3.6m 後在高空華麗炸開）
+        slot.explodeY = sy + 2.2 + Math.random() * 1.4;
+        slot.explodeX = sx + (Math.random() - 0.5) * 1.2;
+        slot.explodeZ = sz + (Math.random() - 0.5) * 1.2;
+
+        const posArr = slot.positions;
+        for (let i = 0; i < FIREWORK_PCOUNT; i++) {
+            posArr[i * 3 + 0] = sx;
+            posArr[i * 3 + 1] = sy;
+            posArr[i * 3 + 2] = sz;
+
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(Math.random() * 2 - 1);
+            const spd = 1.6 + Math.random() * 2.2;
+            slot.velocities[i].vx = Math.sin(phi) * Math.cos(theta) * spd;
+            slot.velocities[i].vy = Math.sin(phi) * Math.sin(theta) * spd + 1.2;
+            slot.velocities[i].vz = Math.cos(phi) * spd;
+        }
+
+        slot.geom.attributes.position.needsUpdate = true;
+        slot.stage = 'launch';
+        slot.age = 0;
+        slot.maxAge = 1.85;
+        slot.active = true;
+        slot.pSystem.visible = true;
+    }
+
+    function launchFireworksFromCar(count = 5) {
         if (!scene || !propState || !propState.minivan) return;
         const van = propState.minivan;
-        const startX = van.position.x;
-        const startY = van.position.y + 0.55;
-        const startZ = van.position.z;
 
         for (let i = 0; i < count; i++) {
             setTimeout(() => {
-                createSingleFirework(
+                if (!van) return;
+                // 即時依當前車體世界座標發射，小巴行駛中不移位
+                const startX = van.position.x;
+                const startY = van.position.y + 0.55;
+                const startZ = van.position.z;
+                spawnFirework(
                     startX + (Math.random() - 0.5) * 0.35,
                     startY,
                     startZ + (Math.random() - 0.5) * 0.35
                 );
-            }, i * 220);
+            }, i * 200);
         }
-    }
-
-    function createSingleFirework(sx, sy, sz) {
-        const pCount = 120;
-        const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
-        const geom = new THREE.BufferGeometry();
-        const positions = new Float32Array(pCount * 3);
-        const velocities = [];
-
-        // 煙火爆發中心點（從車頂升空 2.2~3.6m 後在高空華麗炸開，極度醒目！）
-        const explodeY = sy + 2.2 + Math.random() * 1.4;
-        const explodeX = sx + (Math.random() - 0.5) * 1.2;
-        const explodeZ = sz + (Math.random() - 0.5) * 1.2;
-
-        for (let i = 0; i < pCount; i++) {
-            positions[i * 3 + 0] = sx;
-            positions[i * 3 + 1] = sy;
-            positions[i * 3 + 2] = sz;
-
-            // 球狀向外擴散隨機向量
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(Math.random() * 2 - 1);
-            const spd = 1.6 + Math.random() * 2.2;
-            velocities.push({
-                vx: Math.sin(phi) * Math.cos(theta) * spd,
-                vy: Math.sin(phi) * Math.sin(theta) * spd + 1.2,
-                vz: Math.cos(phi) * spd
-            });
-        }
-        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const mat = new THREE.PointsMaterial({
-            color: color,
-            size: 0.55,
-            sizeAttenuation: true,
-            transparent: true,
-            opacity: 1.0,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-        });
-
-        const pSystem = new THREE.Points(geom, mat);
-        pSystem.castShadow = false;
-        pSystem.receiveShadow = false;
-        scene.add(pSystem);
-
-        activeFireworks.push({
-            pSystem,
-            velocities,
-            age: 0,
-            maxAge: 1.85,
-            sx, sy, sz,
-            explodeX, explodeY, explodeZ,
-            stage: 'launch' // 'launch' 升空 -> 'explode' 綻放
-        });
     }
 
     function updateFireworks(delta) {
-        if (!activeFireworks.length) return;
-        for (let i = activeFireworks.length - 1; i >= 0; i--) {
-            const fw = activeFireworks[i];
+        if (!fireworkPool.length) return;
+        for (let i = 0; i < fireworkPool.length; i++) {
+            const fw = fireworkPool[i];
+            if (!fw.active) continue;
+
             fw.age += delta;
-            const posAttr = fw.pSystem.geometry.attributes.position;
-            const arr = posAttr.array;
+            const arr = fw.positions;
 
             if (fw.stage === 'launch') {
                 const launchProg = Math.min(1.0, fw.age / 0.38);
                 const curY = fw.sy + (fw.explodeY - fw.sy) * launchProg;
                 const curX = fw.sx + (fw.explodeX - fw.sx) * launchProg;
                 const curZ = fw.sz + (fw.explodeZ - fw.sz) * launchProg;
-                for (let k = 0; k < arr.length / 3; k++) {
+                for (let k = 0; k < FIREWORK_PCOUNT; k++) {
                     arr[k * 3 + 0] = curX + (Math.random() - 0.5) * 0.04;
                     arr[k * 3 + 1] = curY + (Math.random() - 0.5) * 0.04;
                     arr[k * 3 + 2] = curZ + (Math.random() - 0.5) * 0.04;
@@ -132,9 +192,9 @@
                 }
             } else {
                 const expT = fw.age / fw.maxAge;
-                fw.pSystem.material.opacity = Math.max(0, 1.0 - expT * expT);
-                fw.pSystem.material.size = Math.max(0.12, 0.55 * (1.0 - expT * 0.5));
-                for (let k = 0; k < arr.length / 3; k++) {
+                fw.mat.opacity = Math.max(0, 1.0 - expT * expT);
+                fw.mat.size = Math.max(0.12, 0.55 * (1.0 - expT * 0.5));
+                for (let k = 0; k < FIREWORK_PCOUNT; k++) {
                     const v = fw.velocities[k];
                     arr[k * 3 + 0] += v.vx * delta;
                     arr[k * 3 + 1] += v.vy * delta;
@@ -144,13 +204,11 @@
                     v.vz *= 0.96;
                 }
             }
-            posAttr.needsUpdate = true;
+            fw.geom.attributes.position.needsUpdate = true;
 
             if (fw.stage === 'explode' && fw.age >= fw.maxAge) {
-                scene.remove(fw.pSystem);
-                fw.pSystem.geometry.dispose();
-                fw.pSystem.material.dispose();
-                activeFireworks.splice(i, 1);
+                fw.active = false;
+                fw.pSystem.visible = false;
             }
         }
     }
@@ -169,6 +227,7 @@
     let mainlandCoastPts = null;
     let isAutoRotate = true;
     let isSnowEnabled = true;
+    let canvasW = 800, canvasH = 520; // 尺寸快取，避免動畫迴圈觸發 DOM Forced Synchronous Reflow
 
     // 自駕與景點停留狀態機 + 動態上車/落單追車/全體散步隨機模式
     let routeProgress = 0; // 0.0 ~ 1.0
@@ -2057,6 +2116,9 @@
 
         // 1. 場景與相機 (配合 1.2x 地圖擴展適度拉遠初始鏡頭，涵蓋熊本機場北端與櫻島南端)
         scene = new THREE.Scene();
+        canvasW = w;
+        canvasH = h;
+        initFireworksPool(scene);
         camera = new THREE.PerspectiveCamera(35, w / h, 0.5, 280);
         camera.position.set(0, 19.8, 26.2);
 
@@ -2241,6 +2303,11 @@
             }, isStoppedAtLandmark ? (750 + Math.floor(Math.random() * 500)) : (1800 + Math.floor(Math.random() * 1400)));
         }
         scheduleNextDialogue();
+
+        // 預編譯場景內全部著色器（含地形、光影、角色與煙火粒子池），徹底消除首次互動時的 WebGL 著色器即時編譯頓挫
+        if (renderer && scene && camera) {
+            renderer.compile(scene, camera);
+        }
 
         // 啟動渲染迴圈
         function loop() {
@@ -3021,13 +3088,12 @@
         _tempBubblePos.y += 1.95;
         _tempBubblePos.project(camera);
 
-        const canvas = renderer.domElement;
-        const x = (_tempBubblePos.x * 0.5 + 0.5) * canvas.clientWidth;
-        const y = (-(_tempBubblePos.y * 0.5) + 0.5) * canvas.clientHeight;
+        const x = (_tempBubblePos.x * 0.5 + 0.5) * canvasW;
+        const y = (-(_tempBubblePos.y * 0.5) + 0.5) * canvasH;
 
-        const halfW = Math.min(136, canvas.clientWidth / 2 - 6);
-        const clampedX = Math.max(halfW, Math.min(canvas.clientWidth - halfW, x));
-        const clampedY = Math.max(85, Math.min(canvas.clientHeight - 35, y));
+        const halfW = Math.min(136, canvasW / 2 - 6);
+        const clampedX = Math.max(halfW, Math.min(canvasW - halfW, x));
+        const clampedY = Math.max(85, Math.min(canvasH - 35, y));
 
         bubble.style.left = `${clampedX}px`;
         bubble.style.top = `${clampedY}px`;
@@ -3445,9 +3511,8 @@
 
     function updateCharacterMarkersPosition() {
         if (!camera || !renderer) return;
-        const canvas = renderer.domElement;
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
+        const w = canvasW;
+        const h = canvasH;
         if (!w || !h) return;
 
         // 為了避免 4 人距離太近時頭頂指標完全重疊，根據角色索引給予微幅水平錯開與高度階層
@@ -3712,7 +3777,12 @@
         }
     }
 
+    let lastCheerTime = 0;
     function cheerEveryone() {
+        const now = performance.now();
+        if (now - lastCheerTime < 500) return; // 500ms 節流防抖，避免重複連擊造成並發堆疊卡頓
+        lastCheerTime = now;
+
         const roles = ['achun', 'yijhang', 'ayee', 'alu'];
         // 全體跳躍歡呼
         roles.forEach((r, idx) => {
@@ -3726,7 +3796,7 @@
             }, idx * 90);
         });
 
-        // 1. 車頂彩色煙火連續爆發！
+        // 1. 車頂彩色煙火連續爆發！(零GC、零著色器重編譯)
         launchFireworksFromCar(5);
 
         // 2. 隨機指定一人大聲講出專屬歡呼台詞
@@ -3762,9 +3832,11 @@
         if (!container || !camera || !renderer) return;
         const w = container.clientWidth;
         const h = container.clientHeight;
-        camera.aspect = w / h;
+        canvasW = w || 800;
+        canvasH = h || 520;
+        camera.aspect = canvasW / canvasH;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
+        renderer.setSize(canvasW, canvasH);
     }
 
     // 匯出全域控制函式供 HTML 按鈕呼叫
