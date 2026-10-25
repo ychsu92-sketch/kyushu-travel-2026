@@ -259,17 +259,93 @@
             tableGroup.add(leg);
         });
 
-        // 桌面配件 1: 銀色 MacBook 筆電 (發光天藍螢幕)
+        // 桌面配件 1: 銀色 MacBook 筆電 (螢幕轉軸位於遠端 +Z，螢幕與 SOAP 醫療病歷面板正面朝向阿純 -Z！)
         const laptop = new THREE.Group();
-        laptop.position.set(-0.16, 0.355, 0.02);
-        const lBase = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.012, 0.18), new THREE.MeshLambertMaterial({ color: 0x94a3b8 }));
-        const lScreen = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.16, 0.012), new THREE.MeshLambertMaterial({ color: 0x64748b }));
-        lScreen.position.set(0, 0.08, -0.09);
-        lScreen.rotation.x = 0.18;
-        const lDisplay = new THREE.Mesh(new THREE.PlaneGeometry(0.21, 0.13), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-        lDisplay.position.set(0, 0.08, -0.082);
-        lDisplay.rotation.x = 0.18;
-        laptop.add(lBase, lScreen, lDisplay);
+        laptop.position.set(-0.14, 0.353, -0.02);
+
+        // 機身底座 (精準貼合桌面，鍵盤靠向阿純側)
+        const lBase = new THREE.Mesh(
+            new THREE.BoxGeometry(0.25, 0.012, 0.18),
+            new THREE.MeshLambertMaterial({ color: 0xcbd5e1 })
+        );
+        lBase.position.set(0, 0.006, 0);
+
+        // 巧控鍵盤區 (黑色鍵帽凹槽，靠近阿純操作側 -Z)
+        const lKeyboard = new THREE.Mesh(
+            new THREE.BoxGeometry(0.21, 0.006, 0.095),
+            new THREE.MeshLambertMaterial({ color: 0x1e293b })
+        );
+        lKeyboard.position.set(0, 0.012, -0.005);
+
+        // 巧控觸控板 (最靠近阿純前端手腕處)
+        const lTrackpad = new THREE.Mesh(
+            new THREE.BoxGeometry(0.08, 0.004, 0.045),
+            new THREE.MeshLambertMaterial({ color: 0x94a3b8 })
+        );
+        lTrackpad.position.set(0, 0.012, -0.062);
+
+        laptop.add(lBase, lKeyboard, lTrackpad);
+
+        // 筆電螢幕轉軸組 (鉸鏈位於遠離阿純的遠端 +Z，掀開面向阿純視線)
+        const screenGroup = new THREE.Group();
+        screenGroup.position.set(0, 0.010, 0.082);
+        screenGroup.rotation.x = 0.28; // 向外微傾仰角，讓螢幕正面對準阿純視線
+
+        // 螢幕外殼背蓋 (銀灰外殼，朝向遠端桌外 +Z 方向)
+        const lLid = new THREE.Mesh(
+            new THREE.BoxGeometry(0.25, 0.165, 0.010),
+            new THREE.MeshLambertMaterial({ color: 0x64748b })
+        );
+        lLid.position.set(0, 0.0825, 0.005);
+
+        // 外殼 Apple 經典發光標誌 (朝向外部 +Z)
+        const appleLogo = new THREE.Mesh(
+            new THREE.CircleGeometry(0.018, 12),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        appleLogo.position.set(0, 0.085, 0.011);
+        screenGroup.add(lLid, appleLogo);
+
+        // 螢幕面板 (Display 面朝 -Z，正對阿純雙眼！)
+        const lDisplay = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.22, 0.135),
+            new THREE.MeshBasicMaterial({ color: 0x0f172a })
+        );
+        lDisplay.position.set(0, 0.0825, -0.001);
+        lDisplay.rotation.y = Math.PI; // 旋轉 180 度讓正面對準阿純
+        screenGroup.add(lDisplay);
+
+        // 物理治療 SOAP 系統 UI 面板 (正對阿純)
+        const uiHeader = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.19, 0.022),
+            new THREE.MeshBasicMaterial({ color: 0x0284c7 })
+        );
+        uiHeader.position.set(0, 0.130, -0.002);
+        uiHeader.rotation.y = Math.PI;
+
+        const uiVital = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.17, 0.016),
+            new THREE.MeshBasicMaterial({ color: 0x10b981 })
+        );
+        uiVital.position.set(-0.01, 0.096, -0.002);
+        uiVital.rotation.y = Math.PI;
+
+        const uiLine1 = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.14, 0.013),
+            new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+        );
+        uiLine1.position.set(-0.025, 0.068, -0.002);
+        uiLine1.rotation.y = Math.PI;
+
+        const uiLine2 = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.12, 0.013),
+            new THREE.MeshBasicMaterial({ color: 0xa855f7 })
+        );
+        uiLine2.position.set(-0.035, 0.044, -0.002);
+        uiLine2.rotation.y = Math.PI;
+
+        screenGroup.add(uiHeader, uiVital, uiLine1, uiLine2);
+        laptop.add(screenGroup);
         tableGroup.add(laptop);
 
         // 桌面配件 2: 外帶熱拿鐵 (牛皮紙隔熱套 + 黑色杯蓋)
@@ -319,6 +395,8 @@
             legL, legR, armL, armR, headGroup, torso,
             ufoGroup, ufoSpinRing, tractorBeam,
             campingDeskGroup,
+            laptopGroup,
+            cupGroup,
             deskScale: 0,
             eyes: [eyeL, eyeR],
             jumping: 0,
@@ -884,6 +962,9 @@
 
         if (ud.isUfoChasing && ud.ufoGroup) {
             // 阿純被落下車時：召喚並駕駛科幻飛碟 (UFO) 在後面高速懸浮追車！
+            if (ud.laptopGroup) ud.laptopGroup.visible = true;
+            if (ud.cupGroup) ud.cupGroup.visible = true;
+            if (ud.campingDeskGroup) ud.campingDeskGroup.visible = false;
             const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
             charGroup.position.y = baseY + 0.36 + Math.sin(elapsed * 7.5) * 0.08 + jumpOffset;
             if (ud.ufoSpinRing) ud.ufoSpinRing.rotation.y = elapsed * 6.5;
@@ -908,6 +989,9 @@
                 ud.armR.rotation.x = -1.05 - Math.sin(elapsed * 3.5) * 0.12;
                 ud.headGroup.rotation.y = Math.sin(elapsed * 1.6) * 0.18;
             } else if (ud.role === 'achun') {
+                if (ud.campingDeskGroup) ud.campingDeskGroup.visible = false;
+                if (ud.laptopGroup) ud.laptopGroup.visible = true;
+                if (ud.cupGroup) ud.cupGroup.visible = true;
                 // 阿純在車上：交替表現「把筆電放腿上狂打物理治療紀錄」與「打完字靠窗香甜度估睡覺」
                 if (activeQuirk === 1 || activeQuirk === 2 || activeQuirk === 4) {
                     ud.armL.rotation.x = -1.05;
@@ -1031,6 +1115,11 @@
                     }
                     ud.campingDeskGroup.scale.setScalar(ud.deskScale);
                 }
+
+                // 核心修復：當桌上有筆電時，手上不應同時拿著第二台筆電與外帶拿鐵杯！
+                const hasDesk = !!(ud.isSpotBusy || (ud.deskScale && ud.deskScale > 0.05));
+                if (ud.laptopGroup) ud.laptopGroup.visible = !hasDesk;
+                if (ud.cupGroup) ud.cupGroup.visible = !hasDesk;
 
                 if (ud.isSpotBusy) {
                     // 坐在露營休閒椅上（桌椅骨架垂直貼合地面 baseY 絕不穿模下陷，阿純骨盆準確落座帆布椅面）
