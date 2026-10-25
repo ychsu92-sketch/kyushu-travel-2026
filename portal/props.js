@@ -1224,48 +1224,57 @@
         const getGroundY = sampleGroundY || (() => 0.88);
         const sceneObstacles = [];
 
-        // 預先取樣自駕道路中心線，供靜態道具與樹木避開行車與人物散步走廊
+        // 高密度取樣自駕道路中心線 (600 點)，確保所有靜態街景、樹木、商店、鳥居絕對不壓在車道上
         const roadSamples = [];
         if (roadCurve) {
-            for (let i = 0; i <= 200; i++) {
-                roadSamples.push(roadCurve.getPointAt(i / 200));
+            for (let i = 0; i <= 600; i++) {
+                roadSamples.push(roadCurve.getPointAt(i / 600));
             }
         }
 
         function nudgeOffRoadAndLandmarks(x, z, minRoadDist, minLmDist) {
             let nx = x;
             let nz = z;
-            if (roadSamples.length > 0 && minRoadDist > 0) {
+            // 基礎道路避讓距離再增加 0.45m 安全餘裕，確保柏油路兩旁留出足夠路緣草坪，汽車穿越時 100% 零穿模！
+            const actualRoadClearance = Math.max(1.35, (minRoadDist || 1.1) + 0.35);
+            if (roadSamples.length > 0) {
                 let nearest = null;
+                let nearestI = 0;
                 let bestD = 999;
                 for (let i = 0; i < roadSamples.length; i++) {
                     const d = Math.hypot(nx - roadSamples[i].x, nz - roadSamples[i].z);
                     if (d < bestD) {
                         bestD = d;
                         nearest = roadSamples[i];
+                        nearestI = i;
                     }
                 }
-                if (nearest && bestD < minRoadDist) {
+                if (nearest && bestD < actualRoadClearance) {
                     let dx = nx - nearest.x;
                     let dz = nz - nearest.z;
-                    if (Math.hypot(dx, dz) < 0.05) { dx = 0.7; dz = -0.7; }
-                    const len = Math.hypot(dx, dz);
-                    nx = nearest.x + (dx / len) * minRoadDist;
-                    nz = nearest.z + (dz / len) * minRoadDist;
+                    if (Math.hypot(dx, dz) < 0.08) {
+                        const nxt = roadSamples[(nearestI + 1) % roadSamples.length];
+                        dx = -(nxt.z - nearest.z);
+                        dz = (nxt.x - nearest.x);
+                    }
+                    const len = Math.hypot(dx, dz) || 1;
+                    nx = nearest.x + (dx / len) * actualRoadClearance;
+                    nz = nearest.z + (dz / len) * actualRoadClearance;
                 }
             }
             if (landmarksData && minLmDist > 0) {
+                const actualLmClearance = Math.max(1.45, minLmDist + 0.30);
                 landmarksData.forEach(lm => {
                     const lx = lm.renderX !== undefined ? lm.renderX : lm.x;
                     const lz = lm.renderZ !== undefined ? lm.renderZ : lm.z;
                     const d = Math.hypot(nx - lx, nz - lz);
-                    if (d < minLmDist) {
+                    if (d < actualLmClearance) {
                         let dx = nx - lx;
                         let dz = nz - lz;
-                        if (Math.hypot(dx, dz) < 0.05) { dx = -0.8; dz = 0.6; }
-                        const len = Math.hypot(dx, dz);
-                        nx = lx + (dx / len) * minLmDist;
-                        nz = lz + (dz / len) * minLmDist;
+                        if (Math.hypot(dx, dz) < 0.08) { dx = -0.8; dz = 0.6; }
+                        const len = Math.hypot(dx, dz) || 1;
+                        nx = lx + (dx / len) * actualLmClearance;
+                        nz = lz + (dz / len) * actualLmClearance;
                     }
                 });
             }

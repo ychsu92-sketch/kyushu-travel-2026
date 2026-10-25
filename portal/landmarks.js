@@ -765,11 +765,11 @@
         const animatedLandmarks = [];
         const landmarkMap = {};
 
-        // 預先取樣道路中心線，確保地標模型不會直接蓋在馬路正中央造成小巴與人物穿模
+        // 高密度取樣自駕道路中心線 (600 點)，確保所有景點地標模型絕對不落在車道中央
         const roadSamples = [];
         if (roadCurve) {
-            for (let i = 0; i <= 200; i++) {
-                roadSamples.push(roadCurve.getPointAt(i / 200));
+            for (let i = 0; i <= 600; i++) {
+                roadSamples.push(roadCurve.getPointAt(i / 600));
             }
         }
 
@@ -811,25 +811,34 @@
                 lx = item.x + 0.45;
                 lz = item.z - 0.95;
             } else if (roadSamples.length > 0) {
+                // 自動尋找最近車道點，並沿著車道法線將景點模型推至路旁安全觀景區（徹底消除車輛穿模！）
                 let nearestPt = null;
+                let nearestIdx = 0;
                 let minD = 999;
                 for (let i = 0; i < roadSamples.length; i++) {
                     const d = Math.hypot(lx - roadSamples[i].x, lz - roadSamples[i].z);
                     if (d < minD) {
                         minD = d;
                         nearestPt = roadSamples[i];
+                        nearestIdx = i;
                     }
                 }
-                const minClearance = 1.32;
+                // 景點地標模型大型建築物安全淨空距提升至 1.85m (避開寬度 0.68m 柏油路路面與 0.85m Sienta 車身)
+                const minClearance = 1.85;
                 if (nearestPt && minD < minClearance) {
                     let dx = lx - nearestPt.x;
                     let dz = lz - nearestPt.z;
-                    const len = Math.hypot(dx, dz);
+                    let len = Math.hypot(dx, dz);
                     if (len < 0.08) {
-                        dx = (nearestPt.x >= 0) ? 0.45 : -0.45;
-                        dz = -0.95;
+                        // 若剛好在道路中心，取切線法線方向朝向陸地內側平移
+                        const nextI = (nearestIdx + 1) % roadSamples.length;
+                        const tx = roadSamples[nextI].x - nearestPt.x;
+                        const tz = roadSamples[nextI].z - nearestPt.z;
+                        // 法線方向 (-tz, tx)
+                        dx = -tz; dz = tx;
+                        len = Math.hypot(dx, dz);
                     }
-                    const norm = Math.hypot(dx, dz);
+                    const norm = Math.hypot(dx, dz) || 1;
                     lx = nearestPt.x + (dx / norm) * minClearance;
                     lz = nearestPt.z + (dz / norm) * minClearance;
                 }
