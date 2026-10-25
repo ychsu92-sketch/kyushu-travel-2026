@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc2626">
+    <title>🏡 家族旅行手帳大廳 ｜ Family Travel Vault ✈️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Zen Maru Gothic + M PLUS Rounded 1c -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Zen Maru Gothic"', '"M PLUS Rounded 1c"', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        cute: {
+                            cream: '#FFFDF9',
+                            paper: '#FDFBF7',
+                            border: '#F1E9DA',
+                            dark: '#3D342B',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body {
+            background-color: #faf7f2;
+            background-image: 
+                radial-gradient(#e5dec9 0.75px, transparent 0.75px),
+                radial-gradient(#e5dec9 0.75px, #faf7f2 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: #3d342b;
+        }
+        .vault-card {
+            border-radius: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .vault-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+        }
+        .cute-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+        .washi-tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-1deg);
+            width: 110px;
+            height: 24px;
+            background: rgba(254, 226, 226, 0.85);
+            border-left: 2px dashed rgba(239, 68, 68, 0.3);
+            border-right: 2px dashed rgba(239, 68, 68, 0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            z-index: 10;
+        }
+
+        /* ================= 政策島風格動畫與角色特效 ================= */
+        @keyframes float-island {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(0.3deg); }
+        }
+        .island-floating {
+            animation: float-island 6s ease-in-out infinite;
+        }
+
+        @keyframes cloud-move {
+            0% { transform: translateX(-120px); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateX(850px); opacity: 0; }
+        }
+        .cloud-1 { animation: cloud-move 28s linear infinite; }
+        .cloud-2 { animation: cloud-move 38s linear infinite 14s; }
+        .cloud-3 { animation: cloud-move 32s linear infinite 7s; }
+
+        @keyframes steam-puff {
+            0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+            40% { opacity: 0.7; }
+            100% { transform: translate(10px, -35px) scale(1.6); opacity: 0; }
+        }
+        .smoke-ring {
+            animation: steam-puff 3s ease-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes van-drive {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2px, -2px) rotate(1deg); }
+            75% { transform: translate(-2px, 1px) rotate(-1deg); }
+        }
+        .van-bobbing {
+            animation: van-drive 2.2s ease-in-out infinite;
+        }
+
+        @keyframes character-breathe {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-3px) scaleY(1.02); }
+        }
+        .avatar-idle {
+            animation: character-breathe 2.4s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .avatar-idle:hover {
+            transform: scale(1.15) translateY(-6px);
+        }
+
+        @keyframes hop-jump {
+            0%, 100% { transform: translateY(0) scale(1); }
+            40% { transform: translateY(-22px) scale(1.12); }
+            70% { transform: translateY(2px) scale(0.95); }
+        }
+        .avatar-hop {
+            animation: hop-jump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes camera-flash {
+            0%, 90%, 100% { opacity: 0; transform: scale(0.5); }
+            93% { opacity: 1; transform: scale(1.4); }
+            96% { opacity: 0; transform: scale(1); }
+        }
+        .cam-sparkle {
+            animation: camera-flash 4.5s ease-in-out infinite;
+        }
+
+        /* 對話氣泡效果 */
+        .speech-bubble {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            background: white;
+            border: 2px solid #3d342b;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #3d342b;
+            white-space: nowrap;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 50;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #3d342b transparent transparent transparent;
+        }
+        .speech-bubble.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- 置頂 Header -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-2 border-stone-200/80 px-4 sm:px-8 py-3.5 shadow-xs">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 text-white flex items-center justify-center text-xl shadow-md shadow-red-200 shrink-0">
+                    🏡
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 px-2 py-0.2 rounded-full">
+                            FAMILY TRAVEL VAULT
+                        </span>
+                        <span class="text-xs text-stone-300 hidden sm:inline">|</span>
+                        <span class="text-xs text-stone-500 font-bold hidden sm:inline">家族旅行手帳大廳</span>
+                    </div>
+                    <h1 class="text-base sm:text-lg font-black text-stone-800">
+                        家族旅行足跡・手帳大廳
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="cheerEveryone()" class="px-3 py-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-700 border border-red-200 text-xs font-black flex items-center gap-1.5 transition shadow-xs">
+                    <span>🎉</span>
+                    <span class="hidden sm:inline">全員集合打氣！</span>
+                    <span class="sm:hidden">打氣</span>
+                </button>
+                <a href="https://docs.google.com/spreadsheets/d/1P4niaKfXpHnrlVkiexFmxa2Q0U7kwOvj6yUINn--WNo/edit?usp=sharing" target="_blank" class="px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
+                    <span>📊</span>
+                    <span class="hidden sm:inline">記帳試算表</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主體內容 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-8 py-6 w-full flex-1 space-y-8">
+
+        <!-- ================= 政策島風格・家族冒險浮空島 (Interactive Adventure Island) ================= -->
+        <div class="relative bg-gradient-to-b from-sky-100 via-sky-50 to-amber-50/50 rounded-3xl p-5 sm:p-8 border-2 border-stone-200 shadow-xl overflow-hidden">
+            
+            <!-- 天空裝飾與漂浮白雲 -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                <div class="cloud-1 absolute top-4 text-white/90 text-4xl select-none">☁️</div>
+                <div class="cloud-2 absolute top-12 text-white/80 text-3xl select-none">☁️</div>
+                <div class="cloud-3 absolute top-7 text-white/70 text-5xl select-none">☁️</div>
+                <!-- 迷你客機 CI194 -->
+                <div class="absolute top-6 right-8 text-xl animate-pulse flex items-center gap-1 select-none opacity-85">
+                    <span>✈️</span>
+                    <span class="text-[10px] font-black font-mono text-sky-800 bg-white/70 px-1.5 py-0.5 rounded-md border border-sky-200 shadow-xs">CI194 桃園 ➔ 熊本</span>
+                </div>
+            </div>
+
+            <!-- 標題與說明 -->
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-sky-200/60">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                        <span>🏝️ 政策島風格・冒險互動舞台</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-stone-800 mt-1 flex items-center gap-2">
+                        <span>🗾</span> 家族冒險小島 ｜ 點選角色探索心情！
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-stone-500 font-bold hidden md:inline">💡 點點看小人或小車車有彩蛋！</span>
+                    <a href="./2026%20南九州冬季聖誕自駕/index.html" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-200 flex items-center gap-1.5 transition transform hover:scale-105 active:scale-95">
+                        <span>進入 2026 南九州手帳</span>
+                        <span>➔</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2.5D Isometric 互動浮空島主舞台 -->
+            <div class="relative w-full py-6 flex flex-col items-center justify-center">
+                
+                <div class="island-floating relative w-full max-w-4xl">
+                    <!-- SVG 向量繪製的 2.5D 等角透視浮空島 -->
+                    <svg viewBox="0 0 880 420" class="w-full h-auto drop-shadow-2xl select-none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="island-grass" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#86efac"/>
+                                <stop offset="50%" stop-color="#4ade80"/>
+                                <stop offset="100%" stop-color="#22c55e"/>
+                            </linearGradient>
+                            <linearGradient id="island-cliff" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#854d0e"/>
+                                <stop offset="40%" stop-color="#713f12"/>
+                                <stop offset="100%" stop-color="#451a03"/>
+                            </linearGradient>
+                            <linearGradient id="mini-sea" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#38bdf8"/>
+                                <stop offset="100%" stop-color="#0284c7"/>
+                            </linearGradient>
+                            <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+                                <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#3d342b" flood-opacity="0.22"/>
+                            </filter>
+                        </defs>
+
+                        <!-- 浮空島底部大陰影 -->
+                        <ellipse cx="440" cy="390" rx="360" ry="24" fill="rgba(61, 52, 43, 0.14)" />
+
+                        <!-- 2.5D 浮空島岩壁厚度 (Cliff) -->
+                        <path d="M 120 220 
+                                 C 120 290, 260 370, 440 370 
+                                 C 620 370, 760 290, 760 220 
+                                 L 760 260 
+                                 C 760 330, 620 400, 440 400 
+                                 C 260 400, 120 330, 120 260 Z" 
+                              fill="url(#island-cliff)" />
+
+                        <!-- 浮空島岩層紋理條帶 -->
+                        <path d="M 140 250 Q 440 370 740 250 L 740 265 Q 440 385 140 265 Z" fill="#5c2e0b" opacity="0.6"/>
+                        <path d="M 180 290 Q 440 385 700 290 L 700 300 Q 440 395 180 300 Z" fill="#3b1d07" opacity="0.8"/>
+
+                        <!-- 浮空島綠色草地頂面 (Isometric Top Surface) -->
+                        <path d="M 440 80 
+                                 C 640 80, 770 140, 770 210 
+                                 C 770 280, 620 340, 440 340 
+                                 C 260 340, 110 280, 110 210 
+                                 C 110 140, 240 80, 440 80 Z" 
+                              fill="url(#island-grass)" stroke="#16a34a" stroke-width="4" filter="url(#soft-shadow)"/>
+
+                        <!-- 錦江灣海洋水域 (東南側) -->
+                        <path d="M 520 210 C 620 200, 730 220, 740 250 C 720 285, 610 320, 480 320 C 420 320, 480 250, 520 210 Z" fill="url(#mini-sea)" opacity="0.9"/>
+                        <!-- 錦江灣白色波浪紋 -->
+                        <path d="M 540 260 Q 560 255 580 260 T 620 260" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+                        <path d="M 580 285 Q 600 280 620 285 T 660 285" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+                        <!-- 自駕環島景觀公路 (Scenic Mountain Road) -->
+                        <path d="M 220 230 
+                                 C 260 170, 360 120, 460 130 
+                                 C 550 140, 650 180, 630 230 
+                                 C 610 280, 480 290, 340 280 
+                                 C 260 270, 190 260, 220 230 Z" 
+                              fill="none" stroke="#e2e8f0" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" />
+                        <!-- 柏油路中央雙黃線 -->
+                        <path d="M 220 230 
+                                 C 260 170, 360 120, 460 130 
+                                 C 550 140, 650 180, 630 230 
+                                 C 610 280, 480 290, 340 280 
+                                 C 260 270, 190 260, 220 230 Z" 
+                              fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="8 6" stroke-linecap="round" />
+
+                        <!-- 迷你阿蘇中岳火山 ＆ 火山煙霧圈 -->
+                        <g transform="translate(370, 95)">
+                            <!-- 火山山錐 -->
+                            <polygon points="40,55 0,90 80,90" fill="#78716c" />
+                            <polygon points="40,55 55,90 80,90" fill="#57534e" />
+                            <ellipse cx="40" cy="55" rx="16" ry="7" fill="#dc2626" />
+                            <ellipse cx="40" cy="55" rx="11" ry="4" fill="#450a0a" />
+                            <text x="40" y="50" font-size="11" font-weight="900" fill="#b91c1c" text-anchor="middle">🌋 阿蘇</text>
+                            <!-- 飄動煙圈 -->
+                            <circle cx="36" cy="40" r="5" fill="#f5f5f4" class="smoke-ring" opacity="0.6"/>
+                            <circle cx="44" cy="30" r="8" fill="#e7e5e4" class="smoke-ring" style="animation-delay: 1.2s;" opacity="0.5"/>
+                            <circle cx="38" cy="20" r="11" fill="#d6d3d1" class="smoke-ring" style="animation-delay: 2.1s;" opacity="0.4"/>
+                        </g>
+
+                        <!-- 黑川秘湯露天溫泉池 -->
+                        <g transform="translate(510, 130)">
+                            <ellipse cx="30" cy="25" rx="28" ry="16" fill="#0284c7" stroke="#78716c" stroke-width="4"/>
+                            <ellipse cx="30" cy="25" rx="22" ry="11" fill="#38bdf8"/>
+                            <text x="30" y="29" font-size="13" text-anchor="middle">♨️</text>
+                            <text x="30" y="52" font-size="10" font-weight="900" fill="#0369a1" text-anchor="middle">黑川溫泉</text>
+                        </g>
+
+                        <!-- 國寶霧島朱紅小鳥居 -->
+                        <g transform="translate(260, 140)">
+                            <path d="M 10 10 L 40 10 M 15 10 L 15 32 M 35 10 L 35 32 M 8 16 L 42 16" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+                            <text x="25" y="44" font-size="10" font-weight="900" fill="#991b1b" text-anchor="middle">⛩️ 霧島</text>
+                        </g>
+
+                        <!-- 櫻島活火山 (錦江灣畔) -->
+                        <g transform="translate(640, 190)">
+                            <polygon points="35,30 5,65 65,65" fill="#a8a29e" />
+                            <ellipse cx="35" cy="30" rx="12" ry="5" fill="#ea580c" />
+                            <text x="35" y="24" font-size="11" font-weight="900" fill="#c2410c" text-anchor="middle">🌋 櫻島</text>
+                        </g>
+
+                        <!-- 錦江灣迷你櫻島渡輪 -->
+                        <g transform="translate(560, 240)">
+                            <path d="M 0 10 L 28 10 L 24 18 L 4 18 Z" fill="#ffffff" stroke="#0369a1" stroke-width="1.5"/>
+                            <rect x="8" y="4" width="12" height="6" fill="#ef4444" rx="1.5"/>
+                            <text x="14" y="27" font-size="8" font-weight="bold" fill="#0369a1" text-anchor="middle">⛴️ 櫻島渡輪</text>
+                        </g>
+
+                        <!-- 8 人座自駕紅色休旅車 (車頂綁行李箱) -->
+                        <g id="mini-van" class="van-bobbing" transform="translate(370, 245)" onclick="triggerCarHonk()" style="cursor: pointer;">
+                            <!-- 車體陰影 -->
+                            <ellipse cx="40" cy="42" rx="32" ry="8" fill="rgba(0,0,0,0.2)"/>
+                            <!-- 車身主體 (可愛圓潤廂型車) -->
+                            <rect x="10" y="12" width="60" height="25" rx="8" fill="#dc2626" stroke="#991b1b" stroke-width="2.5"/>
+                            <!-- 車頂行李架 ＆ 綁帶行李箱 -->
+                            <rect x="20" y="8" width="40" height="4" fill="#475569" rx="1"/>
+                            <rect x="24" y="2" width="16" height="7" fill="#fbbf24" stroke="#d97706" stroke-width="1" rx="1.5"/>
+                            <rect x="42" y="3" width="14" height="6" fill="#38bdf8" stroke="#0284c7" stroke-width="1" rx="1.5"/>
+                            <!-- 車窗 -->
+                            <path d="M 18 16 L 32 16 L 32 23 L 18 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+                            <path d="M 36 16 L 50 16 L 50 23 L 36 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+                            <path d="M 54 16 L 64 18 L 62 23 L 54 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+                            <!-- 車燈 -->
+                            <circle cx="67" cy="27" r="2.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
+                            <circle cx="12" cy="27" r="2" fill="#ef4444"/>
+                            <!-- 車輪 -->
+                            <circle cx="24" cy="37" r="7" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <circle cx="24" cy="37" r="2.5" fill="#f8fafc"/>
+                            <circle cx="56" cy="37" r="7" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+                            <circle cx="56" cy="37" r="2.5" fill="#f8fafc"/>
+                            <!-- 車標 -->
+                            <text x="40" y="49" font-size="9" font-weight="900" fill="#991b1b" text-anchor="middle">8人座雪胎車 🚙</text>
+                        </g>
+
+                        <!-- 草原可愛日系松樹 -->
+                        <g transform="translate(190, 200)"><polygon points="12,0 0,16 24,16" fill="#15803d"/><polygon points="12,10 2,24 22,24" fill="#166534"/><rect x="10" y="24" width="4" height="6" fill="#78350f"/></g>
+                        <g transform="translate(470, 180)"><polygon points="10,0 0,14 20,14" fill="#15803d"/><polygon points="10,8 2,20 18,20" fill="#166534"/><rect x="8" y="20" width="4" height="5" fill="#78350f"/></g>
+                    </svg>
+
+                </div>
+
+                <!-- 浮動在島嶼前方的「家族 4 位 Q 版主角」卡哇伊互動列 -->
+                <div class="relative z-20 w-full max-w-2xl -mt-6 sm:-mt-10 px-2">
+                    <div class="bg-white/95 backdrop-blur-md border-2 border-stone-800 rounded-2xl p-3 sm:p-4 shadow-xl shadow-stone-800/10 flex items-center justify-around gap-1 sm:gap-4">
+                        
+                        <!-- 角色 1: 阿純 (總策劃 & 導航員) -->
+                        <div class="relative flex flex-col items-center group avatar-idle" onclick="interactAvatar('achun')" id="avatar-card-achun">
+                            <div class="speech-bubble" id="bubble-achun">
+                                ✈️ 華航 CI194 倒數出發！大家行李準備好了嗎～🎒
+                            </div>
+                            <!-- Q版頭像 -->
+                            <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-rose-400 to-red-500 border-2 border-stone-800 flex items-center justify-center text-2xl sm:text-3xl shadow-sm relative group-hover:scale-110 transition">
+                                🧣
+                                <span class="absolute -bottom-1 -right-1 text-sm bg-white rounded-full p-0.5 border border-stone-800">🧳</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs font-black text-stone-800 mt-1.5 flex items-center gap-1">
+                                <span>阿純</span>
+                                <span class="text-[9px] bg-red-100 text-red-700 font-bold px-1.5 py-0.2 rounded-full">策劃</span>
+                            </span>
+                            <span class="text-[9px] text-stone-400 font-bold hidden sm:inline">推行李箱 🧳</span>
+                        </div>
+
+                        <!-- 分隔線 -->
+                        <div class="h-10 w-[1.5px] bg-stone-200"></div>
+
+                        <!-- 角色 2: 阿嚕 (首席攝影師) -->
+                        <div class="relative flex flex-col items-center group avatar-idle" onclick="interactAvatar('alu')" id="avatar-card-alu">
+                            <div class="speech-bubble" id="bubble-alu">
+                                📸 記憶卡已清空！準備狂拍櫻島火山＆草千里大景！✨
+                            </div>
+                            <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-500 border-2 border-stone-800 flex items-center justify-center text-2xl sm:text-3xl shadow-sm relative group-hover:scale-110 transition">
+                                🧢
+                                <span class="cam-sparkle absolute -top-1 -right-1 text-sm">✨</span>
+                                <span class="absolute -bottom-1 -right-1 text-sm bg-white rounded-full p-0.5 border border-stone-800">📷</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs font-black text-stone-800 mt-1.5 flex items-center gap-1">
+                                <span>阿嚕</span>
+                                <span class="text-[9px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.2 rounded-full">攝影</span>
+                            </span>
+                            <span class="text-[9px] text-stone-400 font-bold hidden sm:inline">單眼待命 📷</span>
+                        </div>
+
+                        <!-- 分隔線 -->
+                        <div class="h-10 w-[1.5px] bg-stone-200"></div>
+
+                        <!-- 角色 3: 阿姨 (美食探索家) -->
+                        <div class="relative flex flex-col items-center group avatar-idle" onclick="interactAvatar('ayee')" id="avatar-card-ayee">
+                            <div class="speech-bubble" id="bubble-ayee">
+                                🍱 人吉百年鰻魚飯＆黑川山彥溫泉會席，我等不及了！😋
+                            </div>
+                            <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 border-2 border-stone-800 flex items-center justify-center text-2xl sm:text-3xl shadow-sm relative group-hover:scale-110 transition">
+                                👒
+                                <span class="absolute -bottom-1 -right-1 text-sm bg-white rounded-full p-0.5 border border-stone-800">🍱</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs font-black text-stone-800 mt-1.5 flex items-center gap-1">
+                                <span>阿姨</span>
+                                <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded-full">美食</span>
+                            </span>
+                            <span class="text-[9px] text-stone-400 font-bold hidden sm:inline">老饕筆記 📖</span>
+                        </div>
+
+                        <!-- 分隔線 -->
+                        <div class="h-10 w-[1.5px] bg-stone-200"></div>
+
+                        <!-- 角色 4: 姨丈 (黃金神駕駛) -->
+                        <div class="relative flex flex-col items-center group avatar-idle" onclick="interactAvatar('yijhang')" id="avatar-card-yijhang">
+                            <div class="speech-bubble" id="bubble-yijhang">
+                                🚗 8 人座雪胎休旅車交給我！九州全景公路看我的！🚙
+                            </div>
+                            <div class="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-emerald-400 to-teal-500 border-2 border-stone-800 flex items-center justify-center text-2xl sm:text-3xl shadow-sm relative group-hover:scale-110 transition">
+                                🕶️
+                                <span class="absolute -bottom-1 -right-1 text-sm bg-white rounded-full p-0.5 border border-stone-800">🔑</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs font-black text-stone-800 mt-1.5 flex items-center gap-1">
+                                <span>姨丈</span>
+                                <span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">車手</span>
+                            </span>
+                            <span class="text-[9px] text-stone-400 font-bold hidden sm:inline">握方向盤 🚗</span>
+                        </div>
+
+                    </div>
+                    
+                    <div class="text-center mt-2.5 text-[11px] font-bold text-stone-500 flex items-center justify-center gap-2">
+                        <span>✨ 點擊任何成員查看心情語錄</span>
+                        <span>•</span>
+                        <button onclick="cheerEveryone()" class="text-red-600 underline font-black hover:text-red-700">全員齊跳打氣 🎉</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 旅程清單列表 -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🧳</span>
+                    <h3 class="text-lg font-black text-stone-800">所有旅行手帳清單</h3>
+                </div>
+                <span class="text-xs text-stone-500 font-bold">依時間與狀態排列</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- 旅程卡片 1: 2026 南九州 (目前啟動中) -->
+                <div class="vault-card bg-white border-2 border-red-200 p-6 sm:p-7 relative flex flex-col justify-between shadow-md shadow-red-100/50">
+                    <div class="washi-tape"></div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="cute-pill bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                                🎄 倒數啟程中・焦點旅程
+                            </span>
+                            <span class="text-xs font-bold text-stone-400 font-mono">2026 冬季</span>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-black text-stone-800 hover:text-red-600 transition flex items-center gap-2">
+                                <span>🎅</span> 2026 南九州冬季聖誕自駕
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-1 font-bold">
+                                📅 2026/12/22 (二) ~ 12/28 (一) ｜ 7 天 6 夜自駕
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-red-50/50 border border-red-100 rounded-2xl space-y-1.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>✈️</span> <strong>直飛航班：</strong>華航 CI194 (桃機 T2 ➔ 熊本 KMJ) ⇄ CI195
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>📍</span> <strong>自駕路線：</strong>熊本 ➔ 阿蘇草千里 ➔ 黑川溫泉 ➔ 高千穗 ➔ 宮崎日南 ➔ 鹿兒島 ➔ 霧島人吉 ➔ 熊本城
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>👛</span> <strong>目前記帳：</strong>NT$ 71,250 (4人家族平均 $17,813)
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold">🌋 阿蘇中岳火山口</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-bold">♨️ 黑川山彥一泊二食</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 font-bold">🚣 高千穗峽划船</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">🍱 人吉百年碳火鰻魚</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 font-bold">🌋 櫻島活火山渡輪</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t border-stone-100 flex items-center justify-between gap-3">
+                        <div class="text-[11px] text-stone-400 font-bold">
+                            📂 專屬資料夾：<code>旅行/2026 南九州冬季聖誕自駕/</code>
+                        </div>
+                        <a href="./2026%20南九州冬季聖誕自駕/index.html" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs shadow-md shadow-red-200 flex items-center gap-1.5 transition transform hover:scale-105 active:scale-95">
+                            <span>打開手帳</span>
+                            <span>➔</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 旅程卡片 2: 2026 日本關西秋季楓紅 (籌備中) -->
+                <div class="vault-card bg-white border-2 border-stone-200 p-6 sm:p-7 relative flex flex-col justify-between shadow-xs opacity-90 hover:opacity-100">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="cute-pill bg-amber-100 text-amber-800 border border-amber-300">
+                                🍁 籌備規劃中
+                            </span>
+                            <span class="text-xs font-bold text-stone-400 font-mono">2026 秋季</span>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-black text-stone-800 flex items-center gap-2">
+                                <span>🍂</span> 2026 日本關西秋季楓紅漫旅
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-1 font-bold">
+                                📅 2026/11/20 (五) ~ 11/26 (四) ｜ 7 天 6 夜古都慢旅
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>✈️</span> <strong>航線門戶：</strong>關西國際機場 (KIX) ⇄ 桃園機場
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>📍</span> <strong>慢遊路線：</strong>大阪難波心齋橋 ➔ 京都嵐山渡月橋 ➔ 宇治抹茶世界 ➔ 東福寺與清水寺夜楓
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>🍁</span> <strong>主題特色：</strong>日本第一秋季楓紅、百年町家古道散策
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍁 嵐山常寂光寺</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍵 宇治平等院鳳凰堂</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🏮 清水寺夜間拜觀</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🐙 道頓堀黑門市場</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t border-stone-100 flex items-center justify-between gap-3">
+                        <div class="text-[11px] text-stone-400 font-bold">
+                            📂 未來資料夾：<code>旅行/2026 日本關西秋季楓紅漫旅/</code>
+                        </div>
+                        <span class="px-4 py-2 rounded-full bg-stone-100 text-stone-400 font-bold text-xs border border-stone-200 cursor-not-allowed">
+                            資料籌備中 🔒
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 建立新旅程卡片 -->
+                <div class="vault-card bg-stone-50 border-2 border-dashed border-stone-300 p-6 sm:p-7 flex flex-col items-center justify-center text-center space-y-3 hover:border-red-400 transition cursor-pointer md:col-span-2">
+                    <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-center text-2xl text-stone-400">
+                        ✨
+                    </div>
+                    <div>
+                        <h4 class="text-base font-black text-stone-800">
+                            想要籌備下一趟全新旅程嗎？
+                        </h4>
+                        <p class="text-xs text-stone-500 mt-1 max-w-lg leading-relaxed">
+                            未來只要在 <code>旅行/</code> 底下以「年份＋地點」建立新資料夾（例如：<code>2027 北海道夏季薰衣草自駕</code>），複製模板資料後執行編譯，就會自動在入口大廳點亮全新旅程卡片！
+                        </p>
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 text-xs text-red-600 font-bold">
+                        <span>💡 完全獨立模組化・輕鬆帶著走的家族數位記憶</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 常用實用外連與家族百寶箱 -->
+        <section class="bg-white rounded-3xl p-6 border-2 border-stone-200 space-y-4">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🧰</span>
+                <h3 class="text-sm font-black text-stone-800">家族旅行必備百寶箱</h3>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <a href="https://www.vjw.digital.go.jp/" target="_blank" class="p-3 rounded-2xl bg-stone-50 hover:bg-stone-100 border border-stone-200 transition font-bold text-stone-700 flex flex-col gap-1">
+                    <span class="text-base">🇯🇵</span>
+                    <span>Visit Japan Web</span>
+                    <span class="text-[10px] text-stone-400 font-normal">日本快速入境審查申報</span>
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/1P4niaKfXpHnrlVkiexFmxa2Q0U7kwOvj6yUINn--WNo/edit?usp=sharing" target="_blank" class="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition font-bold text-amber-800 flex flex-col gap-1">
+                    <span class="text-base">📊</span>
+                    <span>家族旅行雲端帳本</span>
+                    <span class="text-[10px] text-amber-600 font-normal">即時記錄匯款與分攤</span>
+                </a>
+                <a href="https://www.taoyuan-airport.com/" target="_blank" class="p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200 transition font-bold text-sky-800 flex flex-col gap-1">
+                    <span class="text-base">🛫</span>
+                    <span>桃園機場航班即時表</span>
+                    <span class="text-[10px] text-sky-600 font-normal">第一/第二航廈起降狀況</span>
+                </a>
+                <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" class="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition font-bold text-emerald-800 flex flex-col gap-1">
+                    <span class="text-base">💴</span>
+                    <span>台灣銀行即時牌告匯率</span>
+                    <span class="text-[10px] text-emerald-600 font-normal">日圓現鈔換匯參考</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾宣告 -->
+    <footer class="bg-white border-t-2 border-stone-200 py-6 px-4 text-center text-xs text-stone-400 font-medium">
+        🏡 家族旅行手帳大廳 ｜ 更新時間：2026-10-25 10:18 ｜ 祝全家人每一次出發都平安滿載！✨
+    </footer>
+
+    <!-- 互動 JavaScript -->
+    <script>
+        const AVATAR_QUOTES = {
+            achun: [
+                "✈️ 華航 CI194 倒數出發！大家行李打包好了嗎～🎒",
+                "🗺️ 第一天先衝辛島町勝烈亭炸豬排，散步超方便！",
+                "❄️ 這次 8 人座車已經備妥雪胎，全家安心出遊！",
+                "📝 預約單和門票代碼我都整理在手帳裡囉！"
+            ],
+            alu: [
+                "📸 記憶卡已清空 256GB！準備狂拍櫻島火山大景！✨",
+                "🌊 日南海岸的摩艾石像跟鬼之洗衣板，光線一定超美！",
+                "⛰️ 阿蘇草千里火山口，我要拍 360 度環景全家福！",
+                "✨ 這次每一站我都會幫大家記錄最棒的瞬間！"
+            ],
+            ayee: [
+                "🍱 人吉百年鰻魚飯＆黑川山彥溫泉會席，我等不及了！😋",
+                "🥩 宮崎牛鐵板燒入口即化，一定要點特選部位！",
+                "♨️ 天氣冷泡露天溫泉最享受了，頂樓還有露天池呢！",
+                "🛍️ 熊本鶴屋百貨跟櫻之馬場的小吃我也要逛！"
+            ],
+            yijhang: [
+                "🚗 8 人座雪胎休旅車交給我！九州全景公路看我的！🚙",
+                "🛣️ 九州自動車道快線很順暢，大家在後座好好休息看風景！",
+                "🅿️ 每天住宿的停車資訊我都看過了，不用擔心停車！",
+                "⛽ 出發前油箱加滿，車況百分百，準備出發！"
+            ]
+        };
+
+        let activeBubbleTimeout = null;
+
+        function interactAvatar(role) {
+            // 觸發跳躍動畫
+            const card = document.getElementById(`avatar-card-${role}`);
+            if (card) {
+                card.classList.remove('avatar-hop');
+                void card.offsetWidth; // 強制重繪觸發動畫
+                card.classList.add('avatar-hop');
+            }
+
+            // 關閉其他氣泡
+            document.querySelectorAll('.speech-bubble').forEach(b => b.classList.remove('active'));
+
+            // 顯示該角色隨機語錄
+            const bubble = document.getElementById(`bubble-${role}`);
+            const quotes = AVATAR_QUOTES[role];
+            if (bubble && quotes) {
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                bubble.textContent = randomQuote;
+                bubble.classList.add('active');
+
+                if (activeBubbleTimeout) clearTimeout(activeBubbleTimeout);
+                activeBubbleTimeout = setTimeout(() => {
+                    bubble.classList.remove('active');
+                }, 4500);
+            }
+        }
+
+        function triggerCarHonk() {
+            const van = document.getElementById('mini-van');
+            if (van) {
+                van.style.transform = 'translate(370px, 240px) scale(1.15)';
+                setTimeout(() => {
+                    van.style.transform = 'translate(370px, 245px) scale(1)';
+                }, 300);
+            }
+            // 讓姨丈說話
+            interactAvatar('yijhang');
+        }
+
+        function cheerEveryone() {
+            const roles = ['achun', 'alu', 'ayee', 'yijhang'];
+            roles.forEach((r, idx) => {
+                setTimeout(() => {
+                    const card = document.getElementById(`avatar-card-${r}`);
+                    if (card) {
+                        card.classList.remove('avatar-hop');
+                        void card.offsetWidth;
+                        card.classList.add('avatar-hop');
+                    }
+                }, idx * 120);
+            });
+
+            // 隨機一位說話
+            const luckyOne = roles[Math.floor(Math.random() * roles.length)];
+            interactAvatar(luckyOne);
+        }
+
+        // 自動輪巡心情語錄 (每 7 秒隨機一位冒泡)
+        let autoChatIndex = 0;
+        setInterval(() => {
+            const roles = ['achun', 'alu', 'ayee', 'yijhang'];
+            autoChatIndex = (autoChatIndex + 1) % roles.length;
+            interactAvatar(roles[autoChatIndex]);
+        }, 7500);
+    </script>
+
+</body>
+</html>
