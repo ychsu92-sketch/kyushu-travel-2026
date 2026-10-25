@@ -175,7 +175,7 @@
     let stopElapsed = 0;                   // 本站已停留秒數
     let boardElapsed = -1;                 // -1 = 尚未開始上車；>=0 = 上車程序進行秒數（走回車旁 → 依序跳入座位）
     let boardTotal = 0;                    // 上車程序總長（含「準備上車」呼喊台詞播完），達標即啟程
-    const SPOT_MIN_DWELL = 9.0;            // 景點最短停留秒數（讓個性動作充分演出）
+    const SPOT_MIN_DWELL = 7.5;            // 景點最短停留秒數（讓個性動作充分演出）
     const SPOT_MAX_DWELL = 70.0;           // 安全上限，避免卡站
     const BOARD_WALK = 1.9;                // 走回車門旁耗時
     const BOARD_HOP = 0.5;                 // 單人跳入座位動畫耗時
@@ -2273,18 +2273,20 @@
             }
             if (boardElapsed >= 0) boardElapsed += delta;
             stopTimer = (boardElapsed >= 0) ? Math.max(0, boardTotal - boardElapsed) : 99;
-            // 全員入座且「準備上車」台詞播完才啟程
-            if (boardElapsed >= 0 && boardElapsed >= boardTotal) {
+            // 全員就座入定且電動滑門關閉後，立刻發車啟程！徹底告別乾等！
+            if (boardElapsed >= 0 && boardElapsed >= BOARD_MIN) {
                 boardElapsed = -1;
                 isStoppedAtLandmark = false;
                 driveCooldown = 2.4; // 啟程後維持約 2.4 秒起步巡航，兼顧每站打卡與公路節奏
-                // 離開景點準備啟程：全家全員坐在全景敞篷 Toyota Sienta 內兜風賞景，徹底消除人物落後車輛與瞬間閃現回車旁的穿模現象！
                 travelMode = 'all_aboard';
                 stragglerRole = null;
-                const carScript = (Math.random() < 0.70)
-                    ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
-                    : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
-                if (carScript) triggerCustomBanterScript(carScript, false);
+                // 若當前沒有正在播放的發車呼喊，或對話已播完，才接續行車對話
+                if (!activeSpeaker && banterTimers.length === 0) {
+                    const carScript = (Math.random() < 0.70)
+                        ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                        : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                    if (carScript) triggerCustomBanterScript(carScript, false);
+                }
             }
         } else {
             if (driveCooldown > 0) {
@@ -2858,11 +2860,8 @@
         });
         dialogBusyUntilMs = performance.now() + cumulativeDelay - 520;
 
-        // 若在景點停靠中，自動延展景點停留時間，確保對話完全播完且讀完後才啟程
-        // 上車程序中的「準備上車」呼喊：確保台詞播完（再留 0.6 秒）才啟程
-        if (isStoppedAtLandmark && boardElapsed >= 0) {
-            boardTotal = Math.max(boardTotal, boardElapsed + (cumulativeDelay - 520) / 1000 + 0.6);
-        }
+        // 啟程呼喊台詞在行駛中亦能平順閱讀，絕不在車內長時間死等對話！
+        // 上車程序總長嚴格由全員入座與滑門關閉時間決定（約 3.1 秒），入座後即刻發車
     }
 
     // 抵達景點下車時，觸發該景點專屬的接力感言 (1~3人隨機洗牌，發言順序全隨機)
