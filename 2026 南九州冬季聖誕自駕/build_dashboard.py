@@ -1052,30 +1052,60 @@ def build():
 
                             <g id="map-routes-group">
                                 <!-- Day 1: 桃機 ➔ 熊本空港 (430 375) ➔ 熊本辛島町 (325 390) -->
-                                <path id="route-path-1" class="day-route-path transition-all duration-300" data-day="1" d="M 430 375 L 325 390" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="7 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(1)" id="route-group-1">
+                                    <path d="M 430 375 L 325 390" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-1" class="day-route-path transition-all duration-300" data-day="1" d="M 430 375 L 325 390" fill="none" stroke="#2563eb" stroke-width="4" stroke-dasharray="7 4" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 2: 熊本辛島町 (325 390) ➔ 草千里 (475 345) ➔ 大觀峰 (495 275) ➔ 黑川溫泉 (545 250) -->
-                                <path id="route-path-2" class="day-route-path transition-all duration-300" data-day="2" d="M 325 390 Q 400 370, 475 345 T 495 275 T 545 250" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(2)" id="route-group-2">
+                                    <path d="M 325 390 Q 400 370, 475 345 T 495 275 T 545 250" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-2" class="day-route-path transition-all duration-300" data-day="2" d="M 325 390 Q 400 370, 475 345 T 495 275 T 545 250" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 3: 黑川溫泉 (545 250) ➔ 上色見 (505 400) ➔ 高千穗 (570 415) ➔ 宮崎海邊 (675 535) -->
-                                <path id="route-path-3" class="day-route-path transition-all duration-300" data-day="3" d="M 545 250 Q 520 330, 505 400 T 570 415 Q 630 480, 675 535" fill="none" stroke="#7c3aed" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(3)" id="route-group-3">
+                                    <path d="M 545 250 Q 520 330, 505 400 T 570 415 Q 630 480, 675 535" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-3" class="day-route-path transition-all duration-300" data-day="3" d="M 545 250 Q 520 330, 505 400 T 570 415 Q 630 480, 675 535" fill="none" stroke="#7c3aed" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 4: 宮崎 (675 535) ➔ 青島 (685 595) ➔ 摩艾 (675 645) ➔ 鵜戶神宮 (670 695) ➔ 鹿兒島 (365 685) -->
-                                <path id="route-path-4" class="day-route-path transition-all duration-300" data-day="4" d="M 675 535 L 685 595 L 675 645 L 670 695 Q 520 720, 365 685" fill="none" stroke="#059669" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(4)" id="route-group-4">
+                                    <path d="M 675 535 L 685 595 L 675 645 L 670 695 Q 520 720, 365 685" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-4" class="day-route-path transition-all duration-300" data-day="4" d="M 675 535 L 685 595 L 675 645 L 670 695 Q 520 720, 365 685" fill="none" stroke="#059669" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 5: 鹿兒島 (365 685) ➔ 櫻島渡輪 (455 655) ➔ 仙巖園 (375 635) ➔ 天文館 (365 685) -->
-                                <path id="route-path-5" class="day-route-path transition-all duration-300" data-day="5" d="M 365 685 Q 410 670, 455 655 Q 415 645, 375 635 L 365 685" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-dasharray="6 3" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(5)" id="route-group-5">
+                                    <path d="M 365 685 Q 410 670, 455 655 Q 415 645, 375 635 L 365 685" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-5" class="day-route-path transition-all duration-300" data-day="5" d="M 365 685 Q 410 670, 455 655 Q 415 645, 375 635 L 365 685" fill="none" stroke="#ea580c" stroke-width="4.5" stroke-dasharray="6 3" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 6: 鹿兒島 (365 685) ➔ 霧島神宮 (470 570) ➔ 人吉鰻魚 (425 490) ➔ 熊本辛島町 (355 410) -->
-                                <path id="route-path-6" class="day-route-path transition-all duration-300" data-day="6" d="M 365 685 Q 390 630, 470 570 Q 445 525, 425 490 Q 380 450, 355 410" fill="none" stroke="#d97706" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(6)" id="route-group-6">
+                                    <path d="M 365 685 Q 390 630, 470 570 Q 445 525, 425 490 Q 380 450, 355 410" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-6" class="day-route-path transition-all duration-300" data-day="6" d="M 365 685 Q 390 630, 470 570 Q 445 525, 425 490 Q 380 450, 355 410" fill="none" stroke="#d97706" stroke-width="4.5" stroke-dasharray="8 4" stroke-linecap="round"/>
+                                </g>
                                 <!-- Day 7: 熊本辛島町 (355 410) ➔ 熊本城 (345 340) ➔ 水前寺成趣園 (395 420) ➔ 熊本空港 (430 375) -->
-                                <path id="route-path-7" class="day-route-path transition-all duration-300" data-day="7" d="M 355 410 L 345 340 L 395 420 L 430 375" fill="none" stroke="#be123c" stroke-width="4.5" stroke-dasharray="7 4" stroke-linecap="round"/>
+                                <g class="route-group cursor-pointer" onclick="toggleMapRoute(7)" id="route-group-7">
+                                    <path d="M 355 410 L 345 340 L 395 420 L 430 375" fill="none" stroke="transparent" stroke-width="26" stroke-linecap="round"/>
+                                    <path id="route-path-7" class="day-route-path transition-all duration-300" data-day="7" d="M 355 410 L 345 340 L 395 420 L 430 375" fill="none" stroke="#be123c" stroke-width="4.5" stroke-dasharray="7 4" stroke-linecap="round"/>
+                                </g>
                             </g>
 
                             <g id="map-pins-group"></g>
                         </svg>
 
-                        <div class="absolute bottom-3 left-4 bg-white/90 backdrop-blur-sm p-3 rounded-2xl border border-stone-200 text-[11px] font-bold text-stone-600 space-y-1 shadow-sm pointer-events-none">
-                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> 🔴 熊本 / 黑川溫泉</div>
-                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span> 🟣 高千穗 / 宮崎日南</div>
-                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> 🟢 鹿兒島 / 櫻島火山</div>
-                            <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 🟡 霧島神宮 / 人吉鰻魚</div>
-                            
+                        <div class="absolute bottom-3 left-4 bg-white/95 backdrop-blur-sm p-3 rounded-2xl border-2 border-stone-200 text-[11px] font-bold text-stone-600 space-y-1.5 shadow-md">
+                            <div class="flex items-center justify-between gap-3 pb-1 border-b border-stone-200">
+                                <span class="text-xs font-black text-stone-800 flex items-center gap-1"><span>✨</span> 路線篩選模式</span>
+                                <button type="button" onclick="resetMapRoutes()" id="map-reset-routes-btn" class="text-[10px] text-stone-500 hover:text-red-600 font-black underline transition cursor-pointer">顯示全部路線</button>
+                            </div>
+                            <div class="text-[10px] text-amber-800 font-bold" id="map-route-status-tip">💡 點擊地圖任意虛線，可單獨留下該日自駕路線</div>
+                            <div class="flex flex-wrap gap-1.5 pt-0.5 pointer-events-auto">
+                                <button type="button" onclick="toggleMapRoute(1)" id="route-btn-1" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition">D1</button>
+                                <button type="button" onclick="toggleMapRoute(2)" id="route-btn-2" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition">D2</button>
+                                <button type="button" onclick="toggleMapRoute(3)" id="route-btn-3" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition">D3</button>
+                                <button type="button" onclick="toggleMapRoute(4)" id="route-btn-4" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">D4</button>
+                                <button type="button" onclick="toggleMapRoute(5)" id="route-btn-5" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 transition">D5</button>
+                                <button type="button" onclick="toggleMapRoute(6)" id="route-btn-6" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition">D6</button>
+                                <button type="button" onclick="toggleMapRoute(7)" id="route-btn-7" class="px-2 py-0.5 rounded-full text-[10px] font-bold border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 transition">D7</button>
+                            </div>
                         </div>
                     </div>
 
@@ -2867,68 +2897,78 @@ def build():
             list.forEach(c => {{
                 const card = document.createElement('div');
                 const isDrive = c.category === 'drive_local';
-                card.className = `bg-white rounded-3xl p-5 border-2 ${{isDrive ? 'border-amber-300 hover:border-amber-500 bg-amber-50/20' : 'border-red-200 hover:border-red-400'}} space-y-3.5 shadow-sm hover:shadow-md transition flex flex-col justify-between`;
+                // 嚴格統一卡片高度 h-full，flex flex-col justify-between，外框整齊劃一
+                card.className = `bg-white rounded-3xl p-5 border-2 ${{isDrive ? 'border-amber-300 hover:border-amber-500 bg-gradient-to-b from-white to-amber-50/20' : 'border-red-200 hover:border-red-400 bg-white'}} shadow-sm hover:shadow-md transition flex flex-col justify-between h-full box-border space-y-3.5`;
 
-                const barcodeSvg = renderBarcodeSvg(c.barcode, 200, 45);
-                const qrSvg = renderQrSvg(c.barcode, 16);
+                const barcodeSvg = renderBarcodeSvg(c.barcode, 200, 42);
+                const qrSvg = renderQrSvg(c.barcode, 14);
 
                 card.innerHTML = `
-                    <div class="space-y-2.5">
-                        <div class="flex items-center justify-between gap-1 flex-wrap">
-                            <span class="cute-pill ${{isDrive ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-red-100 text-red-700'}} font-black">${{c.tag}}</span>
-                            <span class="text-[11px] font-bold text-stone-400">📍 ${{c.area_name}}</span>
+                    <div class="space-y-3 flex-1 flex flex-col">
+                        <!-- 1. 頂部標籤列 (固定高度 24px) -->
+                        <div class="flex items-center justify-between gap-1 h-6">
+                            <span class="cute-pill ${{isDrive ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-red-100 text-red-700'}} font-black text-[10px] shrink-0">${{c.tag}}</span>
+                            <span class="text-[11px] font-bold text-stone-400 truncate max-w-[150px]">📍 ${{c.area_name}}</span>
                         </div>
 
-                        <div>
-                            <h4 class="text-sm font-black text-stone-800 leading-snug">${{c.title}}</h4>
-                            <div class="text-[11px] text-stone-400 italic">${{c.title_jp}}</div>
+                        <!-- 2. 標題區塊 (固定高度 44px，垂直置中) -->
+                        <div class="h-[44px] flex flex-col justify-center">
+                            <h4 class="text-sm font-black text-stone-800 leading-tight line-clamp-1" title="${{c.title}}">${{c.title}}</h4>
+                            <div class="text-[11px] text-stone-400 italic line-clamp-1 mt-0.5" title="${{c.title_jp}}">${{c.title_jp}}</div>
                         </div>
 
-                        <!-- 優惠詳情 (點擊直接導跳官方電子券/官網) -->
-                        <div class="${{isDrive ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:border-amber-400' : 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200 hover:border-red-400'}} border rounded-2xl p-2.5 space-y-1.5 text-xs cursor-pointer hover:shadow-xs transition group" onclick="window.open('${{c.official_url}}', '_blank')" title="點擊直接開啟官方優惠券網頁">
-                            <div class="font-black text-red-700 flex items-center justify-between gap-1 text-[11px]">
-                                <div class="flex items-center gap-1">
-                                    <span>🎁 優惠詳情：</span>
-                                    <span>${{c.discount}}</span>
+                        <!-- 3. 優惠詳情 (固定高度 94px，點擊導跳官方電子券/官網) -->
+                        <div class="${{isDrive ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:border-amber-400' : 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200 hover:border-red-400'}} border rounded-2xl p-2.5 h-[94px] flex flex-col justify-between text-xs cursor-pointer hover:shadow-xs transition group select-none" onclick="window.open('${{c.official_url}}', '_blank')" title="點擊直接開啟官方優惠券網頁">
+                            <div>
+                                <div class="font-black text-red-700 flex items-center justify-between gap-1 text-[11px]">
+                                    <div class="flex items-center gap-1 truncate">
+                                        <span class="shrink-0">🎁 優惠：</span>
+                                        <span class="truncate">${{c.discount}}</span>
+                                    </div>
+                                    <span class="text-[10px] text-red-600 font-black group-hover:underline flex items-center gap-0.5 shrink-0">
+                                        <span>開啟</span> <span>↗</span>
+                                    </span>
                                 </div>
-                                <span class="text-[10px] text-red-600 font-black group-hover:underline flex items-center gap-0.5 shrink-0">
-                                    <span>開啟官方連結</span> <span>↗</span>
-                                </span>
+                                <div class="text-[11px] text-stone-600 font-bold line-clamp-1 mt-1">${{c.condition}}</div>
                             </div>
-                            <div class="text-[11px] text-stone-600 font-bold">${{c.condition}}</div>
-                            <div class="text-[10px] text-amber-800 bg-white/70 px-2 py-1 rounded-lg border border-amber-200/60 font-medium">
-                                💡 點擊此框可直接跳轉至【${{c.official_name || '官方核銷頁面'}}】
+                            <div class="text-[10px] text-amber-800 bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200/70 font-medium truncate">
+                                💡 點此框跳轉至【${{c.official_name || '官方核銷專頁'}}】
                             </div>
                         </div>
 
-                        <!-- 條碼與 QRcode 掃描展示區 -->
-                        <div class="p-3 bg-stone-50 rounded-2xl border-2 border-stone-200 space-y-2 text-center">
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex-1 bg-white p-2 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大條碼">
-                                    ${{barcodeSvg}}
+                        <!-- 4. 條碼與 QRcode 掃描展示區 (固定高度 148px) -->
+                        <div class="p-2.5 bg-stone-50 rounded-2xl border-2 border-stone-200 h-[148px] flex flex-col justify-between text-center">
+                            <div class="flex items-center justify-between gap-2 flex-1">
+                                <div class="flex-1 bg-white p-2 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition h-full flex flex-col justify-center items-center" onclick="openBarcodeModal('${{c.id}}')" title="點擊全螢幕放大條碼">
+                                    <div class="w-full flex justify-center">${{barcodeSvg}}</div>
                                     <div class="font-mono text-xs font-bold text-stone-700 tracking-wider mt-1">${{c.barcode}}</div>
                                 </div>
-                                <div class="bg-white p-1.5 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition shrink-0" onclick="openBarcodeModal('${{c.id}}')" title="點擊放大二維碼">
+                                <div class="bg-white p-1.5 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition shrink-0 h-full flex items-center justify-center" onclick="openBarcodeModal('${{c.id}}')" title="點擊全螢幕放大二維碼">
                                     ${{qrSvg}}
                                 </div>
                             </div>
-                            <div class="text-[10px] text-stone-500 font-medium">${{c.usage_guide ? c.usage_guide : '💡 結帳時點擊「條碼」可直接全螢幕放大讓店員掃描'}}</div>
+                            <div class="text-[10px] text-stone-500 font-medium line-clamp-1 mt-1.5 pt-1 border-t border-stone-200/60" title="${{c.usage_guide ? c.usage_guide : '結帳時點擊「條碼」可直接全螢幕放大讓店員掃描'}}">
+                                ${{c.usage_guide ? c.usage_guide : '💡 點擊「條碼」可全螢幕放大讓店員掃描'}}
+                            </div>
                         </div>
 
-                        <div class="text-[11px] text-stone-500 bg-stone-50 p-2 rounded-xl border border-stone-100 leading-relaxed">
-                            <strong>適用/地點：</strong>${{c.stores}}
+                        <!-- 5. 適用地點 (固定高度 36px) -->
+                        <div class="text-[11px] text-stone-500 bg-stone-50 px-2.5 py-1.5 rounded-xl border border-stone-100 h-[36px] flex items-center truncate" title="${{c.stores}}">
+                            <span class="shrink-0 font-bold text-stone-600">適用：</span>
+                            <span class="truncate">${{c.stores}}</span>
                         </div>
                     </div>
 
-                    <div class="pt-2 border-t border-stone-100 flex items-center gap-2 flex-wrap">
-                        <button type="button" onclick="openBarcodeModal('${{c.id}}')" class="flex-1 min-w-[120px] py-2 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs flex items-center justify-center gap-1 shadow-sm transition">
-                            <span>🔍</span> 放大條碼供掃描
+                    <!-- 6. 底部等寬等高按鈕 Grid (固定 3 欄等寬，每顆高 36px，整整齊齊) -->
+                    <div class="pt-2 border-t border-stone-100 grid grid-cols-3 gap-1.5 w-full">
+                        <button type="button" onclick="openBarcodeModal('${{c.id}}')" class="h-9 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-[11px] flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition" title="放大條碼供店員掃描">
+                            <span>🔍</span> <span class="truncate">放大條碼</span>
                         </button>
-                        <a href="${{c.official_url}}" target="_blank" class="py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs flex items-center justify-center gap-1 transition" title="開啟官方網頁">
-                            <span>🌐</span> 官方網址 ↗
+                        <a href="${{c.official_url}}" target="_blank" class="h-9 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition" title="開啟官方網址">
+                            <span>🌐</span> <span class="truncate">官方網頁 ↗</span>
                         </a>
-                        <a href="${{c.google_maps}}" target="_blank" class="py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center justify-center gap-1 transition" title="Google Maps 導航">
-                            <span>🗺️</span> 導航
+                        <a href="${{c.google_maps}}" target="_blank" class="h-9 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition" title="Google Maps 導航">
+                            <span>🗺️</span> <span class="truncate">地圖導航</span>
                         </a>
                     </div>
                 `;
@@ -3340,10 +3380,15 @@ def build():
 
                 meals[mType].forEach(opt => {{
                     const row = document.createElement('div');
-                    // 統一固定高度 h-[152px]，box-border 與 overflow-hidden 雙重鎖死，嚴格對齊且絕不超框
-                    row.className = 'bg-white p-3 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between h-[152px] min-h-[152px] max-h-[152px] overflow-hidden box-border w-full';
+                    // 增強 Hover 特效：光暈外框 ring-4、平滑上浮 -translate-y-1.5、強烈投影 shadow-xl、指針 cursor-pointer、金黃微光漸變
+                    row.className = 'group relative bg-white hover:bg-gradient-to-br hover:from-white hover:to-orange-50/70 p-3 rounded-2xl border-2 border-stone-200/90 hover:border-orange-400 hover:ring-4 hover:ring-orange-200/60 shadow-2xs hover:shadow-xl transition-all duration-200 flex flex-col justify-between h-[152px] min-h-[152px] max-h-[152px] overflow-hidden box-border w-full cursor-pointer select-none';
+                    row.title = '點擊查看餐廳詳細訂位攻略 ↗';
+                    row.onclick = (e) => {{
+                        if (e.target.closest('a')) return;
+                        jumpToRestaurant(opt.id);
+                    }};
                     
-                    // 1. 精簡訂位標籤為 2~4 字，確保絕不溢出到隔壁欄位
+                    // 1. 精簡訂位標籤為 2~4 字
                     const rawRes = (opt.reserve_type || '').toLowerCase();
                     let badgeLabel = '現場入座';
                     let badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
@@ -3375,10 +3420,10 @@ def build():
                         badgeIcon = '📅';
                     }}
 
-                    // 2. 乾淨純粹的店名 (過濾所有括號備註、宣傳詞、日文副標題與菜品後綴)
+                    // 2. 乾淨純粹的店名
                     let cleanName = (opt.name || '').trim();
-                    cleanName = cleanName.replace(/\\s*[\\(（][^()（）]*[\\)）]/g, '').trim();
-                    cleanName = cleanName.replace(/\\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '').trim();
+                    cleanName = cleanName.replace(/\s*[\(（][^()（）]*[\)）]/g, '').trim();
+                    cleanName = cleanName.replace(/\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '').trim();
 
                     // 3. 價格精簡乾淨
                     let cleanPrice = (opt.price || '').split('~')[0].split('/')[0].trim();
@@ -3389,37 +3434,40 @@ def build():
                     const cleanArea = (opt.area || '').split(' ')[0].trim();
 
                     row.innerHTML = `
-                        <div class="space-y-1.5 min-w-0">
-                            <!-- 頂部獨立標籤列 (嚴格控制寬度，絕不溢出) -->
+                        <div class="space-y-1.5 min-w-0 pointer-events-none">
+                            <!-- 頂部獨立標籤列 (含 hover 提示) -->
                             <div class="flex items-center justify-between gap-1 min-w-0">
                                 <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border ${{badgeClass}} font-bold shrink-0 shadow-2xs">
                                     <span>${{badgeIcon}}</span>
                                     <span>${{badgeLabel}}</span>
                                 </span>
-                                ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[65px] shrink-0">📍 ${{cleanArea}}</span>` : ''}}
+                                <div class="flex items-center gap-1 shrink-0">
+                                    ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[65px]">📍 ${{cleanArea}}</span>` : ''}}
+                                    <span class="text-[10px] text-orange-600 font-black opacity-0 group-hover:opacity-100 transition-opacity">點擊攻略 ↗</span>
+                                </div>
                             </div>
 
-                            <!-- 乾淨純粹店名 (單行截斷，字體清爽易讀) -->
-                            <h5 class="font-black text-stone-800 text-xs sm:text-[13px] leading-snug tracking-tight hover:text-orange-600 transition cursor-pointer truncate" onclick="jumpToRestaurant('${{opt.id}}')" title="${{opt.name}}">
+                            <!-- 乾淨純粹店名 (hover 強烈變色) -->
+                            <h5 class="font-black text-stone-800 group-hover:text-orange-600 text-xs sm:text-[13px] leading-snug tracking-tight transition truncate" title="${{opt.name}}">
                                 ${{cleanName}}
                             </h5>
 
-                            <!-- 必吃特色推薦小卡 (招牌菜獨立呈現) -->
-                            <div class="bg-stone-50 rounded-lg px-2 py-1 text-[11px] text-stone-600 font-medium line-clamp-1 border border-stone-100">
+                            <!-- 必吃特色推薦小卡 -->
+                            <div class="bg-stone-50 group-hover:bg-white rounded-lg px-2 py-1 text-[11px] text-stone-600 font-medium line-clamp-1 border border-stone-100 group-hover:border-orange-200 transition">
                                 🍴 <span class="text-stone-700 font-bold">${{opt.must_eat}}</span>
                             </div>
                         </div>
 
-                        <!-- 底部價格與操作區 (按鈕防超框專用結構：min-w-0 flex-1 彈性空間 + shrink-0 按鈕組) -->
+                        <!-- 底部價格與操作區 -->
                         <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px] gap-1.5 min-w-0 w-full mt-auto">
-                            <span class="font-mono text-stone-800 font-black tracking-tight text-xs truncate min-w-0 flex-1">
+                            <span class="font-mono text-stone-800 font-black tracking-tight text-xs truncate min-w-0 flex-1 pointer-events-none">
                                 ${{cleanPrice}}
                             </span>
                             <div class="flex items-center gap-1 shrink-0">
-                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[10px] font-bold transition active:scale-95 shadow-2xs">
+                                <span class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 group-hover:bg-orange-500 text-orange-700 group-hover:text-white border border-orange-200 group-hover:border-orange-500 text-[10px] font-black transition active:scale-95 shadow-2xs pointer-events-none">
                                     攻略 ↗
-                                </button>
-                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + (opt.area || ''))}}" target="_blank" class="w-5 h-5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-[10px] font-bold transition active:scale-95 shadow-2xs shrink-0" title="Google 地圖導航">
+                                </span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + (opt.area || ''))}}" target="_blank" onclick="event.stopPropagation()" class="w-5 h-5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-[10px] font-bold transition active:scale-95 shadow-2xs shrink-0 pointer-events-auto" title="Google 地圖導航">
                                     🗺️
                                 </a>
                             </div>
@@ -3493,6 +3541,101 @@ def build():
                 }}
             }});
             renderMapPins(category);
+        }}
+
+        let activeSelectedMapDay = null;
+
+        function toggleMapRoute(day) {{
+            if (activeSelectedMapDay === day) {{
+                resetMapRoutes();
+                return;
+            }}
+
+            activeSelectedMapDay = day;
+            
+            // 控制地圖所有路線虛線：僅保留選中路線，其餘全部隱藏
+            for (let d = 1; d <= 7; d++) {{
+                const group = document.getElementById(`route-group-${{d}}`);
+                const path = document.getElementById(`route-path-${{d}}`);
+                const btn = document.getElementById(`route-btn-${{d}}`);
+                
+                if (d === day) {{
+                    if (group) group.style.display = 'inline';
+                    if (path) {{
+                        path.style.opacity = '1';
+                        path.setAttribute('stroke-width', '7');
+                        path.setAttribute('filter', 'drop-shadow(0 0 6px rgba(220, 38, 38, 0.6))');
+                    }}
+                    if (btn) {{
+                        btn.className = 'px-2 py-0.5 rounded-full text-[10px] font-black border border-stone-800 bg-stone-900 text-white shadow-xs scale-105 transition';
+                    }}
+                }} else {{
+                    if (group) group.style.display = 'none';
+                    if (path) {{
+                        path.style.opacity = '0';
+                        path.setAttribute('stroke-width', '4');
+                        path.removeAttribute('filter');
+                    }}
+                    if (btn) {{
+                        btn.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold border border-stone-200 bg-white text-stone-400 opacity-60 hover:opacity-100 transition';
+                    }}
+                }}
+            }}
+
+            const statusTip = document.getElementById('map-route-status-tip');
+            if (statusTip) {{
+                const dayTitles = {{
+                    1: 'Day 1 桃機 ➔ 熊本空港 ➔ 辛島町市區',
+                    2: 'Day 2 熊本 ➔ 草千里・大觀峰 ➔ 黑川秘湯',
+                    3: 'Day 3 黑川 ➔ 上色見熊野座 ➔ 高千穗峽 ➔ 宮崎海邊',
+                    4: 'Day 4 宮崎 ➔ 青島 ➔ 日南摩艾 ➔ 鵜戶神宮 ➔ 鹿兒島',
+                    5: 'Day 5 鹿兒島 ➔ 櫻島渡輪・火山 ➔ 仙巖園 ➔ 天文館',
+                    6: 'Day 6 鹿兒島 ➔ 霧島神宮 ➔ 人吉鰻魚 ➔ 熊本市區',
+                    7: 'Day 7 熊本 ➔ 熊本城・水前寺 ➔ 機場返台'
+                }};
+                statusTip.innerHTML = `📍 <span class="text-red-700 font-black">已聚焦：${{dayTitles[day] || ('Day ' + day)}}</span>`;
+            }}
+
+            const daySpots = TRIP_DATA.locations.filter(loc => loc.day === day);
+            if (daySpots.length > 0) {{
+                showSpotDetail(daySpots[0]);
+            }}
+
+            showToast(`已留下 Day ${{day}} 自駕路線！其餘路線已隱藏 🚗✨`);
+        }}
+
+        function resetMapRoutes() {{
+            activeSelectedMapDay = null;
+            for (let d = 1; d <= 7; d++) {{
+                const group = document.getElementById(`route-group-${{d}}`);
+                const path = document.getElementById(`route-path-${{d}}`);
+                const btn = document.getElementById(`route-btn-${{d}}`);
+                
+                if (group) group.style.display = 'inline';
+                if (path) {{
+                    path.style.opacity = '1';
+                    path.setAttribute('stroke-width', d === 1 || d === 5 ? '4' : '4.5');
+                    path.removeAttribute('filter');
+                }}
+                if (btn) {{
+                    const colors = {{
+                        1: 'border-blue-200 bg-blue-50 text-blue-700',
+                        2: 'border-red-200 bg-red-50 text-red-700',
+                        3: 'border-purple-200 bg-purple-50 text-purple-700',
+                        4: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                        5: 'border-orange-200 bg-orange-50 text-orange-700',
+                        6: 'border-amber-200 bg-amber-50 text-amber-700',
+                        7: 'border-rose-200 bg-rose-50 text-rose-700'
+                    }};
+                    btn.className = `px-2 py-0.5 rounded-full text-[10px] font-bold border ${{colors[d] || 'border-stone-200 bg-stone-50 text-stone-700'}} hover:bg-stone-100 transition`;
+                }}
+            }}
+
+            const statusTip = document.getElementById('map-route-status-tip');
+            if (statusTip) {{
+                statusTip.textContent = '💡 點擊地圖任意虛線，可單獨留下該日自駕路線';
+            }}
+            showToast('已恢復顯示全九州完整自駕路線 🗺️');
         }}
 
         function renderMapPins(filterCategory) {{
@@ -3963,7 +4106,6 @@ def build():
                             <div class="flex items-center gap-2 min-w-0">
                                 <span class="text-2xl shrink-0">${{cfg.icon}}</span>
                                 <span class="text-base font-black text-stone-800 truncate" title="${{escapeHtml(displayName)}}">${{escapeHtml(displayName)}}</span>
-                                <button type="button" onclick="openMemberNamesModal()" class="text-stone-300 hover:text-amber-600 text-xs shrink-0 transition" title="點擊自訂名稱">✏️</button>
                             </div>
                             <span class="cute-pill shrink-0 ${{isCredit ? 'bg-emerald-100 text-emerald-700' : (isBalanced ? 'bg-stone-100 text-stone-600' : 'bg-red-100 text-red-700')}}">
                                 ${{isCredit ? '🟢 應收款' : (isBalanced ? '⚪ 平帳' : '🔴 應補款')}}
