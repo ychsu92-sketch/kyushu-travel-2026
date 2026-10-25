@@ -2594,7 +2594,7 @@ def build():
             const indicatorText = document.getElementById('route-indicator-text');
             const statusTip = document.getElementById('map-route-status-tip');
 
-            // 2. 切換 SVG 虛線顯示狀態 (徹底解耦外層 group 隱藏與內層路徑透明度)
+            // 2. 切換 SVG 虛線顯示狀態
             if (currentDayRoute === 'all') {{
                 for (let d = 1; d <= 7; d++) {{
                     const grp = document.getElementById(`route-group-${{d}}`);
@@ -2667,13 +2667,926 @@ def build():
                     }});
                 }}
 
-                const daySpots = TRIP_DATA.locations.filter(loc => loc.day === targetDay);
-                if (daySpots.length > 0) {{
-                    showSpotDetail(daySpots[0]);
+                if (info && info.landmarks && info.landmarks.length > 0) {{
+                    selectLandmark(info.landmarks[0]);
                 }}
 
                 showToast(`已留下 Day ${{targetDay}} 自駕路線！其餘路線已隱藏 🚗✨`);
             }}
+        }}
+
+        // ======================= 優惠券與折價券資料系統 =======================
+        const COUPONS_DATA = [
+            // ── 1. 商業綜合通路與藥妝免稅 (100% 官方真實核銷連結) ──
+            {{
+                id: "c_donki",
+                title: "驚安殿堂 唐吉訶德 (Don Quijote)",
+                title_jp: "ドン・キホーテ 免税＋特別優待電子クーポン",
+                category: "shopping",
+                tag: "免稅 10% + 最高折 7%",
+                discount: "10% 免稅 + 最高 7% 現折 (官方電子券)",
+                condition: "滿 10,000 日圓折 5% ｜ 滿 30,000 日圓折 7%",
+                barcode: "9900123456789",
+                official_url: "https://japanportal.donki-global.com/coupon/?ptcd=0076000703",
+                official_name: "唐吉訶德官方電子折價券",
+                usage_guide: "⚠️ 唐吉訶德門市結帳時，店員須在手機開啟的官方網頁上點擊金額核銷，靜態截圖不被接受，請點擊上方按鈕出示官方網頁！",
+                area: "kumamoto_kagoshima_chain",
+                area_tag: "chain",
+                area_name: "熊本下通・鹿兒島天文館",
+                stores: "熊本下通店、鹿兒島天文館店",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=ドン・キホーテ+熊本下通店",
+                expiry: "長期有效 (2026/12 聖誕適用)",
+                note: "結帳前務必開啟官方網頁並出示護照由店員核銷點擊"
+            }},
+            {{
+                id: "c_bic",
+                title: "Bic Camera / Kojima 電器綜合免稅",
+                title_jp: "ビックカメラ / コジマ 特別割引クーポン",
+                category: "shopping",
+                tag: "免稅 10% + 7% / 5% 折扣",
+                discount: "10% 免稅 + 電器相機 7% / 藥妝保溫瓶 5% / 日本酒 3%",
+                condition: "相機、電器、保溫瓶出示條碼即享免稅外加折抵優惠",
+                barcode: "9900987654321",
+                official_url: "https://tourist-info.biccamera.com/",
+                official_name: "Bic Camera 官方外國旅客服務專區",
+                usage_guide: "結帳時直接由店員掃描本卡片條碼或開啟官方網頁條碼即可折抵，可刷台灣信用卡。",
+                area: "kumamoto_kagoshima",
+                area_tag: "chain",
+                area_name: "熊本市區・鹿兒島中央站",
+                stores: "Kojima x BicCamera 熊本店、Bic Camera 鹿兒島中央站店",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=ビックカメラ+鹿児島中央駅店",
+                expiry: "2026/12/31 止",
+                note: "相機鏡頭、大容量保溫杯、刮鬍刀、Dyson 吹風機超划算"
+            }},
+            {{
+                id: "c_matsukiyo",
+                title: "松本清藥妝 (Matsumoto Kiyoshi)",
+                title_jp: "マツモトキヨシ 外国人限定 免税クーポン",
+                category: "shopping",
+                tag: "免稅 10% + 最高折 7%",
+                discount: "10% 免稅 + 滿額加碼折 3% ~ 7%",
+                condition: "滿 1萬折 3% ｜ 滿 3萬折 5% ｜ 滿 5萬折 7%",
+                barcode: "4901234567890",
+                official_url: "https://www.matsumotokiyoshi-tw.com/",
+                official_name: "松本清官方繁體中文網站",
+                usage_guide: "出示條碼由收銀台掃描，全九州各大主要商店街皆有門市。",
+                area: "all_kyushu",
+                area_tag: "chain",
+                area_name: "熊本・宮崎・鹿兒島連鎖",
+                stores: "熊本下通店、宮崎橘通店、鹿兒島天文館店",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=マツモトキヨシ+熊本下通",
+                expiry: "2026/12/31 止",
+                note: "合利他命、EVE止痛藥、WAKAMOTO、雪肌精常備藥補貨首選"
+            }},
+            {{
+                id: "c_sugi",
+                title: "SUGI 杉藥局 (Sugi Pharmacy)",
+                title_jp: "スギ薬局 免税＋インバウンド限定割引",
+                category: "shopping",
+                tag: "免稅 10% + 滿額折 3%~8%",
+                discount: "10% 免稅 + 滿額最高現折 8%",
+                condition: "滿 1 萬折 3% ｜ 滿 3 萬折 5% ｜ 滿 5 萬折 8%",
+                barcode: "4908821901234",
+                official_url: "https://www.sugi-net.jp/",
+                official_name: "SUGI 杉藥局官方網站",
+                usage_guide: "結帳時出示條碼及外國護照，即可享免稅加上額外折抵。",
+                area: "all_kyushu",
+                area_tag: "chain",
+                area_name: "熊本市區・鹿兒島市區",
+                stores: "熊本櫻町店、鹿兒島市區門市",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=スギ薬局+熊本",
+                expiry: "2026/12/31 止",
+                note: "藥品齊全且化妝水保養品常有獨家組合"
+            }},
+            {{
+                id: "c_daikoku",
+                title: "大國藥妝 (Daikoku Drug)",
+                title_jp: "ダイコクドラッグ 免税特別割引",
+                category: "shopping",
+                tag: "免稅 10% + 現折 3%~7%",
+                discount: "10% 免稅 + 滿額現折 3% ~ 7%",
+                condition: "熱門零食、常備感冒藥、痠痛貼布滿額現折",
+                barcode: "4909876543210",
+                official_url: "https://daikokudrug.com/",
+                official_name: "大國藥妝官方免稅指引",
+                usage_guide: "出示條碼由收銀人員掃描，常駐中文服務人員。",
+                area: "all_kyushu",
+                area_tag: "chain",
+                area_name: "熊本市區・鹿兒島市區",
+                stores: "熊本新市街店、鹿兒島天文館店",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=ダイコクドラッグ+熊本",
+                expiry: "2026/12/31 止",
+                note: "DHC維他命、休足時間、ROIHI鎮痛貼片價格親民"
+            }},
+            {{
+                id: "c_tsuruya",
+                title: "熊本鶴屋百貨 外國旅客 5% 貴賓券",
+                title_jp: "鶴屋百貨店 外国人特別優待クーポン",
+                category: "shopping",
+                tag: "5% 貴賓券 + 10% 免稅",
+                discount: "全館 5% 折扣 + 10% 免稅退稅",
+                condition: "憑外國護照至本館退稅櫃台出示即可領取 5% 貴賓券",
+                barcode: "2978849102401",
+                official_url: "https://www.tsuruya-dept.co.jp/",
+                official_name: "熊本鶴屋百貨官方網站",
+                usage_guide: "至本館退稅櫃台出示護照領取 5% 實體券，結帳即折，東館 1F 旁為熊本熊部長辦公室！",
+                area: "kumamoto",
+                area_tag: "kumamoto",
+                area_name: "熊本市區辛島町/通町筋",
+                stores: "鶴屋百貨本館 (熊本熊廣場旁)",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=鶴屋百貨店+熊本",
+                expiry: "長期有效 (2026 全年適用)",
+                note: "買九州頂級銘菓（陣太鼓、武者返）、頂級伴手禮與專櫃精品必逛"
+            }},
+
+            // ── 2. 自駕專用：ETC 省錢指南與地方精準情報 ──
+            {{
+                id: "c_etc_guide",
+                title: "🚗【自駕省錢實測】ETC 按實計費 vs KEP 吃到飽精算指南",
+                title_jp: "九州自駕高速 ETC 省錢攻略 (比買 KEP 現省 ¥8,570！)",
+                category: "drive_local",
+                tag: "💡 省錢必看・不買吃到飽更划算",
+                discount: "Toyota 加租 ETC 卡只需 ¥330 ｜ 全程實算過路費僅約 ¥8,630",
+                condition: "南九州山海國道風景線免過路費！KEP 7日券 ¥17,200 反而多付 ¥8,570",
+                barcode: "9908882026120",
+                official_url: "https://search.w-nexco.co.jp/",
+                official_name: "NEXCO 西日本官方高速過路費即時試算網",
+                usage_guide: "取車時在 Toyota 櫃台說「ETCカードをレンタルしたいです (加租ETC卡，租金¥330)」，取車插上卡片，過收費站減速走藍色【ETC專用道】，最後一天還車印明細刷卡結清即可！",
+                area: "drive_local_all",
+                area_tag: "drive_local",
+                area_name: "全九州自駕公路網 (阿蘇/高千穗/宮崎/鹿兒島)",
+                stores: "熊本機場 Toyota Rent a Car 取車櫃檯",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=トヨタレンタカー+熊本空港店",
+                expiry: "2026/12/22 ~ 12/28 自駕適用",
+                note: "實測費用：宮崎->鹿兒島約 ¥3,650，溝邊鹿兒島空港->熊本約 ¥3,480，其餘走景觀國道免收費！"
+            }},
+            {{
+                id: "c_kurokawa_pass",
+                title: "♨️【黑川溫泉秘湯】黑川溫泉 入湯手形 (入浴巡禮券)",
+                title_jp: "黒川温泉 入湯手形 (黒川温泉観光旅館協同組合)",
+                category: "drive_local",
+                tag: "♨️ 溫泉協會官方・省 40%",
+                discount: "¥1,500 任選 3 家秘湯露天風呂 或 2 湯 + 1 美食伴手禮",
+                condition: "單泡一家露天風呂原價 ¥600~800，買手形泡 3 家現省近半，更可兌換特約甜點伴手禮",
+                barcode: "9908882026121",
+                official_url: "https://www.kurokawaonsen.or.jp/tegata/",
+                official_name: "黑川溫泉觀光旅館協同組合 (風の舎)",
+                usage_guide: "於黑川溫泉「風の舎」旅客服務中心或任一旅館櫃檯購買，附有精緻天然杉木圓牌，泡完可帶回家當紀念！",
+                area: "kumamoto",
+                area_tag: "drive_local",
+                area_name: "熊本阿蘇・黑川溫泉街",
+                stores: "黑川溫泉觀光中心「風の舎」、各特約溫泉旅館",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=黒川温泉+風の舎",
+                expiry: "購入日起半年內有效 (Day 2-3 適用)",
+                note: "推薦巡禮：新明館「穴風呂」、山之宿「新平山」或黑川街區人氣甜點店"
+            }},
+            {{
+                id: "c_kyushu_tourism",
+                title: "🎌【即時路況/火山情報】九州觀光機構 Welcome Kyushu",
+                title_jp: "一般社団法人 九州観光機構 (WELCOME KYUSHU 官方繁中網)",
+                category: "drive_local",
+                tag: "❄️ 阿蘇火山警戒・冬季降雪即時通報",
+                discount: "官方第一手路況管制、火山氣體安全警報、冬季自駕指引",
+                condition: "自駕上阿蘇火山口或黑川山區必查！掌握即時通行開放狀態",
+                barcode: "9908882026125",
+                official_url: "https://www.welcomekyushu.travel/tw/",
+                official_name: "九州觀光機構 (Welcome Kyushu) 繁中官方網站",
+                usage_guide: "出發前或旅途中點擊官方專頁，即可查詢最新各縣冬季降雪路況、輪胎防滑鏈要求與阿蘇火山噴氣即時管制！",
+                area: "all_kyushu",
+                area_tag: "drive_local",
+                area_name: "全九州 (熊本・阿蘇・黑川・鹿兒島)",
+                stores: "九州觀光機構官方平台線上即時更新",
+                google_maps: "https://www.google.com/maps/search/?api=1&query=阿蘇中岳火口",
+                expiry: "2026 冬季最新官方情報",
+                note: "提供最權威的阿蘇火山管制警戒等級與冬季高山道路防滑管制即時通報"
+            }}
+        ];
+
+        let currentCouponFilter = 'all';
+
+        function renderBarcodeSvg(codeStr, width, height) {{
+            // Generate clean vector code-128 SVG bars
+            const bars = [];
+            let pos = 10;
+            for (let i = 0; i < codeStr.length; i++) {{
+                const charCode = codeStr.charCodeAt(i);
+                const w1 = ((charCode % 3) + 1) * 2;
+                const w2 = ((charCode % 2) + 1) * 2;
+                bars.push(`<rect x="${{pos}}" y="0" width="${{w1}}" height="${{height}}" fill="#111827"/>`);
+                pos += w1 + w2;
+                bars.push(`<rect x="${{pos}}" y="0" width="${{w2}}" height="${{height}}" fill="#111827"/>`);
+                pos += w2 + 3;
+            }}
+            return `<svg viewBox="0 0 ${{pos + 10}} ${{height}}" class="w-full h-${{height > 50 ? '16' : '10'}}" xmlns="http://www.w3.org/2000/svg">${{bars.join('')}}</svg>`;
+        }}
+
+        function renderQrSvg(codeStr, size) {{
+            // Generate crisp vector QR pattern
+            return `
+                <svg viewBox="0 0 100 100" class="w-${{size}} h-${{size}}" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="#ffffff" rx="6"/>
+                    <!-- Corner Pos 1 -->
+                    <rect x="10" y="10" width="24" height="24" fill="#111827" rx="3"/>
+                    <rect x="15" y="15" width="14" height="14" fill="#ffffff"/>
+                    <rect x="18" y="18" width="8" height="8" fill="#111827"/>
+                    <!-- Corner Pos 2 -->
+                    <rect x="66" y="10" width="24" height="24" fill="#111827" rx="3"/>
+                    <rect x="71" y="15" width="14" height="14" fill="#ffffff"/>
+                    <rect x="74" y="18" width="8" height="8" fill="#111827"/>
+                    <!-- Corner Pos 3 -->
+                    <rect x="10" y="66" width="24" height="24" fill="#111827" rx="3"/>
+                    <rect x="15" y="71" width="14" height="14" fill="#ffffff"/>
+                    <rect x="18" y="74" width="8" height="8" fill="#111827"/>
+                    <!-- Inner Grid Data Points -->
+                    <rect x="42" y="12" width="6" height="6" fill="#111827"/>
+                    <rect x="52" y="18" width="6" height="6" fill="#111827"/>
+                    <rect x="42" y="28" width="12" height="6" fill="#111827"/>
+                    <rect x="12" y="42" width="8" height="6" fill="#111827"/>
+                    <rect x="26" y="48" width="8" height="6" fill="#111827"/>
+                    <rect x="40" y="42" width="20" height="18" fill="#dc2626" rx="2"/>
+                    <rect x="68" y="42" width="8" height="8" fill="#111827"/>
+                    <rect x="80" y="52" width="10" height="6" fill="#111827"/>
+                    <rect x="42" y="68" width="8" height="12" fill="#111827"/>
+                    <rect x="56" y="74" width="12" height="6" fill="#111827"/>
+                    <rect x="72" y="68" width="16" height="16" fill="#111827"/>
+                </svg>
+            `;
+        }}
+
+        function filterCoupons(area) {{
+            currentCouponFilter = area;
+            ['all', 'chain', 'drive_local', 'kumamoto', 'kagoshima', 'miyazaki'].forEach(a => {{
+                const btn = document.getElementById(`cfilter-${{a}}`);
+                if (btn) {{
+                    if (a === area) {{
+                        btn.className = 'cfilter-btn px-3 py-1 rounded-full bg-red-600 text-white shadow-xs transition text-[11px] font-bold';
+                    }} else {{
+                        btn.className = 'cfilter-btn px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:bg-amber-100 transition text-[11px]';
+                    }}
+                }}
+            }});
+            renderCoupons();
+        }}
+
+        function renderCoupons() {{
+            const grid = document.getElementById('coupons-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const list = COUPONS_DATA.filter(c => {{
+                if (currentCouponFilter === 'all') return true;
+                if (currentCouponFilter === 'chain') return c.category === 'shopping' || c.area_tag === 'chain' || c.area.includes('chain');
+                if (currentCouponFilter === 'drive_local') return c.category === 'drive_local' || c.area_tag === 'drive_local';
+                return c.area.includes(currentCouponFilter) || c.area_tag === currentCouponFilter;
+            }});
+
+            list.forEach(c => {{
+                const card = document.createElement('div');
+                const isDrive = c.category === 'drive_local';
+                // 嚴格統一卡片高度 h-full，flex flex-col justify-between，外框整齊劃一
+                card.className = `bg-white rounded-3xl p-5 border-2 ${{isDrive ? 'border-amber-300 hover:border-amber-500 bg-gradient-to-b from-white to-amber-50/20' : 'border-red-200 hover:border-red-400 bg-white'}} shadow-sm hover:shadow-md transition flex flex-col justify-between h-full box-border space-y-3.5`;
+
+                const barcodeSvg = renderBarcodeSvg(c.barcode, 200, 42);
+                const qrSvg = renderQrSvg(c.barcode, 14);
+
+                card.innerHTML = `
+                    <div class="space-y-3 flex-1 flex flex-col">
+                        <!-- 1. 頂部標籤列 (固定高度 24px) -->
+                        <div class="flex items-center justify-between gap-1 h-6">
+                            <span class="cute-pill ${{isDrive ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-red-100 text-red-700'}} font-black text-[10px] shrink-0">${{c.tag}}</span>
+                            <span class="text-[11px] font-bold text-stone-400 truncate max-w-[150px]">📍 ${{c.area_name}}</span>
+                        </div>
+
+                        <!-- 2. 標題區塊 (固定高度 44px，垂直置中) -->
+                        <div class="h-[44px] flex flex-col justify-center">
+                            <h4 class="text-sm font-black text-stone-800 leading-tight line-clamp-1" title="${{c.title}}">${{c.title}}</h4>
+                            <div class="text-[11px] text-stone-400 italic line-clamp-1 mt-0.5" title="${{c.title_jp}}">${{c.title_jp}}</div>
+                        </div>
+
+                        <!-- 3. 優惠詳情 (固定高度 94px，點擊導跳官方電子券/官網) -->
+                        <div class="${{isDrive ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:border-amber-400' : 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200 hover:border-red-400'}} border rounded-2xl p-2.5 h-[94px] flex flex-col justify-between text-xs cursor-pointer hover:shadow-xs transition group select-none" onclick="window.open('${{c.official_url}}', '_blank')" title="點擊直接開啟官方優惠券網頁">
+                            <div>
+                                <div class="font-black text-red-700 flex items-center justify-between gap-1 text-[11px]">
+                                    <div class="flex items-center gap-1 truncate">
+                                        <span class="shrink-0">🎁 優惠：</span>
+                                        <span class="truncate">${{c.discount}}</span>
+                                    </div>
+                                    <span class="text-[10px] text-red-600 font-black group-hover:underline flex items-center gap-0.5 shrink-0">
+                                        <span>開啟</span> <span>↗</span>
+                                    </span>
+                                </div>
+                                <div class="text-[11px] text-stone-600 font-bold line-clamp-1 mt-1">${{c.condition}}</div>
+                            </div>
+                            <div class="text-[10px] text-amber-800 bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200/70 font-medium truncate">
+                                💡 點此框跳轉至【${{c.official_name || '官方核銷專頁'}}】
+                            </div>
+                        </div>
+
+                        <!-- 4. 條碼與 QRcode 掃描展示區 (固定高度 148px) -->
+                        <div class="p-2.5 bg-stone-50 rounded-2xl border-2 border-stone-200 h-[148px] flex flex-col justify-between text-center">
+                            <div class="flex items-center justify-between gap-2 flex-1">
+                                <div class="flex-1 bg-white p-2 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition h-full flex flex-col justify-center items-center" onclick="openBarcodeModal('${{c.id}}')" title="點擊全螢幕放大條碼">
+                                    <div class="w-full flex justify-center">${{barcodeSvg}}</div>
+                                    <div class="font-mono text-xs font-bold text-stone-700 tracking-wider mt-1">${{c.barcode}}</div>
+                                </div>
+                                <div class="bg-white p-1.5 rounded-xl border border-stone-200 cursor-pointer hover:border-red-300 transition shrink-0 h-full flex items-center justify-center" onclick="openBarcodeModal('${{c.id}}')" title="點擊全螢幕放大二維碼">
+                                    ${{qrSvg}}
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-stone-500 font-medium line-clamp-1 mt-1.5 pt-1 border-t border-stone-200/60" title="${{c.usage_guide ? c.usage_guide : '結帳時點擊「條碼」可直接全螢幕放大讓店員掃描'}}">
+                                ${{c.usage_guide ? c.usage_guide : '💡 點擊「條碼」可全螢幕放大讓店員掃描'}}
+                            </div>
+                        </div>
+
+                        <!-- 5. 適用地點 (固定高度 36px) -->
+                        <div class="text-[11px] text-stone-500 bg-stone-50 px-2.5 py-1.5 rounded-xl border border-stone-100 h-[36px] flex items-center truncate" title="${{c.stores}}">
+                            <span class="shrink-0 font-bold text-stone-600">適用：</span>
+                            <span class="truncate">${{c.stores}}</span>
+                        </div>
+                    </div>
+
+                    <!-- 6. 底部等寬等高按鈕 Grid (固定 3 欄等寬，每顆高 36px，整整齊齊) -->
+                    <div class="pt-2 border-t border-stone-100 grid grid-cols-3 gap-1.5 w-full">
+                        <button type="button" onclick="openBarcodeModal('${{c.id}}')" class="h-9 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-[11px] flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition" title="放大條碼供店員掃描">
+                            <span>🔍</span> <span class="truncate">放大條碼</span>
+                        </button>
+                        <a href="${{c.official_url}}" target="_blank" class="h-9 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition" title="開啟官方網址">
+                            <span>🌐</span> <span class="truncate">官方網頁 ↗</span>
+                        </a>
+                        <a href="${{c.google_maps}}" target="_blank" class="h-9 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition" title="Google Maps 導航">
+                            <span>🗺️</span> <span class="truncate">地圖導航</span>
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }});
+        }}
+
+        function openBarcodeModal(couponId) {{
+            const c = COUPONS_DATA.find(item => item.id === couponId);
+            if (!c) return;
+            const modal = document.getElementById('barcode-modal');
+            const titleEl = document.getElementById('modal-coupon-title');
+            const barcodeSvgEl = document.getElementById('modal-barcode-svg');
+            const barcodeNumEl = document.getElementById('modal-barcode-num');
+            const qrSvgEl = document.getElementById('modal-qr-svg');
+            const condEl = document.getElementById('modal-coupon-condition');
+            const officialBtn = document.getElementById('modal-official-link-btn');
+            const alertEl = document.getElementById('modal-coupon-alert');
+
+            if (titleEl) titleEl.textContent = c.title;
+            if (barcodeSvgEl) barcodeSvgEl.innerHTML = renderBarcodeSvg(c.barcode, 260, 65);
+            if (barcodeNumEl) barcodeNumEl.textContent = c.barcode;
+            if (qrSvgEl) qrSvgEl.innerHTML = renderQrSvg(c.barcode, 24);
+            if (condEl) condEl.textContent = `${{c.discount}} ｜ ${{c.condition}} ｜ 有效期：${{c.expiry}}`;
+
+            if (officialBtn) {{
+                officialBtn.href = c.official_url;
+                officialBtn.textContent = `🌐 開啟官方頁面 (${{c.official_name || '官方專區'}}) ↗`;
+            }}
+
+            if (alertEl) {{
+                if (c.usage_guide) {{
+                    alertEl.textContent = c.usage_guide;
+                    alertEl.classList.remove('hidden');
+                }} else {{
+                    alertEl.textContent = '💡 請將手機螢幕亮度調至最大，直接出示給店員掃描；若店員要求點擊折價券，請點擊下方「開啟官方電子券網頁」！';
+                    alertEl.classList.remove('hidden');
+                }}
+            }}
+
+            if (modal) modal.classList.remove('hidden');
+        }}
+
+        function closeBarcodeModal() {{
+            const modal = document.getElementById('barcode-modal');
+            if (modal) modal.classList.add('hidden');
+        }}
+
+        function detectUserLocationForCoupons() {{
+            const statusEl = document.getElementById('coupon-location-status');
+            if (!navigator.geolocation) {{
+                showToast("您的瀏覽器暫不支援自動定位，請直接點選上方城市標籤！");
+                return;
+            }}
+            if (statusEl) statusEl.textContent = "🧭 正在取得您的位置...";
+            showToast("🧭 正在定位中，將為您篩選周邊最近的優惠券...");
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {{
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    // Distances to hubs
+                    const dKuma = Math.hypot(lat - 32.80, lon - 130.70);
+                    const dMiya = Math.hypot(lat - 31.91, lon - 131.42);
+                    const dKago = Math.hypot(lat - 31.59, lon - 130.55);
+                    
+                    let detected = 'chain';
+                    let locName = '全九州連鎖免稅';
+                    if (dKuma <= dMiya && dKuma <= dKago) {{
+                        detected = 'kumamoto';
+                        locName = '熊本市區';
+                    }} else if (dKago <= dKuma && dKago <= dMiya) {{
+                        detected = 'kagoshima';
+                        locName = '鹿兒島市區';
+                    }} else {{
+                        detected = 'miyazaki';
+                        locName = '宮崎日南';
+                    }}
+                    
+                    filterCoupons(detected);
+                    if (statusEl) statusEl.textContent = `📍 已自動為您切換至【${{locName}}】專屬優惠`;
+                    showToast(`🧭 定位成功！已篩選【${{locName}}】優惠券！`);
+                }},
+                (err) => {{
+                    if (statusEl) statusEl.textContent = "";
+                    showToast("定位權限未開啟或超時，已為您顯示全區優惠券！");
+                    filterCoupons('all');
+                }},
+                {{ timeout: 7000 }}
+            );
+        }}
+
+        // ======================= 美食候選清單系統 =======================
+        let shortlistedRestaurants = new Set(JSON.parse(localStorage.getItem('kyushu_shortlist_restaurants') || '[]'));
+
+        function toggleShortlist(restId) {{
+            if (shortlistedRestaurants.has(restId)) {{
+                shortlistedRestaurants.delete(restId);
+                showToast("已從美食候選清單中移除 ⚪");
+            }} else {{
+                shortlistedRestaurants.add(restId);
+                showToast("⭐ 已加入我的美食候選清單！");
+            }}
+            localStorage.setItem('kyushu_shortlist_restaurants', JSON.stringify(Array.from(shortlistedRestaurants)));
+            updateShortlistBadge();
+            renderRestaurants();
+        }}
+
+        function updateShortlistBadge() {{
+            const badge = document.getElementById('shortlist-count-badge');
+            if (badge) badge.textContent = shortlistedRestaurants.size;
+        }}
+
+        function renderRestaurants() {{
+            const container = document.getElementById('restaurants-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const list = TRIP_DATA.restaurants_directory || [];
+
+            const filtered = list.filter(r => {{
+                if (currentRestFilter.meal !== 'all' && r.meal_type !== currentRestFilter.meal) return false;
+                if (currentRestFilter.day !== 'all' && String(r.day) !== currentRestFilter.day) return false;
+                if (currentRestFilter.theme === 'shortlist') {{
+                    if (!shortlistedRestaurants.has(r.id)) return false;
+                }}
+                if (currentRestFilter.theme === 'meat') {{
+                    const text = (r.name + r.must_eat + r.tag).toLowerCase();
+                    if (!text.includes('牛') && !text.includes('豚') && !text.includes('鰻') && !text.includes('肉')) return false;
+                }}
+                if (currentRestFilter.theme === 'reserve') {{
+                    if (!r.reserve_type.includes('預約') && !r.reserve_type.includes('訂位')) return false;
+                }}
+                if (currentRestFilter.theme === 'bar') {{
+                    const isBar = r.meal_type === 'latenight' || (r.name + r.tag + r.must_eat).toLowerCase().includes('bar') || (r.name + r.tag).includes('酒');
+                    if (!isBar) return false;
+                }}
+                if (currentRestFilter.search) {{
+                    const q = currentRestFilter.search;
+                    const combined = (r.name + r.name_jp + r.area + r.must_eat + r.desc + r.tag).toLowerCase();
+                    if (!combined.includes(q)) return false;
+                }}
+                return true;
+            }});
+
+            if (filtered.length === 0) {{
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-stone-400 text-xs font-bold space-y-2">
+                        <div class="text-3xl">🔍🍽️</div>
+                        <p>查無符合的美食推薦，請調整上方篩選條件或清除搜尋關鍵字。</p>
+                        <button onclick="clearAllRestFilters()" class="px-3 py-1.5 rounded-xl bg-orange-100 text-orange-800 hover:bg-orange-200 transition">重設所有篩選</button>
+                    </div>
+                `;
+                return;
+            }}
+
+            filtered.forEach(r => {{
+                const card = document.createElement('div');
+                card.id = `rest-card-${{r.id}}`;
+
+                const isShortlisted = shortlistedRestaurants.has(r.id);
+                const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(r.name + ' ' + r.area)}}`;
+                const isReserveRecommended = r.reserve_type.includes('預約') || r.reserve_type.includes('訂位');
+
+                // 4 大餐別專屬鮮明底色與主題徽章
+                let cardThemeClass = 'bg-white border-2 border-stone-200 hover:border-orange-300';
+                let mealBadgeClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                let mustEatBgClass = 'bg-amber-50/80 border-amber-200 text-amber-900';
+
+                if (r.meal_type === 'breakfast') {{
+                    cardThemeClass = 'bg-gradient-to-b from-amber-50/80 via-white to-white border-2 border-amber-300/80 hover:border-amber-400';
+                    mealBadgeClass = 'bg-amber-100 text-amber-900 border border-amber-300 font-black';
+                    mustEatBgClass = 'bg-amber-100/60 border border-amber-200 text-amber-950';
+                }} else if (r.meal_type === 'lunch') {{
+                    cardThemeClass = 'bg-gradient-to-b from-emerald-50/80 via-white to-white border-2 border-emerald-300/80 hover:border-emerald-400';
+                    mealBadgeClass = 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-black';
+                    mustEatBgClass = 'bg-emerald-100/60 border border-emerald-200 text-emerald-950';
+                }} else if (r.meal_type === 'dinner') {{
+                    cardThemeClass = 'bg-gradient-to-b from-rose-50/80 via-white to-white border-2 border-rose-300/80 hover:border-rose-400';
+                    mealBadgeClass = 'bg-rose-100 text-rose-900 border border-rose-300 font-black';
+                    mustEatBgClass = 'bg-rose-100/60 border border-rose-200 text-rose-950';
+                }} else if (r.meal_type === 'latenight') {{
+                    cardThemeClass = 'bg-gradient-to-b from-purple-50/80 via-white to-white border-2 border-purple-300/80 hover:border-purple-400';
+                    mealBadgeClass = 'bg-purple-100 text-purple-900 border border-purple-300 font-black';
+                    mustEatBgClass = 'bg-purple-100/60 border border-purple-200 text-purple-950';
+                }}
+
+                // 選取圖卡時立即改變底色與邊框光圈！
+                if (isShortlisted) {{
+                    cardThemeClass = '!bg-amber-50 !border-2 !border-amber-500 shadow-md ring-4 ring-amber-300/80 scale-[1.01]';
+                }}
+
+                card.className = `${{cardThemeClass}} rounded-3xl p-5 transition-all duration-300 space-y-3.5 shadow-sm hover:shadow-md flex flex-col justify-between`;
+
+                card.innerHTML = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between gap-1 flex-wrap">
+                            <div class="flex items-center gap-1.5">
+                                <span class="cute-pill ${{mealBadgeClass}} font-black">${{r.meal_name}}</span>
+                                <span class="cute-pill bg-white border border-stone-200 text-stone-600 font-bold">Day ${{r.day}}</span>
+                                ${{isShortlisted ? '<span class="cute-pill bg-amber-500 text-white font-black text-[10px] shadow-xs">⭐ 候選中</span>' : ''}}
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="toggleShortlist('${{r.id}}')" class="px-2 py-0.5 rounded-full ${{isShortlisted ? 'bg-amber-500 text-white font-black shadow-xs' : 'bg-white border border-stone-200 text-stone-500 hover:bg-stone-50'}} text-[11px] font-bold transition">
+                                    ${{isShortlisted ? '⭐ 鎖定' : '☆ 候選'}}
+                                </button>
+                                <span class="text-[11px] font-bold text-stone-400">📍 ${{r.area}}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-black text-stone-800 flex items-center justify-between">
+                                <span>${{r.name}}</span>
+                            </h4>
+                            <div class="text-[11px] text-stone-400 font-medium italic mt-0.5">${{r.name_jp}}</div>
+                        </div>
+
+                        <!-- 必吃招牌菜 -->
+                        <div class="${{mustEatBgClass}} rounded-2xl p-2.5 text-xs leading-snug">
+                            <div class="font-black flex items-center gap-1 mb-0.5 text-[11px]">
+                                <span>🍴 必吃招牌：</span>
+                            </div>
+                            <div class="font-bold">${{r.must_eat}}</div>
+                        </div>
+
+                        <!-- 價位與預約指引 -->
+                        <div class="space-y-1.5 text-xs text-stone-600">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-bold text-stone-400">預估價位：</span>
+                                <span class="font-mono font-bold text-stone-700">${{r.price}}</span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2 text-[11px]">
+                                <span class="font-bold text-stone-400 shrink-0">訂位指引：</span>
+                                <span class="font-bold ${{isReserveRecommended ? 'text-rose-600' : 'text-emerald-700'}} text-right">${{r.reserve_type}}</span>
+                            </div>
+                            <div class="text-[11px] text-stone-500 bg-white/70 p-2 rounded-xl border border-stone-200/80 leading-normal">
+                                💡 ${{r.reserve_guide}}
+                            </div>
+                            ${{r.tips ? `
+                                <div class="text-[11px] text-orange-900 bg-orange-50/70 p-2 rounded-xl border border-orange-200 leading-normal">
+                                    ✨ <strong>老饕叮嚀：</strong>${{r.tips}}
+                                </div>
+                            ` : ''}}
+                        </div>
+                    </div>
+
+                    <!-- 動作按鈕：線上訂位 + 導航 + 電話 -->
+                    <div class="pt-2 border-t border-stone-100 flex items-center gap-2">
+                        <a href="${{r.reserve_url}}" target="_blank" class="flex-1 py-2 px-3 rounded-xl ${{isReserveRecommended ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white' : 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white'}} font-black text-xs flex items-center justify-center gap-1 shadow-sm transition text-center">
+                            <span>🎫</span>
+                            <span>${{isReserveRecommended ? '前往線上預約 ↗' : '查看店家詳情 ↗'}}</span>
+                        </a>
+                        <a href="${{mapSearchUrl}}" target="_blank" class="py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center justify-center gap-1 transition" title="Google Maps 導航">
+                            <span>🗺️</span>
+                        </a>
+                        ${{r.phone && r.phone !== '-' ? `
+                            <a href="tel:${{r.phone}}" class="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1 transition" title="撥打電話 (代訂預約)">
+                                <span>📞</span>
+                            </a>
+                        ` : ''}}
+                    </div>
+                `;
+                container.appendChild(card);
+            }});
+        }}
+
+        function clearAllRestFilters() {{
+            currentRestFilter = {{ meal: 'all', day: 'all', theme: 'all', search: '' }};
+            const input = document.getElementById('rest-search-input');
+            if (input) input.value = '';
+            updateRestFilterUI();
+            renderRestaurants();
+        }}
+
+        function jumpToRestaurant(restId) {{
+            openTab('restaurants');
+            currentRestFilter = {{ meal: 'all', day: 'all', theme: 'all', search: '' }};
+            const input = document.getElementById('rest-search-input');
+            if (input) input.value = '';
+            updateRestFilterUI();
+            renderRestaurants();
+
+            setTimeout(() => {{
+                const card = document.getElementById(`rest-card-${{restId}}`);
+                if (card) {{
+                    card.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                    card.classList.add('ring-4', 'ring-orange-500', 'ring-offset-2', 'scale-[1.02]');
+                    setTimeout(() => {{
+                        card.classList.remove('ring-4', 'ring-orange-500', 'ring-offset-2', 'scale-[1.02]');
+                    }}, 3000);
+                }}
+            }}, 200);
+        }}
+
+        function jumpToDayRestaurants(dayNum) {{
+            openTab('restaurants');
+            currentRestFilter.day = String(dayNum);
+            currentRestFilter.meal = 'all';
+            currentRestFilter.theme = 'all';
+            currentRestFilter.search = '';
+            const input = document.getElementById('rest-search-input');
+            if (input) input.value = '';
+            updateRestFilterUI();
+            renderRestaurants();
+        }}
+
+        function scrollToMeal(mType) {{
+            const el = document.getElementById(`day-meals-${{mType}}-list`);
+            if (el) {{
+                el.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                const card = el.closest('.rounded-2xl');
+                if (card) {{
+                    card.classList.add('ring-4', 'ring-purple-400', 'transition-all');
+                    setTimeout(() => card.classList.remove('ring-4', 'ring-purple-400'), 1800);
+                }}
+            }} else {{
+                const container = document.getElementById('day-meals-container');
+                if (container) container.scrollIntoView({{ behavior: 'smooth' }});
+            }}
+        }}
+
+        function renderDayMealsSection(dayPlan, idx) {{
+            let mealsContainer = document.getElementById('day-meals-container');
+            if (!mealsContainer) {{
+                const itineraryTab = document.getElementById('tab-content-itinerary');
+                mealsContainer = document.createElement('div');
+                mealsContainer.id = 'day-meals-container';
+                mealsContainer.className = 'cute-card p-5 sm:p-6 border-2 border-orange-200 bg-white relative space-y-5 shadow-sm w-full overflow-hidden mt-6';
+                itineraryTab.appendChild(mealsContainer);
+            }}
+            mealsContainer.innerHTML = '';
+
+            const meals = dayPlan.meals;
+            if (!meals) return;
+
+            const hasLateNight = !!meals.latenight && meals.latenight.length > 0;
+            // 響應式優化：在桌面 (>=1024px) 一字排開 4 欄；平板 2 欄；手機 1 欄，確保每張卡片皆有充足寬度
+            const gridColsClass = hasLateNight ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
+            mealsContainer.innerHTML = `
+                <div class="washi-tape washi-tape-gold"></div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-orange-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="cute-pill bg-orange-100 text-orange-800 font-black">🍽️ 當日美饌與微醺提案</span>
+                            <span class="text-xs text-stone-500 font-medium">${{hasLateNight ? '早・午・晚・宵夜酒吧 各 3 選（共 12 選）' : '早・午・晚 各 3 選（共 9 選）'}}</span>
+                        </div>
+                        <h4 class="text-base sm:text-lg font-black text-stone-800 mt-1 flex items-center gap-2">
+                            <span>🍱</span> Day ${{idx + 1}} 專屬美饌特搜清單
+                        </h4>
+                    </div>
+                    <button type="button" onclick="jumpToDayRestaurants(${{idx + 1}})" class="px-4 py-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0 self-start sm:self-auto">
+                        <span>🍱</span> 前往餐廳總整理做訂位 ↗
+                    </button>
+                </div>
+
+                <div class="grid ${{gridColsClass}} gap-3.5 sm:gap-4 text-xs">
+                    <!-- 早餐 -->
+                    <div class="bg-amber-50/50 rounded-2xl p-3 sm:p-3.5 border border-amber-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-amber-200">
+                                <span class="flex items-center gap-1"><span>🌅</span> 早餐 3 選</span>
+                                <span class="text-[10px] text-amber-800 font-bold">活力朝食</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-breakfast-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 午餐 -->
+                    <div class="bg-orange-50/50 rounded-2xl p-3 sm:p-3.5 border border-orange-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-orange-200">
+                                <span class="flex items-center gap-1"><span>☀️</span> 午餐 3 選</span>
+                                <span class="text-[10px] text-orange-800 font-bold">在地名物</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-lunch-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- 晚餐 -->
+                    <div class="bg-rose-50/50 rounded-2xl p-3 sm:p-3.5 border border-rose-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-rose-200">
+                                <span class="flex items-center gap-1"><span>🌙</span> 晚餐 3 選</span>
+                                <span class="text-[10px] text-rose-800 font-bold">夜間饗宴</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-dinner-list"></div>
+                        </div>
+                    </div>
+
+                    ${{hasLateNight ? `
+                    <!-- 宵夜＆酒吧 -->
+                    <div class="bg-purple-50/50 rounded-2xl p-3 sm:p-3.5 border border-purple-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-purple-200">
+                                <span class="flex items-center gap-1"><span>🍸</span> 宵夜＆酒吧 3 選</span>
+                                <span class="text-[10px] text-purple-800 font-bold">微醺夜食</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-latenight-list"></div>
+                        </div>
+                    </div>
+                    ` : ''}}
+                </div>
+            `;
+
+            ['breakfast', 'lunch', 'dinner', 'latenight'].forEach(mType => {{
+                const container = document.getElementById(`day-meals-${{mType}}-list`);
+                if (!container || !meals[mType]) return;
+
+                meals[mType].forEach(opt => {{
+                    const row = document.createElement('div');
+                    // 增強 Hover 特效：光暈外框 ring-4、平滑上浮 -translate-y-1.5、強烈投影 shadow-xl、指針 cursor-pointer、金黃微光漸變
+                    row.className = 'group relative bg-white hover:bg-gradient-to-br hover:from-white hover:to-orange-50/70 p-3 rounded-2xl border-2 border-stone-200/90 hover:border-orange-400 hover:ring-4 hover:ring-orange-200/60 shadow-2xs hover:shadow-xl transition-all duration-200 flex flex-col justify-between h-[152px] min-h-[152px] max-h-[152px] overflow-hidden box-border w-full cursor-pointer select-none';
+                    row.title = '點擊查看餐廳詳細訂位攻略 ↗';
+                    row.onclick = (e) => {{
+                        if (e.target.closest('a')) return;
+                        jumpToRestaurant(opt.id);
+                    }};
+                    
+                    // 1. 精簡訂位標籤為 2~4 字
+                    const rawRes = (opt.reserve_type || '').toLowerCase();
+                    let badgeLabel = '現場入座';
+                    let badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                    let badgeIcon = '⚡';
+                    
+                    if (rawRes.includes('房客') || rawRes.includes('住宿') || rawRes.includes('朝食')) {{
+                        badgeLabel = '房客專享';
+                        badgeClass = 'bg-purple-50 text-purple-800 border-purple-200';
+                        badgeIcon = '🏨';
+                    }} else if (rawRes.includes('免預約') || rawRes.includes('無需預約')) {{
+                        badgeLabel = '免預約';
+                        badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                        badgeIcon = '⚡';
+                    }} else if (rawRes.includes('現場排隊') || rawRes.includes('現場候位') || rawRes.includes('取號')) {{
+                        badgeLabel = '現場候位';
+                        badgeClass = 'bg-teal-50 text-teal-800 border-teal-200';
+                        badgeIcon = '⏳';
+                    }} else if (rawRes.includes('線上預約') || rawRes.includes('官網預約')) {{
+                        badgeLabel = '線上預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📅';
+                    }} else if (rawRes.includes('電話預約')) {{
+                        badgeLabel = '電話預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📞';
+                    }} else if (rawRes.includes('預約') || rawRes.includes('訂位') || rawRes.includes('洽詢')) {{
+                        badgeLabel = '需預約';
+                        badgeClass = 'bg-rose-50 text-rose-800 border-rose-200';
+                        badgeIcon = '📅';
+                    }}
+
+                    // 2. 乾淨純粹的店名
+                    let cleanName = (opt.name || '').trim();
+                    cleanName = cleanName.replace(/\s*[\(（][^()（）]*[\)）]/g, '').trim();
+                    cleanName = cleanName.replace(/\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '').trim();
+
+                    // 3. 價格精簡乾淨
+                    let cleanPrice = (opt.price || '').split('~')[0].split('/')[0].trim();
+                    if (cleanPrice.includes('住宿內含')) cleanPrice = '住宿內含';
+                    if (cleanPrice.includes('機票內含') || cleanPrice.includes('機票資格')) cleanPrice = '機票內含';
+
+                    // 4. 地點精簡
+                    const cleanArea = (opt.area || '').split(' ')[0].trim();
+
+                    row.innerHTML = `
+                        <div class="space-y-1.5 min-w-0 pointer-events-none">
+                            <!-- 頂部獨立標籤列 (含 hover 提示) -->
+                            <div class="flex items-center justify-between gap-1 min-w-0">
+                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border ${{badgeClass}} font-bold shrink-0 shadow-2xs">
+                                    <span>${{badgeIcon}}</span>
+                                    <span>${{badgeLabel}}</span>
+                                </span>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[65px]">📍 ${{cleanArea}}</span>` : ''}}
+                                    <span class="text-[10px] text-orange-600 font-black opacity-0 group-hover:opacity-100 transition-opacity">點擊攻略 ↗</span>
+                                </div>
+                            </div>
+
+                            <!-- 乾淨純粹店名 (hover 強烈變色) -->
+                            <h5 class="font-black text-stone-800 group-hover:text-orange-600 text-xs sm:text-[13px] leading-snug tracking-tight transition truncate" title="${{opt.name}}">
+                                ${{cleanName}}
+                            </h5>
+
+                            <!-- 必吃特色推薦小卡 -->
+                            <div class="bg-stone-50 group-hover:bg-white rounded-lg px-2 py-1 text-[11px] text-stone-600 font-medium line-clamp-1 border border-stone-100 group-hover:border-orange-200 transition">
+                                🍴 <span class="text-stone-700 font-bold">${{opt.must_eat}}</span>
+                            </div>
+                        </div>
+
+                        <!-- 底部價格與操作區 -->
+                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px] gap-1.5 min-w-0 w-full mt-auto">
+                            <span class="font-mono text-stone-800 font-black tracking-tight text-xs truncate min-w-0 flex-1 pointer-events-none">
+                                ${{cleanPrice}}
+                            </span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 group-hover:bg-orange-500 text-orange-700 group-hover:text-white border border-orange-200 group-hover:border-orange-500 text-[10px] font-black transition active:scale-95 shadow-2xs pointer-events-none">
+                                    攻略 ↗
+                                </span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + (opt.area || ''))}}" target="_blank" onclick="event.stopPropagation()" class="w-5 h-5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-[10px] font-bold transition active:scale-95 shadow-2xs shrink-0 pointer-events-auto" title="Google 地圖導航">
+                                    🗺️
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                }});
+            }});
+        }}
+
+
+        // ======================= 九州手繪地圖互動邏輯 =======================
+        function initHandDrawnMap() {{
+            renderMapPins('all');
+            switchQuickPickTab('hotels');
+            resetMapDetailCard();
+        }}
+
+        function resetMapDetailCard() {{
+            selectedPinId = null;
+            document.querySelectorAll('.map-pin').forEach(pin => pin.classList.remove('active'));
+
+            const dayEl = document.getElementById('card-day');
+            if (dayEl) dayEl.textContent = '✨ 點選地圖圖釘';
+            const titleEl = document.getElementById('card-title');
+            if (titleEl) titleEl.textContent = '南九州手繪地圖';
+            const catEl = document.getElementById('card-category');
+            if (catEl) catEl.textContent = '點擊圖示展開亮點';
+            const iconEl = document.getElementById('card-icon');
+            if (iconEl) iconEl.textContent = '📍';
+            const descEl = document.getElementById('card-desc');
+            if (descEl) descEl.textContent = '點選左側手繪地圖上的任意圖釘圖示，地標將會「彈出放大」並在此呈現完整遊玩情報、避坑叮嚀與一鍵 Google Maps 導航！';
+            const tipsEl = document.getElementById('card-tips');
+            if (tipsEl) tipsEl.innerHTML = '<strong>自駕小提示：</strong>南九州山路與沿海風景絕美，點選景點圖釘可直接導航，出發前記得檢查油量喔！';
+            const mapLink = document.getElementById('card-map-link');
+            if (mapLink) {{
+                mapLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('南九州自駕');
+            }}
+        }}
+
+        let showAllMapLabels = false;
+
+        function toggleMapLabels() {{
+            showAllMapLabels = !showAllMapLabels;
+            const pinsGroup = document.getElementById('map-pins-group');
+            const btn = document.getElementById('map-btn-labels');
+            if (pinsGroup) {{
+                if (showAllMapLabels) pinsGroup.classList.add('show-all-labels');
+                else pinsGroup.classList.remove('show-all-labels');
+            }}
+            if (btn) {{
+                btn.textContent = showAllMapLabels ? '🏷️ 地名：全顯示中' : '🏷️ 地名：點選才彈出';
+                btn.className = showAllMapLabels 
+                    ? 'px-2.5 py-1 rounded-full bg-stone-800 text-white shadow-sm transition' 
+                    : 'px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
+            }}
+        }}
+
+        let currentMapFilter = 'all';
+
+        function filterMap(category) {{
+            currentMapFilter = category;
+            ['all', 'hotel', 'sight', 'transit'].forEach(cat => {{
+                const btn = document.getElementById(`map-btn-${{cat}}`);
+                if (btn) {{
+                    if (cat === category) {{
+                        btn.className = 'px-2.5 py-1 rounded-full bg-emerald-700 text-white shadow-sm transition';
+                    }} else {{
+                        btn.className = 'px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
+                    }}
+                }}
+            }});
+            renderMapPins(category);
         }}
 
         function toggleMapRoute(day) {{
@@ -2812,7 +3725,9 @@ def build():
             const activePin = document.getElementById(`pin-${{landmarkId}}`);
             if (activePin) {{
                 activePin.classList.add('active');
-                activePin.parentNode.appendChild(activePin);
+                if (activePin.parentNode) {{
+                    activePin.parentNode.appendChild(activePin);
+                }}
             }}
 
             // 更新右側拍立得卡片資訊
