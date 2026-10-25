@@ -50,6 +50,32 @@
         ayee:    { label: '🍡 阿姨', bg: '#ffe4e6', border: '#e11d48', text: '#9f1239', pin: '#f43f5e' },
         alu:     { label: '🐻 阿嚕', bg: '#ffedd5', border: '#ea580c', text: '#9a3412', pin: '#f97316' }
     };
+    const ROLE_SPOT_STATUSES = {
+        achun: [
+            '💻 席地打物治紀錄中…',
+            '💻 飛快敲筆電寫 SOAP 病歷…',
+            '☕ 邊喝拿鐵邊打復健報告…',
+            '💻 鍵盤狂敲整理個案中…'
+        ],
+        yijhang: [
+            '📱 專注破倒試管第 750 關…',
+            '🧪 冷靜計算水管倒水順序…',
+            '📱 沉浸彩色試管手遊中…',
+            '🧪 連闖三關試管破解中…'
+        ],
+        ayee: [
+            '🍡 熱情分送剛烤好糰子…',
+            '🥟 遞上熱騰騰黑糖饅頭…',
+            '🍊 剝多汁小蜜柑餵食全家…',
+            '🛍️ 掏出九州伴手禮分食中…'
+        ],
+        alu: [
+            '📷 舉復古相機取景拍照中…',
+            '📸 閃光燈閃爍捕捉全家福…',
+            '📷 調整光圈紀錄九州美景…',
+            '📸 尋找最佳角度構圖中…'
+        ]
+    };
 
     const FALLBACK_QUOTES = {
         "achun": [
@@ -2460,6 +2486,37 @@
             ].join('');
 
             el.innerHTML = `
+                <div class="char-action-status" style="
+                    display:none;
+                    background:rgba(15, 23, 42, 0.92);
+                    backdrop-filter:blur(8px);
+                    -webkit-backdrop-filter:blur(8px);
+                    border:1.5px solid ${st.border};
+                    color:#ffffff;
+                    font-size:9.5px;
+                    font-weight:800;
+                    padding:2px 8px;
+                    border-radius:9999px;
+                    white-space:nowrap;
+                    box-shadow:0 3px 10px rgba(0,0,0,0.32);
+                    margin-bottom:3px;
+                    align-items:center;
+                    gap:4px;
+                    line-height:1.2;
+                    letter-spacing:0.02em;
+                    pointer-events:none;
+                ">
+                    <span class="action-dot" style="
+                        width:6px;
+                        height:6px;
+                        border-radius:999px;
+                        background:${st.pin};
+                        box-shadow:0 0 6px ${st.pin};
+                        display:inline-block;
+                        flex-shrink:0;
+                    "></span>
+                    <span class="action-text"></span>
+                </div>
                 <div class="char-pin-badge" style="
                     background:${st.bg};
                     border:2px solid ${st.border};
@@ -2529,6 +2586,23 @@
                     modeSpan.textContent = (role === 'achun') ? '🛸💨' : '🏃💨';
                 } else {
                     modeSpan.textContent = '';
+                }
+            }
+
+            // 景點專屬個性動作頭頂狀態列（除發言者外，做動作的人頭頂顯示正在做什麼）
+            const isBusy = isStoppedAtLandmark && (cg.userData.isSpotBusy === true);
+            const isSpeaking = (activeSpeaker === role);
+            const actionEl = el.querySelector('.char-action-status');
+            const actionText = el.querySelector('.action-text');
+
+            if (actionEl && actionText) {
+                if (isBusy && !isSpeaking) {
+                    actionEl.style.display = 'inline-flex';
+                    const list = ROLE_SPOT_STATUSES[role] || [];
+                    const sIdx = Math.floor(elapsed * 0.35) % (list.length || 1);
+                    actionText.textContent = list[sIdx] || '';
+                } else {
+                    actionEl.style.display = 'none';
                 }
             }
 
