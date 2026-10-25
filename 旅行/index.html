@@ -12,6 +12,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
     
+    <!-- Three.js 核心與軌道控制器 (政策島 3D 渲染引擎) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -73,88 +77,56 @@
             z-index: 10;
         }
 
-        /* ================= 政策島風格動畫與角色特效 ================= */
-        @keyframes float-island {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-7px); }
+        /* 3D 浮空政策島容器 */
+        #island-canvas-container {
+            width: 100%;
+            height: 480px;
+            position: relative;
+            cursor: grab;
+            touch-action: none;
+            overflow: hidden;
+            border-radius: 1.5rem;
         }
-        .island-floating {
-            animation: float-island 6s ease-in-out infinite;
+        #island-canvas-container:active {
+            cursor: grabbing;
         }
-
-        @keyframes cloud-move {
-            0% { transform: translateX(-120px); opacity: 0; }
-            10% { opacity: 0.8; }
-            90% { opacity: 0.8; }
-            100% { transform: translateX(850px); opacity: 0; }
-        }
-        .cloud-1 { animation: cloud-move 28s linear infinite; }
-        .cloud-2 { animation: cloud-move 38s linear infinite 14s; }
-        .cloud-3 { animation: cloud-move 32s linear infinite 7s; }
-
-        @keyframes steam-puff {
-            0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
-            40% { opacity: 0.7; }
-            100% { transform: translate(10px, -35px) scale(1.6); opacity: 0; }
-        }
-        .smoke-ring {
-            animation: steam-puff 3s ease-out infinite;
-            transform-origin: center;
+        @media (max-width: 640px) {
+            #island-canvas-container {
+                height: 400px;
+            }
         }
 
-        @keyframes van-drive {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(2px, -2px) rotate(1deg); }
-            75% { transform: translate(-2px, 1px) rotate(-1deg); }
-        }
-        .van-bobbing {
-            animation: van-drive 2.2s ease-in-out infinite;
-        }
-
-        /* 島上角色自然晃動 */
-        @keyframes character-breathe {
-            0%, 100% { transform: translateY(0) scaleY(1); }
-            50% { transform: translateY(-4px) scaleY(1.03); }
-        }
-        .island-char {
-            animation: character-breathe 2.5s ease-in-out infinite;
-            transform-origin: bottom center;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .island-char:hover {
-            filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.5));
-            transform: scale(1.2) translateY(-6px);
-        }
-
-        @keyframes hop-jump {
-            0%, 100% { transform: translateY(0) scale(1); }
-            40% { transform: translateY(-24px) scale(1.15); }
-            70% { transform: translateY(2px) scale(0.95); }
-        }
-        .avatar-hop {
-            animation: hop-jump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        }
-
-        @keyframes camera-flash {
-            0%, 88%, 100% { opacity: 0; transform: scale(0.5); }
-            92% { opacity: 1; transform: scale(1.5); }
-            96% { opacity: 0; transform: scale(1); }
-        }
-        .cam-sparkle {
-            animation: camera-flash 4.5s ease-in-out infinite;
-        }
-
-        /* SVG 對話氣泡過渡 */
-        .svg-speech-bubble {
-            opacity: 0;
+        /* 政策島 3D 對話氣泡浮動層 */
+        .island-speech-bubble {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: #ffffff;
+            border: 2px solid #3d342b;
+            padding: 7px 12px;
+            border-radius: 16px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #3d342b;
+            white-space: nowrap;
+            box-shadow: 0 10px 20px -3px rgba(0,0,0,0.18);
             pointer-events: none;
-            transition: opacity 0.25s ease-in-out, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform-origin: bottom center;
+            opacity: 0;
+            transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 30;
         }
-        .svg-speech-bubble.active {
+        .island-speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #3d342b transparent transparent transparent;
+        }
+        .island-speech-bubble.active {
             opacity: 1;
-            pointer-events: auto;
+            transform: translate(-50%, -115%) scale(1);
         }
     </style>
 </head>
@@ -198,34 +170,29 @@
     <!-- 主體內容 -->
     <main class="max-w-6xl mx-auto px-4 sm:px-8 py-6 w-full flex-1 space-y-8">
 
-        <!-- ================= 政策島風格・家族冒險浮空島 (Interactive Adventure Island) ================= -->
-        <div class="relative bg-gradient-to-b from-sky-100 via-sky-50 to-amber-50/50 rounded-3xl p-5 sm:p-8 border-2 border-stone-200 shadow-xl overflow-hidden">
+        <!-- ================= 政策島風格・3D 互動浮空冒險島 (Heart Island Style) ================= -->
+        <div class="relative bg-gradient-to-b from-sky-100/90 via-sky-50 to-amber-50/40 rounded-3xl p-4 sm:p-7 border-2 border-stone-200 shadow-xl overflow-hidden">
             
-            <!-- 天空裝飾與漂浮白雲 -->
-            <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                <div class="cloud-1 absolute top-4 text-white/90 text-4xl select-none">☁️</div>
-                <div class="cloud-2 absolute top-12 text-white/80 text-3xl select-none">☁️</div>
-                <div class="cloud-3 absolute top-7 text-white/70 text-5xl select-none">☁️</div>
-                <!-- 迷你客機 CI194 -->
-                <div class="absolute top-6 right-8 text-xl animate-pulse flex items-center gap-1 select-none opacity-85">
-                    <span>✈️</span>
-                    <span class="text-[10px] font-black font-mono text-sky-800 bg-white/70 px-1.5 py-0.5 rounded-md border border-sky-200 shadow-xs">CI194 桃園 ➔ 熊本</span>
-                </div>
-            </div>
-
-            <!-- 標題與說明 -->
-            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-sky-200/60">
+            <!-- 標題與控制器列 -->
+            <div class="relative z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-sky-200/60">
                 <div>
-                    <div class="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
-                        <span>🏝️ 政策島風格・冒險互動舞台</span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-black text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        <span class="w-2 h-2 rounded-full bg-amber-600 animate-ping"></span>
+                        <span>🏝️ 沈伯洋政策島風格・3D 家族冒險島</span>
                     </div>
                     <h2 class="text-xl sm:text-2xl font-black text-stone-800 mt-1 flex items-center gap-2">
-                        <span>🗾</span> 家族冒險小島 ｜ 點選島上人物查看心情！
+                        <span>🗾</span> 九州漫遊浮空島 ｜ 人物正沿著山路散步中！
                     </h2>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-stone-500 font-bold hidden md:inline">💡 點點看小人、車車或溫泉！</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="toggleAutoRotate()" id="btn-auto-rotate" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                        <span>🔄</span>
+                        <span id="rotate-text">視角旋轉：開</span>
+                    </button>
+                    <button onclick="cheerEveryone()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                        <span>🤾</span>
+                        <span>歡樂齊跳！</span>
+                    </button>
                     <a href="./2026%20南九州冬季聖誕自駕/index.html" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-200 flex items-center gap-1.5 transition transform hover:scale-105 active:scale-95">
                         <span>進入 2026 南九州手帳</span>
                         <span>➔</span>
@@ -233,299 +200,42 @@
                 </div>
             </div>
 
-            <!-- 2.5D Isometric 互動浮空島主舞台 -->
-            <div class="relative w-full py-4 flex flex-col items-center justify-center">
-                
-                <div class="island-floating relative w-full max-w-4xl">
-                    <!-- SVG 向量繪製的 2.5D 等角透視浮空島與小人物 -->
-                    <svg viewBox="0 0 880 430" class="w-full h-auto drop-shadow-2xl select-none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="island-grass" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#86efac"/>
-                                <stop offset="50%" stop-color="#4ade80"/>
-                                <stop offset="100%" stop-color="#22c55e"/>
-                            </linearGradient>
-                            <linearGradient id="island-cliff" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#854d0e"/>
-                                <stop offset="40%" stop-color="#713f12"/>
-                                <stop offset="100%" stop-color="#451a03"/>
-                            </linearGradient>
-                            <linearGradient id="mini-sea" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#38bdf8"/>
-                                <stop offset="100%" stop-color="#0284c7"/>
-                            </linearGradient>
-                            <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
-                                <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#3d342b" flood-opacity="0.22"/>
-                            </filter>
-                        </defs>
+            <!-- 3D WebGL 畫布容器 -->
+            <div id="island-canvas-container" class="relative mt-3 bg-gradient-to-b from-[#e0f2fe] via-[#f0f9ff] to-[#fef3c7]/30">
+                <!-- 3D 浮動對話氣泡 -->
+                <div id="bubble-achun" class="island-speech-bubble">✈️ 華航 CI194 倒數出發！大家行李打包好了嗎～🎒</div>
+                <div id="bubble-yijhang" class="island-speech-bubble">🚗 8 人座雪胎休旅車交給我！九州公路看我的！🚙</div>
+                <div id="bubble-ayee" class="island-speech-bubble">🍱 人吉百年鰻魚飯＆黑川山彥溫泉會席，我等不及了！😋</div>
+                <div id="bubble-alu" class="island-speech-bubble">📸 記憶卡清出 256GB！準備狂拍櫻島火山大景～✨</div>
 
-                        <!-- 浮空島底部大陰影 -->
-                        <ellipse cx="440" cy="400" rx="360" ry="24" fill="rgba(61, 52, 43, 0.14)" />
-
-                        <!-- 2.5D 浮空島岩壁厚度 (Cliff) -->
-                        <path d="M 120 230 
-                                 C 120 300, 260 380, 440 380 
-                                 C 620 380, 760 300, 760 230 
-                                 L 760 270 
-                                 C 760 340, 620 410, 440 410 
-                                 C 260 410, 120 340, 120 270 Z" 
-                              fill="url(#island-cliff)" />
-
-                        <!-- 浮空島岩層紋理條帶 -->
-                        <path d="M 140 260 Q 440 380 740 260 L 740 275 Q 440 395 140 275 Z" fill="#5c2e0b" opacity="0.6"/>
-                        <path d="M 180 300 Q 440 395 700 300 L 700 310 Q 440 405 180 310 Z" fill="#3b1d07" opacity="0.8"/>
-
-                        <!-- 浮空島綠色草地頂面 (Isometric Top Surface) -->
-                        <path d="M 440 80 
-                                 C 640 80, 770 140, 770 215 
-                                 C 770 290, 620 350, 440 350 
-                                 C 260 350, 110 290, 110 215 
-                                 C 110 140, 240 80, 440 80 Z" 
-                              fill="url(#island-grass)" stroke="#16a34a" stroke-width="4" filter="url(#soft-shadow)"/>
-
-                        <!-- 錦江灣海洋水域 (東南側) -->
-                        <path d="M 520 215 C 620 205, 730 225, 740 255 C 720 290, 610 325, 480 325 C 420 325, 480 255, 520 215 Z" fill="url(#mini-sea)" opacity="0.9"/>
-                        <!-- 錦江灣白色波浪紋 -->
-                        <path d="M 540 265 Q 560 260 580 265 T 620 265" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
-                        <path d="M 580 290 Q 600 285 620 290 T 660 290" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
-
-                        <!-- 自駕環島景觀公路 (Scenic Mountain Road) -->
-                        <path d="M 210 235 
-                                 C 250 170, 360 120, 460 130 
-                                 C 550 140, 650 180, 630 235 
-                                 C 610 285, 480 295, 340 285 
-                                 C 260 275, 180 265, 210 235 Z" 
-                              fill="none" stroke="#e2e8f0" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-                        <!-- 柏油路中央雙黃線 -->
-                        <path d="M 210 235 
-                                 C 250 170, 360 120, 460 130 
-                                 C 550 140, 650 180, 630 235 
-                                 C 610 285, 480 295, 340 285 
-                                 C 260 275, 180 265, 210 235 Z" 
-                              fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="8 6" stroke-linecap="round" />
-
-                        <!-- 迷你阿蘇中岳火山 ＆ 噴煙 -->
-                        <g transform="translate(365, 95)" onclick="triggerVolcano()" style="cursor: pointer;">
-                            <polygon points="40,55 0,90 80,90" fill="#78716c" />
-                            <polygon points="40,55 55,90 80,90" fill="#57534e" />
-                            <ellipse cx="40" cy="55" rx="16" ry="7" fill="#dc2626" />
-                            <ellipse cx="40" cy="55" rx="11" ry="4" fill="#450a0a" />
-                            <text x="40" y="50" font-size="11" font-weight="900" fill="#b91c1c" text-anchor="middle">🌋 阿蘇</text>
-                            <circle cx="36" cy="40" r="5" fill="#f5f5f4" class="smoke-ring" opacity="0.6"/>
-                            <circle cx="44" cy="30" r="8" fill="#e7e5e4" class="smoke-ring" style="animation-delay: 1.2s;" opacity="0.5"/>
-                            <circle cx="38" cy="20" r="11" fill="#d6d3d1" class="smoke-ring" style="animation-delay: 2.1s;" opacity="0.4"/>
-                        </g>
-
-                        <!-- 黑川秘湯露天溫泉池 -->
-                        <g transform="translate(520, 130)" onclick="interactAvatar('ayee')" style="cursor: pointer;">
-                            <ellipse cx="30" cy="25" rx="28" ry="16" fill="#0284c7" stroke="#78716c" stroke-width="4"/>
-                            <ellipse cx="30" cy="25" rx="22" ry="11" fill="#38bdf8"/>
-                            <text x="30" y="29" font-size="13" text-anchor="middle">♨️</text>
-                            <text x="30" y="52" font-size="10" font-weight="900" fill="#0369a1" text-anchor="middle">黑川秘湯</text>
-                        </g>
-
-                        <!-- 國寶霧島朱紅小鳥居 -->
-                        <g transform="translate(250, 140)">
-                            <path d="M 10 10 L 40 10 M 15 10 L 15 32 M 35 10 L 35 32 M 8 16 L 42 16" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
-                            <text x="25" y="44" font-size="10" font-weight="900" fill="#991b1b" text-anchor="middle">⛩️ 霧島神宮</text>
-                        </g>
-
-                        <!-- 櫻島活火山 (錦江灣畔) -->
-                        <g transform="translate(650, 190)">
-                            <polygon points="35,30 5,65 65,65" fill="#a8a29e" />
-                            <ellipse cx="35" cy="30" rx="12" ry="5" fill="#ea580c" />
-                            <text x="35" y="24" font-size="11" font-weight="900" fill="#c2410c" text-anchor="middle">🌋 櫻島</text>
-                        </g>
-
-                        <!-- 錦江灣迷你櫻島渡輪 -->
-                        <g transform="translate(565, 245)">
-                            <path d="M 0 10 L 28 10 L 24 18 L 4 18 Z" fill="#ffffff" stroke="#0369a1" stroke-width="1.5"/>
-                            <rect x="8" y="4" width="12" height="6" fill="#ef4444" rx="1.5"/>
-                            <text x="14" y="27" font-size="8" font-weight="bold" fill="#0369a1" text-anchor="middle">⛴️ 櫻島渡輪</text>
-                        </g>
-
-                        <!-- 8 人座自駕紅色休旅車 (車頂綁行李箱) -->
-                        <g id="mini-van" class="van-bobbing" transform="translate(365, 248)" onclick="triggerCarHonk()" style="cursor: pointer;">
-                            <ellipse cx="40" cy="42" rx="32" ry="8" fill="rgba(0,0,0,0.2)"/>
-                            <rect x="10" y="12" width="60" height="25" rx="8" fill="#dc2626" stroke="#991b1b" stroke-width="2.5"/>
-                            <rect x="20" y="8" width="40" height="4" fill="#475569" rx="1"/>
-                            <rect x="24" y="2" width="16" height="7" fill="#fbbf24" stroke="#d97706" stroke-width="1" rx="1.5"/>
-                            <rect x="42" y="3" width="14" height="6" fill="#38bdf8" stroke="#0284c7" stroke-width="1" rx="1.5"/>
-                            <path d="M 18 16 L 32 16 L 32 23 L 18 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
-                            <path d="M 36 16 L 50 16 L 50 23 L 36 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
-                            <path d="M 54 16 L 64 18 L 62 23 L 54 23 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
-                            <circle cx="67" cy="27" r="2.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1"/>
-                            <circle cx="12" cy="27" r="2" fill="#ef4444"/>
-                            <circle cx="24" cy="37" r="7" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
-                            <circle cx="24" cy="37" r="2.5" fill="#f8fafc"/>
-                            <circle cx="56" cy="37" r="7" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
-                            <circle cx="56" cy="37" r="2.5" fill="#f8fafc"/>
-                            <text x="40" y="49" font-size="9" font-weight="900" fill="#991b1b" text-anchor="middle">8人座雪胎車 🚙</text>
-                        </g>
-
-                        <!-- 可愛小松樹 -->
-                        <g transform="translate(180, 205)"><polygon points="12,0 0,16 24,16" fill="#15803d"/><polygon points="12,10 2,24 22,24" fill="#166534"/><rect x="10" y="24" width="4" height="6" fill="#78350f"/></g>
-                        <g transform="translate(460, 185)"><polygon points="10,0 0,14 20,14" fill="#15803d"/><polygon points="10,8 2,20 18,20" fill="#166534"/><rect x="8" y="20" width="4" height="5" fill="#78350f"/></g>
-
-
-                        <!-- ===================== 島上 4 位 Q 版小人物向量立繪 (立體站立於島上) ===================== -->
-
-                        <!-- 1. 阿純 (Achun) 總策劃・推黃色行李箱 (位於公路起點) -->
-                        <g id="island-char-achun" class="island-char" transform="translate(225, 210)" onclick="interactAvatar('achun')" style="cursor: pointer;">
-                            <ellipse cx="20" cy="50" rx="16" ry="4.5" fill="rgba(0,0,0,0.22)"/>
-                            <!-- 黃色行李箱 -->
-                            <g transform="translate(30, 24)">
-                                <rect x="0" y="4" width="14" height="22" rx="3" fill="#facc15" stroke="#3d342b" stroke-width="2"/>
-                                <path d="M 4 4 L 4 -1 L 10 -1 L 10 4" fill="none" stroke="#3d342b" stroke-width="1.8"/>
-                                <rect x="3" y="11" width="8" height="3" rx="1" fill="#ef4444"/>
-                                <circle cx="3" cy="26" r="2.5" fill="#1e293b"/>
-                                <circle cx="11" cy="26" r="2.5" fill="#1e293b"/>
-                            </g>
-                            <!-- 雙腳 -->
-                            <rect x="12" y="41" width="5" height="9" rx="2" fill="#3d342b"/>
-                            <rect x="21" y="41" width="5" height="9" rx="2" fill="#3d342b"/>
-                            <!-- 身體大衣 (紅色) -->
-                            <rect x="9" y="24" width="20" height="20" rx="6" fill="#e11d48" stroke="#3d342b" stroke-width="2.2"/>
-                            <!-- 圍巾 -->
-                            <rect x="8" y="21" width="22" height="7" rx="3.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
-                            <rect x="13" y="26" width="5" height="10" rx="1.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.2"/>
-                            <!-- 頭部 -->
-                            <circle cx="19" cy="13" r="12" fill="#fed7aa" stroke="#3d342b" stroke-width="2.2"/>
-                            <circle cx="15" cy="13" r="1.8" fill="#3d342b"/>
-                            <circle cx="23" cy="13" r="1.8" fill="#3d342b"/>
-                            <ellipse cx="13" cy="17" rx="3" ry="1.5" fill="#fda4af"/>
-                            <ellipse cx="25" cy="17" rx="3" ry="1.5" fill="#fda4af"/>
-                            <path d="M 17 16 Q 19 19 21 16" fill="none" stroke="#3d342b" stroke-width="1.4" stroke-linecap="round"/>
-                            <!-- 紅色毛帽與白毛球 -->
-                            <path d="M 7 11 C 7 1, 31 1, 31 11 Z" fill="#dc2626" stroke="#3d342b" stroke-width="2.2"/>
-                            <circle cx="19" cy="1" r="4.5" fill="#ffffff" stroke="#3d342b" stroke-width="1.8"/>
-                            <!-- 名字徽章 -->
-                            <rect x="2" y="55" width="34" height="15" rx="5" fill="#ffffff" stroke="#e11d48" stroke-width="1.8" filter="url(#soft-shadow)"/>
-                            <text x="19" y="66" font-size="9.5" font-weight="900" fill="#9f1239" text-anchor="middle">阿純 🧣</text>
-
-                            <!-- SVG 專屬彈出對話氣泡 -->
-                            <g id="svg-bubble-achun" class="svg-speech-bubble" transform="translate(-45, -50)">
-                                <rect x="0" y="0" width="130" height="38" rx="8" fill="#ffffff" stroke="#3d342b" stroke-width="2" filter="url(#soft-shadow)"/>
-                                <polygon points="65,38 60,45 70,38" fill="#ffffff" stroke="#3d342b" stroke-width="2"/>
-                                <text x="65" y="16" font-size="9" font-weight="900" fill="#e11d48" text-anchor="middle">✈️ 華航 CI194 倒數中！</text>
-                                <text x="65" y="30" font-size="8.5" font-weight="bold" fill="#3d342b" text-anchor="middle">行李都打勾準備好了嗎～🎒</text>
-                            </g>
-                        </g>
-
-                        <!-- 2. 姨丈 (Yijhang) 黃金神駕駛・站在紅色休旅車旁 -->
-                        <g id="island-char-yijhang" class="island-char" transform="translate(325, 235)" onclick="interactAvatar('yijhang')" style="cursor: pointer;">
-                            <ellipse cx="18" cy="50" rx="16" ry="4.5" fill="rgba(0,0,0,0.22)"/>
-                            <rect x="10" y="40" width="5.5" height="11" rx="2" fill="#1e3a8a"/>
-                            <rect x="20" y="40" width="5.5" height="11" rx="2" fill="#1e3a8a"/>
-                            <!-- 飛行夾克 (深綠) -->
-                            <rect x="8" y="23" width="20" height="20" rx="6" fill="#15803d" stroke="#3d342b" stroke-width="2.2"/>
-                            <rect x="16" y="24" width="4" height="19" fill="#f8fafc"/>
-                            <!-- 頭部 -->
-                            <circle cx="18" cy="12" r="12" fill="#fed7aa" stroke="#3d342b" stroke-width="2.2"/>
-                            <!-- 帥氣墨鏡 -->
-                            <rect x="9" y="9" width="8" height="5.5" rx="2" fill="#0f172a" stroke="#3d342b" stroke-width="1.5"/>
-                            <rect x="19" y="9" width="8" height="5.5" rx="2" fill="#0f172a" stroke="#3d342b" stroke-width="1.5"/>
-                            <path d="M 17 11 L 19 11" stroke="#3d342b" stroke-width="1.8"/>
-                            <path d="M 15 17 Q 18 19 21 17" fill="none" stroke="#3d342b" stroke-width="1.4" stroke-linecap="round"/>
-                            <!-- 帥氣短髮 -->
-                            <path d="M 7 10 C 7 1, 29 1, 29 10 Z" fill="#78350f" stroke="#3d342b" stroke-width="2.2"/>
-                            <!-- 車鑰匙 -->
-                            <circle cx="1" cy="29" r="3" fill="#eab308" stroke="#3d342b" stroke-width="1"/>
-                            <path d="M 1 32 L 1 38 L 4 38" stroke="#eab308" stroke-width="1.8" fill="none"/>
-                            <!-- 名字徽章 -->
-                            <rect x="1" y="55" width="34" height="15" rx="5" fill="#ffffff" stroke="#15803d" stroke-width="1.8" filter="url(#soft-shadow)"/>
-                            <text x="18" y="66" font-size="9.5" font-weight="900" fill="#14532d" text-anchor="middle">姨丈 🕶️</text>
-
-                            <!-- SVG 專屬彈出對話氣泡 -->
-                            <g id="svg-bubble-yijhang" class="svg-speech-bubble" transform="translate(-45, -50)">
-                                <rect x="0" y="0" width="130" height="38" rx="8" fill="#ffffff" stroke="#3d342b" stroke-width="2" filter="url(#soft-shadow)"/>
-                                <polygon points="65,38 60,45 70,38" fill="#ffffff" stroke="#3d342b" stroke-width="2"/>
-                                <text x="65" y="16" font-size="9" font-weight="900" fill="#15803d" text-anchor="middle">🚗 8人座雪胎車交給我！</text>
-                                <text x="65" y="30" font-size="8.5" font-weight="bold" fill="#3d342b" text-anchor="middle">九州公路看我來開～🚙</text>
-                            </g>
-                        </g>
-
-                        <!-- 3. 阿姨 (Ayee) 美食探索家・站在黑川溫泉與山道旁 -->
-                        <g id="island-char-ayee" class="island-char" transform="translate(485, 160)" onclick="interactAvatar('ayee')" style="cursor: pointer;">
-                            <ellipse cx="18" cy="49" rx="15" ry="4" fill="rgba(0,0,0,0.22)"/>
-                            <rect x="11" y="39" width="4.5" height="10" rx="2" fill="#3d342b"/>
-                            <rect x="20" y="39" width="4.5" height="10" rx="2" fill="#3d342b"/>
-                            <!-- 暖橘大衣 -->
-                            <rect x="9" y="23" width="19" height="19" rx="6" fill="#f97316" stroke="#3d342b" stroke-width="2.2"/>
-                            <!-- 老饕小手冊道具 -->
-                            <rect x="1" y="27" width="10" height="13" rx="1.5" fill="#ffffff" stroke="#ea580c" stroke-width="1.4"/>
-                            <line x1="3" y1="30" x2="9" y2="30" stroke="#ea580c" stroke-width="1"/>
-                            <line x1="3" y1="34" x2="9" y2="34" stroke="#ea580c" stroke-width="1"/>
-                            <!-- 頭部 -->
-                            <circle cx="18" cy="12" r="12" fill="#fed7aa" stroke="#3d342b" stroke-width="2.2"/>
-                            <circle cx="14" cy="12" r="1.8" fill="#3d342b"/>
-                            <circle cx="22" cy="12" r="1.8" fill="#3d342b"/>
-                            <ellipse cx="12" cy="16" rx="2.8" ry="1.4" fill="#f43f5e" opacity="0.8"/>
-                            <ellipse cx="24" cy="16" rx="2.8" ry="1.4" fill="#f43f5e" opacity="0.8"/>
-                            <path d="M 16 16 Q 18 18 20 16" fill="none" stroke="#3d342b" stroke-width="1.3" stroke-linecap="round"/>
-                            <!-- 亮黃貝雷帽 -->
-                            <ellipse cx="18" cy="4" rx="14" ry="6" fill="#fbbf24" stroke="#3d342b" stroke-width="2.2"/>
-                            <circle cx="18" cy="0" r="1.8" fill="#d97706"/>
-                            <!-- 名字徽章 -->
-                            <rect x="1" y="54" width="34" height="15" rx="5" fill="#ffffff" stroke="#ea580c" stroke-width="1.8" filter="url(#soft-shadow)"/>
-                            <text x="18" y="65" font-size="9.5" font-weight="900" fill="#c2410c" text-anchor="middle">阿姨 👒</text>
-
-                            <!-- SVG 專屬彈出對話氣泡 -->
-                            <g id="svg-bubble-ayee" class="svg-speech-bubble" transform="translate(-45, -50)">
-                                <rect x="0" y="0" width="130" height="38" rx="8" fill="#ffffff" stroke="#3d342b" stroke-width="2" filter="url(#soft-shadow)"/>
-                                <polygon points="65,38 60,45 70,38" fill="#ffffff" stroke="#3d342b" stroke-width="2"/>
-                                <text x="65" y="16" font-size="9" font-weight="900" fill="#ea580c" text-anchor="middle">🍱 百年鰻魚飯＆會席料理！</text>
-                                <text x="65" y="30" font-size="8.5" font-weight="bold" fill="#3d342b" text-anchor="middle">黑川溫泉我等不及了～😋</text>
-                            </g>
-                        </g>
-
-                        <!-- 4. 阿嚕 (Alu) 首席攝影師・站在櫻島觀景岬角 -->
-                        <g id="island-char-alu" class="island-char" transform="translate(615, 205)" onclick="interactAvatar('alu')" style="cursor: pointer;">
-                            <ellipse cx="18" cy="50" rx="15" ry="4.5" fill="rgba(0,0,0,0.22)"/>
-                            <rect x="11" y="40" width="5" height="10" rx="2" fill="#334155"/>
-                            <rect x="20" y="40" width="5" height="10" rx="2" fill="#334155"/>
-                            <!-- 深藍風衣 -->
-                            <rect x="9" y="24" width="19" height="19" rx="6" fill="#0284c7" stroke="#3d342b" stroke-width="2.2"/>
-                            <!-- 單眼相機掛胸前 -->
-                            <rect x="13" y="28" width="11" height="8" rx="2" fill="#1e293b" stroke="#f8fafc" stroke-width="1.2"/>
-                            <circle cx="18.5" cy="32" r="3" fill="#38bdf8"/>
-                            <g class="cam-sparkle" transform="translate(24, 26)">
-                                <polygon points="0,-5 1.5,-1.5 5,0 1.5,1.5 0,5 -1.5,1.5 -5,0 -1.5,-1.5" fill="#fef08a"/>
-                            </g>
-                            <!-- 頭部 -->
-                            <circle cx="18" cy="12" r="12" fill="#fed7aa" stroke="#3d342b" stroke-width="2.2"/>
-                            <circle cx="14" cy="12" r="1.8" fill="#3d342b"/>
-                            <circle cx="22" cy="12" r="1.8" fill="#3d342b"/>
-                            <ellipse cx="12" cy="16" rx="2.8" ry="1.4" fill="#fda4af"/>
-                            <ellipse cx="24" cy="16" rx="2.8" ry="1.4" fill="#fda4af"/>
-                            <path d="M 16 16 Q 18 18 20 16" fill="none" stroke="#3d342b" stroke-width="1.3" stroke-linecap="round"/>
-                            <!-- 藍色棒球帽 (反戴造型) -->
-                            <path d="M 7 11 C 7 1, 29 1, 29 11 Z" fill="#0369a1" stroke="#3d342b" stroke-width="2.2"/>
-                            <path d="M 24 8 L 34 10 L 30 13 Z" fill="#0284c7" stroke="#3d342b" stroke-width="1.5"/>
-                            <!-- 名字徽章 -->
-                            <rect x="1" y="55" width="34" height="15" rx="5" fill="#ffffff" stroke="#0284c7" stroke-width="1.8" filter="url(#soft-shadow)"/>
-                            <text x="18" y="66" font-size="9.5" font-weight="900" fill="#0369a1" text-anchor="middle">阿嚕 📷</text>
-
-                            <!-- SVG 專屬彈出對話氣泡 -->
-                            <g id="svg-bubble-alu" class="svg-speech-bubble" transform="translate(-45, -50)">
-                                <rect x="0" y="0" width="130" height="38" rx="8" fill="#ffffff" stroke="#3d342b" stroke-width="2" filter="url(#soft-shadow)"/>
-                                <polygon points="65,38 60,45 70,38" fill="#ffffff" stroke="#3d342b" stroke-width="2"/>
-                                <text x="65" y="16" font-size="9" font-weight="900" fill="#0284c7" text-anchor="middle">📸 記憶卡已清空 256GB！</text>
-                                <text x="65" y="30" font-size="8.5" font-weight="bold" fill="#3d342b" text-anchor="middle">準備狂拍櫻島火山大景～✨</text>
-                            </g>
-                        </g>
-
-                    </svg>
-
+                <!-- 浮動在畫布角落的引導提示 -->
+                <div class="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-600 shadow-xs pointer-events-none flex items-center gap-2">
+                    <span>👆 滑鼠拖曳或手機觸控可 360° 旋轉視角 ｜ 點選散步中的小人聽聽大家說什麼！</span>
                 </div>
+            </div>
 
-                <!-- 浮動在島嶼下方的快速互動提示 -->
-                <div class="text-center mt-2 text-xs font-bold text-stone-500 flex items-center justify-center gap-2">
-                    <span>✨ 直接點擊島上的小人、休旅車或溫泉，看大家說什麼！</span>
-                    <span>•</span>
-                    <button onclick="cheerEveryone()" class="text-red-600 underline font-black hover:text-red-700">全員齊跳打氣 🎉</button>
-                </div>
-
+            <!-- 下方角色名牌列 (快速定位點擊) -->
+            <div class="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-sky-200/60 text-xs">
+                <button onclick="focusCharacter('achun')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-red-400">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span>阿純 (策劃)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">推黃行李箱</span>
+                </button>
+                <button onclick="focusCharacter('yijhang')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-emerald-400">
+                    <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                    <span>姨丈 (神駕駛)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">帥氣墨鏡</span>
+                </button>
+                <button onclick="focusCharacter('ayee')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-amber-400">
+                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                    <span>阿姨 (美食家)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">老饕手冊</span>
+                </button>
+                <button onclick="focusCharacter('alu')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-sky-400">
+                    <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+                    <span>阿嚕 (攝影師)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">單眼相機</span>
+                </button>
             </div>
 
         </div>
@@ -700,76 +410,627 @@
 
     <!-- 頁尾宣告 -->
     <footer class="bg-white border-t-2 border-stone-200 py-6 px-4 text-center text-xs text-stone-400 font-medium">
-        🏡 家族旅行手帳大廳 ｜ 更新時間：2026-10-25 10:50 ｜ 祝全家人每一次出發都平安滿載！✨
+        🏡 家族旅行手帳大廳 ｜ 更新時間：2026-10-25 10:57 ｜ 祝全家人每一次出發都平安滿載！✨
     </footer>
 
-    <!-- 互動 JavaScript -->
+    <!-- ================= 政策島 3D 引擎與小人物自然散步系統 ================= -->
     <script>
-        let activeBubbleTimeout = null;
+        const container = document.getElementById('island-canvas-container');
+        let scene, camera, renderer, controls;
+        let characters = {};
+        let raycaster, mouse;
+        let isAutoRotate = true;
+        let activeSpeaker = null;
+        let bubbleTimeout = null;
 
-        function interactAvatar(role) {
-            // 觸發角色跳躍動畫
-            const charGroup = document.getElementById(`island-char-${role}`);
+        // 角色行走路徑定義 (順時針在島上柏油路散步巡遊)
+        const islandRoadPoints = [
+            new THREE.Vector3(-6.5, 0.45, 2.5),  // 0: 西側起點 (靠近阿純出發點)
+            new THREE.Vector3(-4.5, 0.45, -2.5), // 1: 西北彎道 (靠近鳥居)
+            new THREE.Vector3(0, 0.5, -4.5),     // 2: 北側高點 (阿蘇火山下)
+            new THREE.Vector3(4.5, 0.5, -2.5),   // 3: 東北坡道 (黑川秘湯旁)
+            new THREE.Vector3(6.5, 0.45, 1.5),   // 4: 東側岬角 (櫻島觀景點)
+            new THREE.Vector3(4.0, 0.45, 4.5),   // 5: 東南水岸 (渡輪旁)
+            new THREE.Vector3(-1.0, 0.45, 4.8),  // 6: 南側平坦公路 (紅色休旅車停靠處)
+            new THREE.Vector3(-4.5, 0.45, 4.0),  // 7: 西南轉角
+        ];
+        const roadCurve = new THREE.CatmullRomCurve3(islandRoadPoints, true);
+
+        // 4 位角色初始路徑參數 (錯開起始位置與速度)
+        const CHAR_CONFIGS = {
+            achun: {
+                name: "阿純",
+                shirtColor: 0xe11d48, // 深紅冬裝
+                pantsColor: 0x334155,
+                hatType: "beanie",
+                prop: "suitcase",
+                progress: 0.05,
+                speed: 0.016,
+                walkPhase: 0
+            },
+            yijhang: {
+                name: "姨丈",
+                shirtColor: 0x15803d, // 軍綠夾克
+                pantsColor: 0x1e3a8a,
+                hatType: "sunglasses",
+                prop: "key",
+                progress: 0.75,
+                speed: 0.015,
+                walkPhase: 1.5
+            },
+            ayee: {
+                name: "阿姨",
+                shirtColor: 0xf97316, // 暖橘大衣
+                pantsColor: 0x475569,
+                hatType: "beret",
+                prop: "book",
+                progress: 0.40,
+                speed: 0.014,
+                walkPhase: 3.0
+            },
+            alu: {
+                name: "阿嚕",
+                shirtColor: 0x0284c7, // 藍色風衣
+                pantsColor: 0x1e293b,
+                hatType: "cap",
+                prop: "camera",
+                progress: 0.55,
+                speed: 0.017,
+                walkPhase: 4.5
+            }
+        };
+
+        function initIsland3D() {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            // 1. Scene
+            scene = new THREE.Scene();
+            scene.background = null; // 透明背景，融合網頁淡藍底色
+
+            // 2. Camera (等角透視視角)
+            camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 1000);
+            camera.position.set(16, 17, 19);
+            camera.lookAt(0, 0, 0);
+
+            // 3. Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // 4. OrbitControls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.maxPolarAngle = Math.PI / 2.15; // 不可鑽入島嶼地底
+            controls.minDistance = 12;
+            controls.maxDistance = 38;
+            controls.autoRotate = isAutoRotate;
+            controls.autoRotateSpeed = 0.7;
+
+            // 5. Lights (柔和日系暖光)
+            const ambient = new THREE.AmbientLight(0xfff7ed, 0.9);
+            scene.add(ambient);
+
+            const sunLight = new THREE.DirectionalLight(0xffedd5, 1.1);
+            sunLight.position.set(15, 25, 12);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 1024;
+            sunLight.shadow.mapSize.height = 1024;
+            sunLight.shadow.bias = -0.0005;
+            scene.add(sunLight);
+
+            const hemiLight = new THREE.HemisphereLight(0xbae6fd, 0xfef3c7, 0.4);
+            scene.add(hemiLight);
+
+            // 6. 構建政策島地形
+            buildIslandTerrain();
+
+            // 7. 構建 4 位 3D 小人物
+            build3DCharacters();
+
+            // 8. 射線拾取
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            renderer.domElement.addEventListener('pointerdown', onIslandPointerDown);
+
+            window.addEventListener('resize', onWindowResize);
+
+            // 開始渲染迴圈
+            animate();
+        }
+
+        function buildIslandTerrain() {
+            const islandGroup = new THREE.Group();
+            scene.add(islandGroup);
+
+            // 浮空島岩層底部 (Terracotta / Earth Cliff)
+            const cliffGeo = new THREE.CylinderGeometry(8.2, 5.0, 3.2, 32);
+            const cliffMat = new THREE.MeshLambertMaterial({ color: 0x854d0e });
+            const cliffMesh = new THREE.Mesh(cliffGeo, cliffMat);
+            cliffMesh.position.y = -1.6;
+            cliffMesh.receiveShadow = true;
+            islandGroup.add(cliffMesh);
+
+            // 浮空島綠色草地頂面 (Fresh Matcha Grass)
+            const grassGeo = new THREE.CylinderGeometry(8.5, 8.4, 0.5, 32);
+            const grassMat = new THREE.MeshLambertMaterial({ color: 0x4ade80 });
+            const grassMesh = new THREE.Mesh(grassGeo, grassMat);
+            grassMesh.position.y = 0.15;
+            grassMesh.receiveShadow = true;
+            islandGroup.add(grassMesh);
+
+            // 散步柏油公路 (環形道路管道)
+            const roadGeo = new THREE.TubeGeometry(roadCurve, 64, 0.65, 8, true);
+            const roadMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
+            const roadMesh = new THREE.Mesh(roadGeo, roadMat);
+            roadMesh.position.y = 0.05;
+            roadMesh.receiveShadow = true;
+            islandGroup.add(roadMesh);
+
+            // 錦江灣迷你水域 (東南側海灣)
+            const seaGeo = new THREE.CylinderGeometry(3.2, 3.2, 0.35, 24);
+            const seaMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+            const seaMesh = new THREE.Mesh(seaGeo, seaMat);
+            seaMesh.position.set(4.5, 0.2, 2.5);
+            islandGroup.add(seaMesh);
+
+            // 迷你櫻島渡輪
+            const boatGeo = new THREE.BoxGeometry(1.2, 0.4, 0.6);
+            const boatMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+            const boat = new THREE.Mesh(boatGeo, boatMat);
+            boat.position.set(4.5, 0.48, 2.5);
+            boat.rotation.y = 0.4;
+            islandGroup.add(boat);
+
+            // 迷你阿蘇中岳火山
+            const volcanoGeo = new THREE.ConeGeometry(2.4, 2.0, 16);
+            const volcanoMat = new THREE.MeshLambertMaterial({ color: 0x57534e });
+            const volcano = new THREE.Mesh(volcanoGeo, volcanoMat);
+            volcano.position.set(-0.5, 1.4, -2.8);
+            volcano.castShadow = true;
+            islandGroup.add(volcano);
+
+            // 火山口熔岩
+            const craterGeo = new THREE.CylinderGeometry(0.6, 0.8, 0.1, 16);
+            const craterMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+            const crater = new THREE.Mesh(craterGeo, craterMat);
+            crater.position.set(-0.5, 2.38, -2.8);
+            islandGroup.add(crater);
+
+            // 黑川秘湯小溫泉池
+            const onsenGeo = new THREE.CylinderGeometry(1.2, 1.3, 0.4, 16);
+            const onsenMat = new THREE.MeshLambertMaterial({ color: 0x78716c });
+            const onsen = new THREE.Mesh(onsenGeo, onsenMat);
+            onsen.position.set(2.8, 0.5, -2.5);
+            islandGroup.add(onsen);
+
+            const waterGeo = new THREE.CylinderGeometry(1.05, 1.05, 0.1, 16);
+            const waterMat = new THREE.MeshLambertMaterial({ color: 0x0ea5e9 });
+            const onsenWater = new THREE.Mesh(waterGeo, waterMat);
+            onsenWater.position.set(2.8, 0.68, -2.5);
+            islandGroup.add(onsenWater);
+
+            // 國寶霧島朱紅小鳥居
+            buildToriiGate(islandGroup, -3.2, 0.4, -0.8, -0.4);
+
+            // 8 人座自駕紅色休旅車 (停在路邊，可愛圓潤)
+            buildMinivan(islandGroup, -1.8, 0.45, 3.6, -0.2);
+
+            // 散落小松樹 (低多邊形積木風格)
+            const treePositions = [
+                [-5.5, 0.4, 0.5], [-4.2, 0.4, 1.8], [1.2, 0.4, -1.5], [5.8, 0.4, -0.5], [2.2, 0.4, 1.8]
+            ];
+            treePositions.forEach(pos => {
+                buildPineTree(islandGroup, pos[0], pos[1], pos[2]);
+            });
+        }
+
+        function buildPineTree(parent, x, y, z) {
+            const group = new THREE.Group();
+            group.position.set(x, y, z);
+
+            const trunkGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.6, 6);
+            const trunkMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 0.3;
+            group.add(trunk);
+
+            const leavesMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
+            const leaf1 = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.9, 6), leavesMat);
+            leaf1.position.y = 0.8;
+            group.add(leaf1);
+
+            const leaf2 = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.7, 6), leavesMat);
+            leaf2.position.y = 1.3;
+            group.add(leaf2);
+
+            parent.add(group);
+        }
+
+        function buildToriiGate(parent, x, y, z, rotY) {
+            const torii = new THREE.Group();
+            torii.position.set(x, y, z);
+            torii.rotation.y = rotY;
+
+            const mat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+            const postGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.4, 8);
+            
+            const postL = new THREE.Mesh(postGeo, mat);
+            postL.position.set(-0.6, 0.7, 0);
+            torii.add(postL);
+
+            const postR = new THREE.Mesh(postGeo, mat);
+            postR.position.set(0.6, 0.7, 0);
+            torii.add(postR);
+
+            const topGeo = new THREE.BoxGeometry(1.6, 0.12, 0.16);
+            const topBar = new THREE.Mesh(topGeo, mat);
+            topBar.position.set(0, 1.35, 0);
+            torii.add(topBar);
+
+            parent.add(torii);
+        }
+
+        function buildMinivan(parent, x, y, z, rotY) {
+            const van = new THREE.Group();
+            van.name = "minivan";
+            van.position.set(x, y, z);
+            van.rotation.y = rotY;
+
+            // 車身 (亮紅)
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+            const bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 1.0), bodyMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            van.add(bodyMesh);
+
+            // 車窗 (淡藍)
+            const glassMat = new THREE.MeshLambertMaterial({ color: 0xbae6fd });
+            const glass = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.35, 0.88), glassMat);
+            glass.position.y = 0.72;
+            van.add(glass);
+
+            // 車頂行李架 ＆ 雙色行李箱
+            const rack = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.06, 0.8), new THREE.MeshLambertMaterial({ color: 0x334155 }));
+            rack.position.y = 0.98;
+            van.add(rack);
+
+            const luggage1 = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 0.5), new THREE.MeshLambertMaterial({ color: 0xfacc15 }));
+            luggage1.position.set(-0.25, 1.12, 0);
+            van.add(luggage1);
+
+            const luggage2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.45), new THREE.MeshLambertMaterial({ color: 0x38bdf8 }));
+            luggage2.position.set(0.25, 1.1, 0);
+            van.add(luggage2);
+
+            // 4 個黑色小輪胎
+            const wheelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
+            const wheelGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.15, 12);
+            wheelGeo.rotateZ(Math.PI / 2);
+
+            [[-0.55, 0.2, 0.52], [0.55, 0.2, 0.52], [-0.55, 0.2, -0.52], [0.55, 0.2, -0.52]].forEach(wp => {
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.position.set(wp[0], wp[1], wp[2]);
+                van.add(wheel);
+            });
+
+            parent.add(van);
+        }
+
+        // ======================= 構建 3D 走動小人物 (Chibi Walkers) =======================
+        function build3DCharacters() {
+            Object.keys(CHAR_CONFIGS).forEach(role => {
+                const cfg = CHAR_CONFIGS[role];
+                const charGroup = new THREE.Group();
+                charGroup.name = `char-${role}`;
+                charGroup.userData = { role: role, name: cfg.name, jumping: 0 };
+
+                // 1. 身體 (Body Capsule)
+                const bodyMat = new THREE.MeshLambertMaterial({ color: cfg.shirtColor });
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.65, 12), bodyMat);
+                body.position.y = 0.62;
+                body.castShadow = true;
+                charGroup.add(body);
+                charGroup.body = body;
+
+                // 2. 頭部 (Head Sphere)
+                const headMat = new THREE.MeshLambertMaterial({ color: 0xfde68a }); // 可愛皮膚肉色
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 12), headMat);
+                head.position.y = 1.18;
+                head.castShadow = true;
+                charGroup.add(head);
+
+                // 3. 眼睛五官 (Cute dot eyes)
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x1e293b });
+                const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat);
+                eyeL.position.set(0.12, 1.2, 0.32);
+                charGroup.add(eyeL);
+
+                const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat);
+                eyeR.position.set(-0.12, 1.2, 0.32);
+                charGroup.add(eyeR);
+
+                // 4. 帽子/髮型
+                if (cfg.hatType === "beanie") {
+                    // 阿純：紅毛帽 + 蓬鬆毛球
+                    const hatMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+                    const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), hatMat);
+                    beanie.position.y = 1.24;
+                    charGroup.add(beanie);
+
+                    const pompom = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshLambertMaterial({ color: 0xffffff }));
+                    pompom.position.y = 1.62;
+                    charGroup.add(pompom);
+                } else if (cfg.hatType === "sunglasses") {
+                    // 姨丈：黑墨鏡 + 短髮
+                    const glassMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+                    const shades = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.12, 0.12), glassMat);
+                    shades.position.set(0, 1.22, 0.32);
+                    charGroup.add(shades);
+
+                    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.35, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.45), new THREE.MeshLambertMaterial({ color: 0x5a3825 }));
+                    hair.position.y = 1.22;
+                    charGroup.add(hair);
+                } else if (cfg.hatType === "beret") {
+                    // 阿姨：亮黃貝雷帽
+                    const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.4, 0.12, 14), new THREE.MeshLambertMaterial({ color: 0xfbbf24 }));
+                    beret.position.set(0, 1.5, 0);
+                    beret.rotation.z = -0.15;
+                    charGroup.add(beret);
+                } else if (cfg.hatType === "cap") {
+                    // 阿嚕：深藍棒球帽
+                    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), new THREE.MeshLambertMaterial({ color: 0x0369a1 }));
+                    cap.position.y = 1.24;
+                    charGroup.add(cap);
+
+                    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.05, 0.22), new THREE.MeshLambertMaterial({ color: 0x0284c7 }));
+                    visor.position.set(0, 1.28, 0.42);
+                    charGroup.add(visor);
+                }
+
+                // 5. 雙腳 (動態踩踏踏步)
+                const legMat = new THREE.MeshLambertMaterial({ color: cfg.pantsColor });
+                const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.36, 8);
+                legGeo.translate(0, -0.18, 0); // 樞紐設定在臀部
+
+                const legL = new THREE.Mesh(legGeo, legMat);
+                legL.position.set(0.12, 0.36, 0);
+                charGroup.add(legL);
+                charGroup.legL = legL;
+
+                const legR = new THREE.Mesh(legGeo, legMat);
+                legR.position.set(-0.12, 0.36, 0);
+                charGroup.add(legR);
+                charGroup.legR = legR;
+
+                // 6. 雙手 (自然前後擺動)
+                const armMat = new THREE.MeshLambertMaterial({ color: cfg.shirtColor });
+                const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.36, 6);
+                armGeo.translate(0, -0.16, 0); // 樞紐設定在肩膀
+
+                const armL = new THREE.Mesh(armGeo, armMat);
+                armL.position.set(0.32, 0.85, 0);
+                charGroup.add(armL);
+                charGroup.armL = armL;
+
+                const armR = new THREE.Mesh(armGeo, armMat);
+                armR.position.set(-0.32, 0.85, 0);
+                charGroup.add(armR);
+                charGroup.armR = armR;
+
+                // 7. 特色隨身道具
+                if (cfg.prop === "suitcase") {
+                    // 阿純的黃色行李箱
+                    const bag = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.42, 0.32), new THREE.MeshLambertMaterial({ color: 0xfacc15 }));
+                    bag.position.set(0.45, 0.24, -0.1);
+                    charGroup.add(bag);
+                } else if (cfg.prop === "camera") {
+                    // 阿嚕的單眼相機
+                    const cam = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.14), new THREE.MeshLambertMaterial({ color: 0x1e293b }));
+                    cam.position.set(0, 0.7, 0.32);
+                    charGroup.add(cam);
+                } else if (cfg.prop === "book") {
+                    // 阿姨的美食手冊
+                    const book = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.24, 0.06), new THREE.MeshLambertMaterial({ color: 0xffffff }));
+                    book.position.set(-0.38, 0.65, 0.2);
+                    book.rotation.y = 0.5;
+                    charGroup.add(book);
+                }
+
+                // 柔和貼地小陰影
+                const shadowMat = new THREE.MeshBasicMaterial({ color: 0x1c1917, transparent: true, opacity: 0.25 });
+                const shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(0.32, 12), shadowMat);
+                shadowMesh.rotation.x = -Math.PI / 2;
+                shadowMesh.position.y = 0.06;
+                charGroup.add(shadowMesh);
+
+                scene.add(charGroup);
+                characters[role] = charGroup;
+            });
+        }
+
+        // ======================= 渲染動畫迴圈 (自然走動引擎) =======================
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // 更新 4 位小人物自然散步巡遊
+            Object.keys(characters).forEach(role => {
+                const charGroup = characters[role];
+                const cfg = CHAR_CONFIGS[role];
+
+                // 沿著島嶼公路曲線前進
+                cfg.progress = (cfg.progress + cfg.speed * delta) % 1.0;
+                const pos = roadCurve.getPointAt(cfg.progress);
+                const tangent = roadCurve.getTangentAt(cfg.progress);
+
+                // 設定人物位置與面朝行走方向
+                charGroup.position.set(pos.x, pos.y, pos.z);
+                
+                // 跳躍動畫處理
+                if (charGroup.userData.jumping > 0) {
+                    charGroup.userData.jumping -= delta * 3.5;
+                    const jumpY = Math.sin(Math.max(0, charGroup.userData.jumping) * Math.PI) * 0.8;
+                    charGroup.position.y += Math.max(0, jumpY);
+                }
+
+                // 人物身體朝向行走方向 (平滑轉向)
+                const targetLook = new THREE.Vector3().copy(pos).add(tangent);
+                charGroup.lookAt(targetLook.x, charGroup.position.y, targetLook.z);
+
+                // 雙腿交替踏步動畫 (自然行軍步態)
+                cfg.walkPhase += delta * 7.5;
+                const legSwing = Math.sin(cfg.walkPhase) * 0.65;
+                charGroup.legL.rotation.x = legSwing;
+                charGroup.legR.rotation.x = -legSwing;
+
+                // 雙手相反擺動
+                charGroup.armL.rotation.x = -legSwing * 0.6;
+                charGroup.armR.rotation.x = legSwing * 0.6;
+
+                // 身體隨著每一步微幅自然起伏 (Natural Body Bob)
+                charGroup.body.position.y = 0.62 + Math.abs(Math.sin(cfg.walkPhase)) * 0.05;
+            });
+
+            // 更新 3D 浮動對話氣泡投影至 HTML 螢幕坐標
+            updateSpeechBubbles();
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // 將 3D 世界座標換算為 HTML 畫布像素位置
+        function updateSpeechBubbles() {
+            if (!activeSpeaker) return;
+
+            const charGroup = characters[activeSpeaker];
+            const bubble = document.getElementById(`bubble-${activeSpeaker}`);
+            if (!charGroup || !bubble) return;
+
+            const headPos = new THREE.Vector3();
+            charGroup.getWorldPosition(headPos);
+            headPos.y += 1.85; // 氣泡位於頭頂上方
+
+            headPos.project(camera);
+
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            const sx = (headPos.x * 0.5 + 0.5) * w;
+            const sy = (-(headPos.y * 0.5) + 0.5) * h;
+
+            // 確保在視錐前方
+            if (headPos.z < 1) {
+                bubble.style.left = `${sx}px`;
+                bubble.style.top = `${sy}px`;
+            } else {
+                bubble.classList.remove('active');
+            }
+        }
+
+        function onIslandPointerDown(e) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+
+            for (let hit of intersects) {
+                let p = hit.object;
+                while (p && p !== scene) {
+                    if (p.userData && p.userData.role) {
+                        triggerCharacterSpeak(p.userData.role);
+                        return;
+                    }
+                    if (p.name === "minivan") {
+                        triggerCharacterSpeak('yijhang');
+                        return;
+                    }
+                    p = p.parent;
+                }
+            }
+        }
+
+        function triggerCharacterSpeak(role) {
+            const charGroup = characters[role];
             if (charGroup) {
-                charGroup.classList.remove('avatar-hop');
-                void charGroup.offsetWidth; // 強制重繪
-                charGroup.classList.add('avatar-hop');
+                charGroup.userData.jumping = 1.0; // 觸發開心向上跳躍
             }
 
-            // 關閉所有氣泡
-            document.querySelectorAll('.svg-speech-bubble').forEach(b => b.classList.remove('active'));
+            // 關閉其他氣泡
+            document.querySelectorAll('.island-speech-bubble').forEach(b => b.classList.remove('active'));
 
-            // 顯示該角色專屬 SVG 對話氣泡
-            const bubble = document.getElementById(`svg-bubble-${role}`);
+            activeSpeaker = role;
+            const bubble = document.getElementById(`bubble-${role}`);
             if (bubble) {
+                updateSpeechBubbles();
                 bubble.classList.add('active');
 
-                if (activeBubbleTimeout) clearTimeout(activeBubbleTimeout);
-                activeBubbleTimeout = setTimeout(() => {
+                if (bubbleTimeout) clearTimeout(bubbleTimeout);
+                bubbleTimeout = setTimeout(() => {
                     bubble.classList.remove('active');
-                }, 4500);
+                    activeSpeaker = null;
+                }, 4200);
             }
         }
 
-        function triggerCarHonk() {
-            const van = document.getElementById('mini-van');
-            if (van) {
-                van.style.transform = 'translate(365px, 240px) scale(1.15)';
-                setTimeout(() => {
-                    van.style.transform = 'translate(365px, 248px) scale(1)';
-                }, 300);
+        function focusCharacter(role) {
+            const charGroup = characters[role];
+            if (charGroup) {
+                // 將視角平滑轉移到該角色
+                controls.target.set(charGroup.position.x, 0.5, charGroup.position.z);
             }
-            interactAvatar('yijhang');
-        }
-
-        function triggerVolcano() {
-            interactAvatar('alu');
+            triggerCharacterSpeak(role);
         }
 
         function cheerEveryone() {
             const roles = ['achun', 'yijhang', 'ayee', 'alu'];
             roles.forEach((r, idx) => {
                 setTimeout(() => {
-                    const charGroup = document.getElementById(`island-char-${r}`);
-                    if (charGroup) {
-                        charGroup.classList.remove('avatar-hop');
-                        void charGroup.offsetWidth;
-                        charGroup.classList.add('avatar-hop');
-                    }
+                    if (characters[r]) characters[r].userData.jumping = 1.0;
                 }, idx * 120);
             });
-
             const lucky = roles[Math.floor(Math.random() * roles.length)];
-            interactAvatar(lucky);
+            triggerCharacterSpeak(lucky);
         }
 
-        // 自動輪巡心情語錄 (每 7 秒隨機一位冒泡)
-        let autoChatIndex = 0;
+        function toggleAutoRotate() {
+            isAutoRotate = !isAutoRotate;
+            controls.autoRotate = isAutoRotate;
+            const btn = document.getElementById('rotate-text');
+            if (btn) btn.textContent = `視角旋轉：${isAutoRotate ? '開' : '關'}`;
+        }
+
+        function onWindowResize() {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        // 自動輪巡說話
+        let tourIndex = 0;
         setInterval(() => {
-            const roles = ['achun', 'yijhang', 'ayee', 'alu'];
-            autoChatIndex = (autoChatIndex + 1) % roles.length;
-            interactAvatar(roles[autoChatIndex]);
-        }, 7000);
+            if (!activeSpeaker) {
+                const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+                tourIndex = (tourIndex + 1) % roles.length;
+                triggerCharacterSpeak(roles[tourIndex]);
+            }
+        }, 8000);
+
+        // 頁面載入後初始化 3D 政策島
+        document.addEventListener('DOMContentLoaded', () => {
+            initIsland3D();
+        });
     </script>
 
 </body>
