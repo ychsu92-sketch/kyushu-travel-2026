@@ -1963,7 +1963,8 @@
 
             if (remainTransitMs > 120) {
                 const handoffDelayMs = remainTransitMs + 300;
-                stopTimer = ((handoffDelayMs + spotDurationMs) / 1000) + 1.15;
+                // 停留秒數充裕延長：景點對話結束後額外保留 7.5 秒自由漫步與專屬動作時間
+                stopTimer = ((handoffDelayMs + spotDurationMs) / 1000) + 7.5;
                 stopTotalDuration = stopTimer;
                 dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
                 spotArrivalQueueTimer = setTimeout(() => {
@@ -1971,7 +1972,7 @@
                     triggerCustomBanterScript(spotScript, true);
                 }, handoffDelayMs);
             } else {
-                stopTimer = (spotDurationMs / 1000) + 1.15;
+                stopTimer = (spotDurationMs / 1000) + 7.5;
                 stopTotalDuration = stopTimer;
                 triggerCustomBanterScript(spotScript, true);
             }
@@ -2046,8 +2047,8 @@
             if (isStoppedAtLandmark && currentLandmark) {
                 // 計算停留階段權重：剛停車 0.7 秒內從車旁散開 (0➔1)、停留期間自由走動 (1)、開車前最後 1.2 秒走回車旁 (1➔0)
                 const elapsedInStop = Math.max(0, stopTotalDuration - stopTimer);
-                const leaveCarFactor = Math.min(1.0, elapsedInStop / 0.70);
-                const returnCarFactor = Math.min(1.0, stopTimer / 1.20);
+                const leaveCarFactor = Math.min(1.0, elapsedInStop / 0.80);
+                const returnCarFactor = Math.min(1.0, stopTimer / 1.50);
                 roamWeight = leaveCarFactor * returnCarFactor; // 0 = 在車旁集合，1 = 在景點隨意走動
 
                 // Sienta 左側電動滑門旁集合點 (車身外側 0.82m，沿車身長度均勻間隔 0.48m，完全避免人物與車身及相互穿模)
@@ -2276,7 +2277,7 @@
 
             // 景點專屬個性動作標記：在停留漫步階段 (roamWeight > 0.40) 且停步或說話時觸發各人代表性活動
             // 阿純席地打物理治療紀錄、阿嚕舉相機取景閃光、姨丈滑手機倒試管、阿姨四處熱情餵食
-            charGroup.userData.isSpotBusy = c.isStoppedAtLandmark && (c.roamWeight > 0.40) && (!moving || c.isSpeakingNow);
+            charGroup.userData.isSpotBusy = c.isStoppedAtLandmark && (c.roamWeight > 0.20);
 
             // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊；景點漫步或走回車旁時亦播放雙腳邁步動畫
             const animElapsed = (c.role === stragglerRole && !c.isStoppedAtLandmark) ? elapsed * 1.65 : elapsed;
@@ -2589,18 +2590,23 @@
                 }
             }
 
-            // 景點專屬個性動作頭頂狀態列（除發言者外，做動作的人頭頂顯示正在做什麼）
-            const isBusy = isStoppedAtLandmark && (cg.userData.isSpotBusy === true);
+            // 景點專屬個性動作頭頂狀態列（除當前發言者顯示大氣泡外，其餘作動作的家人頭頂一律清晰顯示正在做什麼）
             const isSpeaking = (activeSpeaker === role);
             const actionEl = el.querySelector('.char-action-status');
             const actionText = el.querySelector('.action-text');
 
             if (actionEl && actionText) {
-                if (isBusy && !isSpeaking) {
+                if (isStoppedAtLandmark && !isSpeaking) {
                     actionEl.style.display = 'inline-flex';
-                    const list = ROLE_SPOT_STATUSES[role] || [];
-                    const sIdx = Math.floor(elapsed * 0.35) % (list.length || 1);
-                    actionText.textContent = list[sIdx] || '';
+                    if (stopTimer < 1.50) {
+                        // 開車前 1.5 秒走回車門旁準備出發
+                        actionText.textContent = '🚗 走回車旁準備出發…';
+                    } else {
+                        // 景點自由活動階段：輪播各自的專屬活動描寫
+                        const list = ROLE_SPOT_STATUSES[role] || [];
+                        const sIdx = Math.floor(elapsed * 0.30) % (list.length || 1);
+                        actionText.textContent = list[sIdx] || '';
+                    }
                 } else {
                     actionEl.style.display = 'none';
                 }
