@@ -778,8 +778,12 @@
         inCar: [],
         walk: [],
         straggler: { achun: [], alu: [], ayee: [], yijhang: [] },
-        soloQuotes: { achun: [], yijhang: [], ayee: [], alu: [] }
+        soloQuotes: { achun: [], yijhang: [], ayee: [], alu: [] },
+        spotMidstay: [],
+        spotDeparture: []
     };
+    let spokenRolesInCurrentSpot = new Set();
+    let hasPlayedSpotDepartureCall = false;
 
     function pickRandomNonRepeating(pool, historyArray, maxHistory = 4) {
         if (!pool || !pool.length) return null;
@@ -1177,6 +1181,70 @@
                 }
         ]
 ];
+
+    // 景點漫步中段互動與現場動作吐槽小劇場（徹底消除景點停留時的空白時刻！）
+    const SPOT_MIDSTAY_BANTERS = [
+        [
+            { role: 'ayee', text: '阿純草地上風大，阿姨把大披肩給妳披上，別著涼打電腦～！🧣🥰' },
+            { role: 'achun', text: '謝謝阿姨！披上超溫暖，我的打字速度瞬間又快了十個字！💻🔥' },
+            { role: 'yijhang', text: '……慢慢打，時間很充裕。我這管試管也剛好倒完。🕶️☕' }
+        ],
+        [
+            { role: 'alu', text: '報告！阿純坐姿打字的核心穩定度評分 99 分，堪稱人體工學典範！🤖💻' },
+            { role: 'achun', text: '物治師的職業尊嚴！就算在草地上敲 SOAP 也要維持骨盆中立！🦴✨' },
+            { role: 'ayee', text: '核心穩定更要吃！阿姨剛買的草莓大福一人咬一口！🍓🍡' }
+        ],
+        [
+            { role: 'alu', text: '姨丈剛才把 Sienta 收進口袋的動作，本熊的物理引擎完全算不出來！🎩🚙' },
+            { role: 'yijhang', text: '……四維拓撲學折疊。這比倒試管第 800 關簡單多了。🕶️🧪' },
+            { role: 'ayee', text: '老公太神了！那等等買的五袋伴手禮也麻煩折進口袋囉～！🛍️🥰' }
+        ],
+        [
+            { role: 'ayee', text: '大家深呼吸！這裡的冷空氣吸進肚子裡好清爽喔！🌲👃' },
+            { role: 'yijhang', text: '……比辦公室舒服多了。這片風景值得多看兩分鐘。🕶️✨' },
+            { role: 'achun', text: '看著這片風景，剛才打病歷累積的斜方肌緊繃瞬間放鬆了～💆‍♀️🍃' }
+        ],
+        [
+            { role: 'alu', text: '本熊已將全家在景點的笑容轉換成 4K 記憶體快照！📷💾' },
+            { role: 'ayee', text: '阿嚕真會拍！等等阿姨在車上幫你擦擦鏡頭上的雪花！❄️🐻' },
+            { role: 'yijhang', text: '……拍得好。回家洗出來掛客廳。🕶️👍' }
+        ],
+        [
+            { role: 'achun', text: '呼～最後一份個案評估表上傳成功！現在全力開啟吃貨模式！💻🎉' },
+            { role: 'ayee', text: '辛苦阿純了！阿姨早就把溫泉蛋跟現烤牛肉串準備好了！🥩🥚' },
+            { role: 'alu', text: '恭喜阿純解鎖「景點全飽狀態」！本熊舉旗慶祝！🚩🐻' }
+        ],
+        [
+            { role: 'yijhang', text: '……這座景點的腹地規畫不錯，走起來很順腳。🕶️🚶‍♂️' },
+            { role: 'ayee', text: '而且旁邊的土產店超好逛！阿姨又發現兩種限定餅乾！🍪🛍️' },
+            { role: 'alu', text: '本熊的感測器聞到濃郁的焦糖與黑糖香氣！香氣逼人！🍯🐻' }
+        ],
+        [
+            { role: 'achun', text: '大家看那邊山壁的傾斜節理！骨盆如果歪成那樣要做整脊啦～😂⛰️' },
+            { role: 'alu', text: '大自然岩層也需要物理治療嗎？本熊第一次聽到這種診斷！🤖🧠' },
+            { role: 'yijhang', text: '……地質斷層也是大自然的關節錯位。阿純診斷正確。🕶️👌' }
+        ]
+    ];
+
+    // 景點出發前變出小巴時的隨機收尾呼喊（倒數 2.5 秒時接續播放）
+    const SPOT_DEPARTURE_CALLS = [
+        [
+            { role: 'yijhang', text: '……小巴從口袋拿出來了。全員上車，出發下一站。🚙🕶️' },
+            { role: 'ayee', text: '東西拿好、點心帶齊，全家出發囉～！🍡🙌' }
+        ],
+        [
+            { role: 'ayee', text: '好啦～景點逛得好滿足！大家快回到車裡吹暖氣吃點心！🚗♨️' },
+            { role: 'achun', text: '病歷打完、換個坐姿，上車閉目養神～！💻😴' }
+        ],
+        [
+            { role: 'alu', text: '姨丈變出小巴了！全體登車，導航下一個奇蹟座標！🤖🧭' },
+            { role: 'yijhang', text: '……滑門開啟。抓穩了，前面路段平穩。🕶️🚗' }
+        ],
+        [
+            { role: 'achun', text: '收好筆電收好包包！Sienta 開放式敞篷太讚了，上車繼續賞景！🚙✨' },
+            { role: 'ayee', text: '阿姨手上還有三顆現剝蜜柑，上車一人分一瓣！🍊🥰' }
+        ]
+    ];
 
     // 突發狀況：有人沒趕上車在後面狂追（阿純開飛碟追車）精簡版劇本（2～3 句快節奏，確保進下一站前讀完！）
     const STRAGGLER_BANTER_SCRIPTS = {
@@ -1844,11 +1912,11 @@
         renderer.domElement.addEventListener('pointerdown', e => onPointerDown(e, routeData));
         window.addEventListener('resize', () => onResize(container));
 
-        // 啟動高隨機性生活碎嘴對話（打破固定順序與頻率，自然有機隨機輪播）
+        // 啟動高隨機性生活碎嘴對話（打破固定順序與頻率，景點無空白冷場，自然有機隨機輪播）
         function scheduleNextDialogue() {
             setTimeout(() => {
+                const now = performance.now();
                 if (!isStoppedAtLandmark) {
-                    const now = performance.now();
                     if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 320) {
                         // 檢查距離下一個尚未停靠的景點是否還有足夠行車距離，避免剛開講就進站
                         let canSpeak = true;
@@ -1873,9 +1941,35 @@
                             }
                         }
                     }
+                } else {
+                    // 景點停留期間：消除冷場空白時刻！隨時接續第二波現場互動與出發前收尾呼喊
+                    if (!activeSpeaker && banterTimers.length === 0 && now > dialogBusyUntilMs + 260) {
+                        if (stopTimer > 2.8) {
+                            // 景點中段（Mid-Stay）：未發言家人接話 或 現場動作吐槽小劇場
+                            const unspoken = ['achun', 'yijhang', 'ayee', 'alu'].filter(r => !spokenRolesInCurrentSpot.has(r));
+                            if (unspoken.length > 0 && Math.random() < 0.55 && currentLandmark && currentLandmark.dialogs) {
+                                unspoken.sort(() => Math.random() - 0.5);
+                                const pickNext = unspoken.slice(0, Math.min(2, unspoken.length));
+                                pickNext.forEach(r => spokenRolesInCurrentSpot.add(r));
+                                const midScript = pickNext.map(r => ({
+                                    role: r,
+                                    text: currentLandmark.dialogs[r] || currentLandmark.desc
+                                }));
+                                triggerCustomBanterScript(midScript, true);
+                            } else {
+                                const banter = pickRandomNonRepeating(SPOT_MIDSTAY_BANTERS, recentScriptHistories.spotMidstay, 4);
+                                if (banter) triggerCustomBanterScript(banter, true);
+                            }
+                        } else if (stopTimer > 0.85 && !hasPlayedSpotDepartureCall) {
+                            // 景點收尾（Departure Call）：姨丈從口袋變出小巴，提醒大家準備上車
+                            hasPlayedSpotDepartureCall = true;
+                            const depCall = pickRandomNonRepeating(SPOT_DEPARTURE_CALLS, recentScriptHistories.spotDeparture, 3);
+                            if (depCall) triggerCustomBanterScript(depCall, true);
+                        }
+                    }
                 }
                 scheduleNextDialogue();
-            }, 1800 + Math.floor(Math.random() * 1400)); // 隨機間隔 1.8s ~ 3.2s，打破固定節拍感
+            }, isStoppedAtLandmark ? (750 + Math.floor(Math.random() * 500)) : (1800 + Math.floor(Math.random() * 1400)));
         }
         scheduleNextDialogue();
 
@@ -2068,16 +2162,19 @@
             lastStopLandmarkId = nearest.id;
             visitedLandmarksInLap.add(nearest.id);
             isStoppedAtLandmark = true;
+            spokenRolesInCurrentSpot.clear();
+            hasPlayedSpotDepartureCall = false;
             updateLocationBanner(nearest);
 
             // 檢查目前是否還有「突發追車 / 路途碎嘴對話」正在顯示中：
             // 若還有剩餘閱讀時間，先讓當前對話完整讀完（絕不腰斬！），再無縫接續播放本景點專屬台詞，並把停留秒數自動延長！
             const nowMs = performance.now();
             const remainTransitMs = Math.max(0, dialogBusyUntilMs - nowMs);
-            const rollCount = Math.random();
-            const pickCount = (remainTransitMs > 800) ? 1 : (rollCount < 0.22 ? 1 : (rollCount < 0.72 ? 2 : 3));
             const shuffledRoles = ['achun', 'yijhang', 'ayee', 'alu'].sort(() => Math.random() - 0.5);
-            const spotScript = shuffledRoles.slice(0, pickCount).map(r => ({
+            const pickCount = (remainTransitMs > 800) ? 1 : 2;
+            const arrivalRoles = shuffledRoles.slice(0, pickCount);
+            arrivalRoles.forEach(r => spokenRolesInCurrentSpot.add(r));
+            const spotScript = arrivalRoles.map(r => ({
                 role: r,
                 text: (nearest.dialogs && nearest.dialogs[r]) ? nearest.dialogs[r] : nearest.desc
             }));
@@ -2090,8 +2187,8 @@
 
             if (remainTransitMs > 120) {
                 const handoffDelayMs = remainTransitMs + 200;
-                // 停留時間充分延長（約 13.5~15 秒）：確保所有人有長達 9~11 秒完整時間持續沉浸做動作（如阿純席地打病歷）
-                stopTimer = Math.max(14.0, ((handoffDelayMs + spotDurationMs) / 1000) + 7.5);
+                // 停留時間充分延長（約 14.5~16 秒）：確保第一波、中段互動與出發呼喊完整演出，所有人沉浸做動作（如阿純席地打病歷）
+                stopTimer = Math.max(14.5, ((handoffDelayMs + spotDurationMs) / 1000) + 8.5);
                 stopTotalDuration = stopTimer;
                 dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
                 spotArrivalQueueTimer = setTimeout(() => {
@@ -2099,7 +2196,7 @@
                     triggerCustomBanterScript(spotScript, true);
                 }, handoffDelayMs);
             } else {
-                stopTimer = Math.max(12.8, (spotDurationMs / 1000) + 7.0);
+                stopTimer = Math.max(14.0, (spotDurationMs / 1000) + 8.0);
                 stopTotalDuration = stopTimer;
                 triggerCustomBanterScript(spotScript, true);
             }
