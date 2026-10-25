@@ -81,6 +81,12 @@ def build_portal():
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#dc2626">
     <title>🏡 家族旅行手帳大廳 ｜ Family Travel Vault ✈️</title>
+    <!-- 家族專屬品牌識別 Favicon & App Icons -->
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="shortcut icon" href="./favicon.ico">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Zen Maru Gothic + M PLUS Rounded 1c -->
@@ -212,8 +218,8 @@ def build_portal():
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-2 border-stone-200/80 px-4 sm:px-8 py-3.5 shadow-xs">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 text-white flex items-center justify-center text-xl shadow-md shadow-red-200 shrink-0">
-                    🏡
+                <div class="w-11 h-11 rounded-2xl bg-white border border-purple-200 shadow-md shadow-purple-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                    <img src="./family_logo.png" alt="HSU Logo" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">

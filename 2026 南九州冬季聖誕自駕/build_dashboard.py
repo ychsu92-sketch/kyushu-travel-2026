@@ -346,6 +346,12 @@ def build():
     <meta name="apple-mobile-web-app-title" content="南九州手帳">
     <meta name="theme-color" content="#dc2626">
     <title>🎄 2026 南九州聖誕冬季自駕旅行手帳 ❄️</title>
+    <!-- 家族專屬品牌識別 Favicon & App Icons -->
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="shortcut icon" href="./favicon.ico">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Zen Maru Gothic + M PLUS Rounded 1c -->
@@ -627,8 +633,8 @@ def build():
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b-2 border-red-100 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2 sm:gap-3">
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl shrink-0 bg-gradient-to-tr from-red-600 via-rose-500 to-amber-400 flex items-center justify-center text-xl sm:text-2xl shadow-md shadow-red-200">
-                    🎄
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shrink-0 bg-white border border-purple-200 flex items-center justify-center p-1 shadow-md shadow-purple-100 overflow-hidden">
+                    <img src="./family_logo.png" alt="HSU Logo" class="w-full h-full object-contain">
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
