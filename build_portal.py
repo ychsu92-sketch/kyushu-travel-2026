@@ -314,9 +314,9 @@ def build_portal(release_mode: bool = False):
                         <span>🔓</span>
                         <span id="unlock-char-text">解除鎖定</span>
                     </button>
-                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-400 text-xs font-bold flex items-center gap-1 shadow-xs transition" title="預設拖曳平移畫面；按住 Shift + 拖曳或點此切換為旋轉視角">
                         <span>✋</span>
-                        <span id="pan-mode-text">左鍵模式：旋轉視角 🔄</span>
+                        <span id="pan-mode-text">左鍵模式：拖曳平移 ✋（Shift 旋轉）</span>
                     </button>
                     <button onclick="toggleSnow()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
                         <span>❄️</span>
@@ -352,10 +352,10 @@ def build_portal(release_mode: bool = False):
 
                 <!-- 浮動在畫布角落的引導提示 -->
                 <div class="island-hint-mobile absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none items-center gap-1 z-25">
-                    <span>👆 單指旋轉・雙指縮放・點頭像看狀態</span>
+                    <span>👆 單指拖曳平移・雙指縮放・點頭像看狀態</span>
                 </div>
                 <div class="island-hint-desktop absolute bottom-3 left-3 bg-white/85 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-700 shadow-xs pointer-events-none flex items-center gap-2 z-25">
-                    <span>👆 左鍵旋轉 / 右鍵(或切換✋模式)拖曳平移畫面 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
+                    <span>✋ 拖曳平移畫面 / 按住 Shift (或右鍵) 拖曳旋轉視角 ｜ 點擊頭頂指標或下方名牌可「鎖定/取消鎖定」鏡頭跟隨角色！</span>
                 </div>
             </div>
 
@@ -634,7 +634,7 @@ def build_preview_page():
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
                     <button id="btn-unlock-char" onclick="unlockCharacter()" class="hidden px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white font-black"><span id="unlock-char-text">🔓 解除鎖定</span></button>
-                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="pan-mode-text">左鍵模式：旋轉視角 🔄</span></button>
+                    <button id="btn-pan-mode" onclick="toggleDragPanMode()" class="px-2.5 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold" title="預設拖曳平移；按住 Shift + 拖曳旋轉"><span id="pan-mode-text">左鍵模式：拖曳平移 ✋（Shift 旋轉）</span></button>
                     <span id="current-spot-badge" class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">🏯 熊本城</span>
                     <button onclick="toggleSnow()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="snow-text">冬日飄雪：開</span></button>
                     <button onclick="toggleAutoRotate()" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700"><span id="rotate-text">環島旋轉：開</span></button>

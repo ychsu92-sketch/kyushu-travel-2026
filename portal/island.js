@@ -287,7 +287,7 @@
     let activeSpeaker = null;
     let bubbleTimeout = null;
     let lockedRole = null;       // 目前鏡頭鎖定跟隨的角色 ('achun' | 'yijhang' | 'ayee' | 'alu' | null)
-    let isDragPanMode = false;   // 左鍵/單指是否切換為平移拖曳模式
+    let isDragPanMode = true;    // 預設拖曳行為為平移拖曳模式（按住 Shift + 拖曳為改變視角旋轉）
     let charMarkers = {};        // 4 位角色頭頂的 2D 浮動位置指標 DOM 元素
 
     const ROLE_NAMES = {
@@ -2178,6 +2178,21 @@
         controls.autoRotate = isAutoRotate;
         controls.autoRotateSpeed = 0.42;
 
+        // 預設拖曳為全方向平移畫面 (PAN)，改變視角/旋轉為按住 Shift + 拖曳 (或右鍵拖曳)
+        if (THREE.MOUSE) {
+            controls.mouseButtons = {
+                LEFT: THREE.MOUSE.PAN,
+                MIDDLE: THREE.MOUSE.DOLLY,
+                RIGHT: THREE.MOUSE.ROTATE
+            };
+        }
+        if (THREE.TOUCH) {
+            controls.touches = {
+                ONE: THREE.TOUCH.PAN,
+                TWO: THREE.TOUCH.DOLLY_PAN
+            };
+        }
+
         // 4. 建立自然環境 (冬季晴空、暖陽、海洋、雲朵、雪花)
         const Env = window.KyushuIsland.Env;
         const skyMesh = Env.createSkyDome(scene);
@@ -3914,7 +3929,7 @@
         updateLockUI();
     }
 
-    // 切換左鍵/單指操作模式：「旋轉視角」或「拖曳平移畫面」
+    // 切換左鍵/單指操作模式：「拖曳平移畫面」或「旋轉視角」
     function toggleDragPanMode() {
         isDragPanMode = !isDragPanMode;
         if (controls && typeof THREE !== 'undefined' && THREE.MOUSE) {
@@ -3924,7 +3939,7 @@
         const txt = document.getElementById('pan-mode-text');
         const btn = document.getElementById('btn-pan-mode');
         if (txt) {
-            txt.textContent = isDragPanMode ? '左鍵模式：拖曳平移 ✋' : '左鍵模式：旋轉視角 🔄';
+            txt.textContent = isDragPanMode ? '左鍵模式：拖曳平移 ✋（Shift 旋轉）' : '左鍵模式：旋轉視角 🔄（Shift 平移）';
         }
         if (btn) {
             if (isDragPanMode) {
