@@ -1076,12 +1076,21 @@
         return g;
     }
 
-    // P18: 宮崎/日南沿海白色風力發電機 (旋轉風葉 + 錐形高塔)
+    // P18: 宮崎/日南沿海與南大隅海岬離岸風力發電機 (3葉旋轉風車 + 海事抗浪耐震混凝土基座)
     function buildP18_WindTurbine() {
         const g = new THREE.Group();
         const whiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
         const grayMat  = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });
+        const darkGrayMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
+        const marineYellowMat = new THREE.MeshLambertMaterial({ color: 0xf59e0b });
         const redTipMat= new THREE.MeshBasicMaterial({ color: 0xef4444 });
+
+        // 海事抗浪轉換基樁 (Marine Yellow Transition Piece / Concrete Pedestal)
+        const foundation = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.13, 0.22, 12), marineYellowMat);
+        foundation.position.y = 0.08;
+        const subBase = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.16, 12), darkGrayMat);
+        subBase.position.y = -0.06;
+        g.add(subBase, foundation);
 
         // 錐形高塔
         const tower = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.075, 1.35, 12), whiteMat);
@@ -1656,24 +1665,28 @@
             sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.35 });
         });
 
-        // 15. 宮崎/日南沿海風力發電機群 (6 座旋轉風車，佇立於日向灘海崖)
+        // 15. 九州沿海離岸與海岬風力發電機群 (日向灘離岸群 + 南大隅佐多岬群，完全避開公路與鐵道路廊)
         const windTurbines = [];
         const turbineCoords = [
-            { x: 10.44, z: -6.00 },
-            { x: 10.20, z: -3.60 },
-            { x: 10.56, z: -0.96 },
-            { x: 10.32, z: 2.16 },
-            { x: 9.72,  z: 6.48 },
-            { x: 9.12,  z: 9.60 }
+            // 日向灘離岸風力發電場 (Hyuga-nada Offshore Wind Farm)
+            { x: 13.80, z: -11.00, rot: -0.55 },
+            { x: 14.10, z: -7.80,  rot: -0.35 },
+            { x: 13.60, z: -4.60,  rot: -0.15 },
+            { x: 13.30, z: -1.20,  rot:  0.10 },
+            // 南大隅 / 佐多岬海崖風力發電場 (Cape Sata / Osumi Headland Coastal Wind Farm)
+            { x: 6.80,  z: 15.20,  rot:  0.35 },
+            { x: 5.20,  z: 16.40,  rot:  0.60 },
+            { x: 3.60,  z: 17.00,  rot:  0.85 }
         ];
         turbineCoords.forEach((tc, idx) => {
+            const pos = nudgeOffRoadAndLandmarks(tc.x, tc.z, 2.0, 1.8);
             const wt = buildP18_WindTurbine();
             wt.scale.setScalar(1.22);
-            wt.position.set(tc.x, getGroundY(tc.x, tc.z), tc.z);
-            wt.rotation.y = -0.4 + idx * 0.15;
+            wt.position.set(pos.x, pos.y, pos.z);
+            wt.rotation.y = tc.rot !== undefined ? tc.rot : (-0.4 + idx * 0.2);
             propsGroup.add(wt);
             windTurbines.push(wt);
-            sceneObstacles.push({ x: tc.x, z: tc.z, r: 0.55 });
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.65 });
         });
 
         // 16. 彩色近海漁船 (6 艘停泊於鹿兒島錦江灣與宮崎日南外海，輕微浪湧晃動)
