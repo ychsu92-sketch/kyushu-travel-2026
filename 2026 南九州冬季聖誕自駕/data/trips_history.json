@@ -1,0 +1,26 @@
+[
+  {
+    "id": "kyushu-family-roadtrip-2026",
+    "title": "2026 家族南九州 7天6夜自駕深度探索之旅",
+    "destination": "日本・熊本 / 宮崎 / 鹿兒島",
+    "dates": "2026-12-22 ~ 2026-12-28",
+    "status": "upcoming",
+    "status_label": "已排定・陸續確認",
+    "badge_color": "green",
+    "cover_tag": "🚗 自駕溫泉",
+    "budget": "NT$ 71,250 (已記)",
+    "current": true
+  },
+  {
+    "id": "kansai-autumn-2026",
+    "title": "2026 日本關西秋季楓紅 7天6夜慢旅",
+    "destination": "日本・大阪 / 京都",
+    "dates": "2026-11-20 ~ 2026-11-26",
+    "status": "planning",
+    "status_label": "規劃中",
+    "badge_color": "blue",
+    "cover_tag": "🍁 楓紅季",
+    "budget": "NT$ 85,000",
+    "current": false
+  }
+]

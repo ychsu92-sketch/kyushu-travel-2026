@@ -1,0 +1,1121 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+旅程入口大廳 (Family Travel Vault) 產生器
+參考 沈伯洋政策島 (puma.taipei/heart-island) 風格：
+包含 3D Isometric 浮空冒險島、4 位自動在島上散步巡遊的 3D Q 版小人物、
+走動搖擺與雙腳踏步動畫、點擊跳躍對話氣泡、精緻低多邊形日系地景與專屬旅程卡片。
+"""
+
+import os
+import json
+import urllib.parse
+from datetime import datetime
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def get_trips():
+    """獲取旅程清單"""
+    trips = []
+    
+    # 1. 2026 南九州冬季聖誕自駕
+    kyushu_dir = os.path.join(BASE_DIR, '2026 南九州冬季聖誕自駕')
+    kyushu_json = os.path.join(kyushu_dir, 'data', 'current_trip.json')
+    
+    if os.path.exists(kyushu_json):
+        try:
+            with open(kyushu_json, 'r', encoding='utf-8') as f:
+                k_data = json.load(f)
+            trips.append({
+                "id": "kyushu-2026",
+                "folder": "2026 南九州冬季聖誕自駕",
+                "link": f"./{urllib.parse.quote('2026 南九州冬季聖誕自駕')}/index.html",
+                "short_link": "./kyushu-2026/index.html",
+                "title": k_data.get('title', '2026 南九州 7天6夜冬季自駕旅行'),
+                "subtitle": k_data.get('subtitle', '熊本・阿蘇・黑川溫泉・高千穗・宮崎日南・鹿兒島櫻島'),
+                "dates": f"{k_data.get('start_date', '2026/12/22')} ~ {k_data.get('end_date', '2026/12/28')}",
+                "days_count": "7 天 6 夜",
+                "destination": "日本・熊本 / 宮崎 / 鹿兒島",
+                "status": "active",
+                "status_label": "🎄 倒數啟程中・焦點旅程",
+                "badge_color": "emerald",
+                "flight": "華航 CI194 (桃機 T2 ➔ 熊本 KMJ) ⇄ CI195 直飛",
+                "tag": "❄️ 冬日雪胎自駕・秘湯溫泉",
+                "budget": "NT$ 71,250 (已記)",
+                "highlights": ["阿蘇火山口", "黑川山彥秘湯", "高千穗划船", "日南摩艾像", "櫻島活火山", "人吉百年鰻魚"],
+                "color_theme": "from-red-600 via-rose-500 to-amber-500"
+            })
+        except Exception as e:
+            print(f"Error loading Kyushu trip: {e}")
+
+    # 2. 2026 關西秋季楓紅漫旅
+    trips.append({
+        "id": "kansai-2026",
+        "folder": "2026 日本關西秋季楓紅慢旅",
+        "link": "#",
+        "title": "2026 日本關西秋季楓紅 7天6夜慢旅",
+        "subtitle": "大阪心齋橋・京都嵐山天龍寺・宇治平等院・清水寺夜楓",
+        "dates": "2026/11/20 ~ 2026/11/26",
+        "days_count": "7 天 6 夜",
+        "destination": "日本・大阪 / 京都 / 宇治",
+        "status": "planning",
+        "status_label": "🍁 籌備規劃中",
+        "badge_color": "amber",
+        "flight": "關西國際機場 (KIX) 航線評估中",
+        "tag": "🍁 古都秋楓・抹茶甜點散策",
+        "budget": "NT$ 85,000 (預估)",
+        "highlights": ["嵐山渡月橋", "東福寺通天橋", "清水寺夜間特別參拜", "道頓堀美食", "宇治中村藤吉"],
+        "color_theme": "from-amber-600 via-orange-500 to-rose-500"
+    })
+
+    return trips
+
+def build_portal():
+    trips = get_trips()
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    
+    html = f"""<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#dc2626">
+    <title>🏡 家族旅行手帳大廳 ｜ Family Travel Vault ✈️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Zen Maru Gothic + M PLUS Rounded 1c -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Three.js 核心與軌道控制器 (政策島 3D 渲染引擎) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        tailwind.config = {{
+            theme: {{
+                extend: {{
+                    fontFamily: {{
+                        sans: ['"Zen Maru Gothic"', '"M PLUS Rounded 1c"', 'system-ui', 'sans-serif'],
+                    }},
+                    colors: {{
+                        cute: {{
+                            cream: '#FFFDF9',
+                            paper: '#FDFBF7',
+                            border: '#F1E9DA',
+                            dark: '#3D342B',
+                        }}
+                    }}
+                }}
+            }}
+        }};
+    </script>
+
+    <style>
+        body {{
+            background-color: #faf7f2;
+            background-image: 
+                radial-gradient(#e5dec9 0.75px, transparent 0.75px),
+                radial-gradient(#e5dec9 0.75px, #faf7f2 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: #3d342b;
+        }}
+        .vault-card {{
+            border-radius: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }}
+        .vault-card:hover {{
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08);
+        }}
+        .cute-pill {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }}
+        .washi-tape {{
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-1deg);
+            width: 110px;
+            height: 24px;
+            background: rgba(254, 226, 226, 0.85);
+            border-left: 2px dashed rgba(239, 68, 68, 0.3);
+            border-right: 2px dashed rgba(239, 68, 68, 0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            z-index: 10;
+        }}
+
+        /* 3D 浮空政策島容器 */
+        #island-canvas-container {{
+            width: 100%;
+            height: 480px;
+            position: relative;
+            cursor: grab;
+            touch-action: none;
+            overflow: hidden;
+            border-radius: 1.5rem;
+        }}
+        #island-canvas-container:active {{
+            cursor: grabbing;
+        }}
+        @media (max-width: 640px) {{
+            #island-canvas-container {{
+                height: 400px;
+            }}
+        }}
+
+        /* 政策島 3D 對話氣泡浮動層 */
+        .island-speech-bubble {{
+            position: absolute;
+            transform: translate(-50%, -100%);
+            background: #ffffff;
+            border: 2px solid #3d342b;
+            padding: 7px 12px;
+            border-radius: 16px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #3d342b;
+            white-space: nowrap;
+            box-shadow: 0 10px 20px -3px rgba(0,0,0,0.18);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 30;
+        }}
+        .island-speech-bubble::after {{
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #3d342b transparent transparent transparent;
+        }}
+        .island-speech-bubble.active {{
+            opacity: 1;
+            transform: translate(-50%, -115%) scale(1);
+        }}
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- 置頂 Header -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-2 border-stone-200/80 px-4 sm:px-8 py-3.5 shadow-xs">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-amber-500 text-white flex items-center justify-center text-xl shadow-md shadow-red-200 shrink-0">
+                    🏡
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50 border border-red-200 px-2 py-0.2 rounded-full">
+                            FAMILY TRAVEL VAULT
+                        </span>
+                        <span class="text-xs text-stone-300 hidden sm:inline">|</span>
+                        <span class="text-xs text-stone-500 font-bold hidden sm:inline">家族旅行手帳大廳</span>
+                    </div>
+                    <h1 class="text-base sm:text-lg font-black text-stone-800">
+                        家族旅行足跡・手帳大廳
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="cheerEveryone()" class="px-3.5 py-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-700 border border-red-200 text-xs font-black flex items-center gap-1.5 transition shadow-xs">
+                    <span>🎉</span>
+                    <span class="hidden sm:inline">全員集合打氣！</span>
+                    <span class="sm:hidden">打氣</span>
+                </button>
+                <a href="https://docs.google.com/spreadsheets/d/1P4niaKfXpHnrlVkiexFmxa2Q0U7kwOvj6yUINn--WNo/edit?usp=sharing" target="_blank" class="px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
+                    <span>📊</span>
+                    <span class="hidden sm:inline">記帳試算表</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主體內容 -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-8 py-6 w-full flex-1 space-y-8">
+
+        <!-- ================= 政策島風格・3D 互動浮空冒險島 (Heart Island Style) ================= -->
+        <div class="relative bg-gradient-to-b from-sky-100/90 via-sky-50 to-amber-50/40 rounded-3xl p-4 sm:p-7 border-2 border-stone-200 shadow-xl overflow-hidden">
+            
+            <!-- 標題與控制器列 -->
+            <div class="relative z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-sky-200/60">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-black text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        <span class="w-2 h-2 rounded-full bg-amber-600 animate-ping"></span>
+                        <span>🏝️ 沈伯洋政策島風格・3D 家族冒險島</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black text-stone-800 mt-1 flex items-center gap-2">
+                        <span>🗾</span> 九州漫遊浮空島 ｜ 人物正沿著山路散步中！
+                    </h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="toggleAutoRotate()" id="btn-auto-rotate" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                        <span>🔄</span>
+                        <span id="rotate-text">視角旋轉：開</span>
+                    </button>
+                    <button onclick="cheerEveryone()" class="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 shadow-xs transition">
+                        <span>🤾</span>
+                        <span>歡樂齊跳！</span>
+                    </button>
+                    <a href="./2026%20南九州冬季聖誕自駕/index.html" class="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-200 flex items-center gap-1.5 transition transform hover:scale-105 active:scale-95">
+                        <span>進入 2026 南九州手帳</span>
+                        <span>➔</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3D WebGL 畫布容器 -->
+            <div id="island-canvas-container" class="relative mt-3 bg-gradient-to-b from-[#e0f2fe] via-[#f0f9ff] to-[#fef3c7]/30">
+                <!-- 3D 浮動對話氣泡 -->
+                <div id="bubble-achun" class="island-speech-bubble">✈️ 華航 CI194 倒數出發！大家行李打包好了嗎～🎒</div>
+                <div id="bubble-yijhang" class="island-speech-bubble">🚗 8 人座雪胎休旅車交給我！九州公路看我的！🚙</div>
+                <div id="bubble-ayee" class="island-speech-bubble">🍱 人吉百年鰻魚飯＆黑川山彥溫泉會席，我等不及了！😋</div>
+                <div id="bubble-alu" class="island-speech-bubble">📸 記憶卡清出 256GB！準備狂拍櫻島火山大景～✨</div>
+
+                <!-- 浮動在畫布角落的引導提示 -->
+                <div class="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-stone-200/80 text-[11px] font-bold text-stone-600 shadow-xs pointer-events-none flex items-center gap-2">
+                    <span>👆 滑鼠拖曳或手機觸控可 360° 旋轉視角 ｜ 點選散步中的小人聽聽大家說什麼！</span>
+                </div>
+            </div>
+
+            <!-- 下方角色名牌列 (快速定位點擊) -->
+            <div class="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-sky-200/60 text-xs">
+                <button onclick="focusCharacter('achun')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-red-400">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span>阿純 (策劃)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">推黃行李箱</span>
+                </button>
+                <button onclick="focusCharacter('yijhang')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-emerald-400">
+                    <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                    <span>姨丈 (神駕駛)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">帥氣墨鏡</span>
+                </button>
+                <button onclick="focusCharacter('ayee')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-amber-400">
+                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                    <span>阿姨 (美食家)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">老饕手冊</span>
+                </button>
+                <button onclick="focusCharacter('alu')" class="p-2 rounded-2xl bg-white/80 hover:bg-white border border-stone-200 font-black text-stone-800 flex items-center gap-2 transition hover:border-sky-400">
+                    <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+                    <span>阿嚕 (攝影師)</span>
+                    <span class="text-[10px] text-stone-400 font-normal">單眼相機</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 旅程清單列表 -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🧳</span>
+                    <h3 class="text-lg font-black text-stone-800">所有旅行手帳清單</h3>
+                </div>
+                <span class="text-xs text-stone-500 font-bold">依時間與狀態排列</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- 旅程卡片 1: 2026 南九州 (目前啟動中) -->
+                <div class="vault-card bg-white border-2 border-red-200 p-6 sm:p-7 relative flex flex-col justify-between shadow-md shadow-red-100/50">
+                    <div class="washi-tape"></div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="cute-pill bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                                🎄 倒數啟程中・焦點旅程
+                            </span>
+                            <span class="text-xs font-bold text-stone-400 font-mono">2026 冬季</span>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-black text-stone-800 hover:text-red-600 transition flex items-center gap-2">
+                                <span>🎅</span> 2026 南九州冬季聖誕自駕
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-1 font-bold">
+                                📅 2026/12/22 (二) ~ 12/28 (一) ｜ 7 天 6 夜自駕
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-red-50/50 border border-red-100 rounded-2xl space-y-1.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>✈️</span> <strong>直飛航班：</strong>華航 CI194 (桃機 T2 ➔ 熊本 KMJ) ⇄ CI195
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>📍</span> <strong>自駕路線：</strong>熊本 ➔ 阿蘇草千里 ➔ 黑川溫泉 ➔ 高千穗 ➔ 宮崎日南 ➔ 鹿兒島 ➔ 霧島人吉 ➔ 熊本城
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>👛</span> <strong>目前記帳：</strong>NT$ 71,250 (4人家族平均 $17,813)
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold">🌋 阿蘇中岳火山口</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-bold">♨️ 黑川山彥一泊二食</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 font-bold">🚣 高千穗峽划船</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">🍱 人吉百年碳火鰻魚</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200 font-bold">🌋 櫻島活火山渡輪</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t border-stone-100 flex items-center justify-between gap-3">
+                        <div class="text-[11px] text-stone-400 font-bold">
+                            📂 專屬資料夾：<code>旅行/2026 南九州冬季聖誕自駕/</code>
+                        </div>
+                        <a href="./2026%20南九州冬季聖誕自駕/index.html" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs shadow-md shadow-red-200 flex items-center gap-1.5 transition transform hover:scale-105 active:scale-95">
+                            <span>打開手帳</span>
+                            <span>➔</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 旅程卡片 2: 2026 日本關西秋季楓紅 (籌備中) -->
+                <div class="vault-card bg-white border-2 border-stone-200 p-6 sm:p-7 relative flex flex-col justify-between shadow-xs opacity-90 hover:opacity-100">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="cute-pill bg-amber-100 text-amber-800 border border-amber-300">
+                                🍁 籌備規劃中
+                            </span>
+                            <span class="text-xs font-bold text-stone-400 font-mono">2026 秋季</span>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-black text-stone-800 flex items-center gap-2">
+                                <span>🍂</span> 2026 日本關西秋季楓紅漫旅
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-1 font-bold">
+                                📅 2026/11/20 (五) ~ 11/26 (四) ｜ 7 天 6 夜古都慢旅
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-amber-50/50 border border-amber-100 rounded-2xl space-y-1.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>✈️</span> <strong>航線門戶：</strong>關西國際機場 (KIX) ⇄ 桃園機場
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>📍</span> <strong>慢遊路線：</strong>大阪難波心齋橋 ➔ 京都嵐山渡月橋 ➔ 宇治抹茶世界 ➔ 東福寺與清水寺夜楓
+                            </div>
+                            <div class="flex items-center gap-1.5 text-stone-700">
+                                <span>🍁</span> <strong>主題特色：</strong>日本第一秋季楓紅、百年町家古道散策
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍁 嵐山常寂光寺</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🍵 宇治平等院鳳凰堂</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🏮 清水寺夜間拜觀</span>
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 font-bold">🐙 道頓堀黑門市場</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t border-stone-100 flex items-center justify-between gap-3">
+                        <div class="text-[11px] text-stone-400 font-bold">
+                            📂 未來資料夾：<code>旅行/2026 日本關西秋季楓紅漫旅/</code>
+                        </div>
+                        <span class="px-4 py-2 rounded-full bg-stone-100 text-stone-400 font-bold text-xs border border-stone-200 cursor-not-allowed">
+                            資料籌備中 🔒
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 建立新旅程卡片 -->
+                <div class="vault-card bg-stone-50 border-2 border-dashed border-stone-300 p-6 sm:p-7 flex flex-col items-center justify-center text-center space-y-3 hover:border-red-400 transition cursor-pointer md:col-span-2">
+                    <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-xs flex items-center justify-center text-2xl text-stone-400">
+                        ✨
+                    </div>
+                    <div>
+                        <h4 class="text-base font-black text-stone-800">
+                            想要籌備下一趟全新旅程嗎？
+                        </h4>
+                        <p class="text-xs text-stone-500 mt-1 max-w-lg leading-relaxed">
+                            未來只要在 <code>旅行/</code> 底下以「年份＋地點」建立新資料夾（例如：<code>2027 北海道夏季薰衣草自駕</code>），複製模板資料後執行編譯，就會自動在入口大廳點亮全新旅程卡片！
+                        </p>
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 text-xs text-red-600 font-bold">
+                        <span>💡 完全獨立模組化・輕鬆帶著走的家族數位記憶</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 常用實用外連與家族百寶箱 -->
+        <section class="bg-white rounded-3xl p-6 border-2 border-stone-200 space-y-4">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🧰</span>
+                <h3 class="text-sm font-black text-stone-800">家族旅行必備百寶箱</h3>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <a href="https://www.vjw.digital.go.jp/" target="_blank" class="p-3 rounded-2xl bg-stone-50 hover:bg-stone-100 border border-stone-200 transition font-bold text-stone-700 flex flex-col gap-1">
+                    <span class="text-base">🇯🇵</span>
+                    <span>Visit Japan Web</span>
+                    <span class="text-[10px] text-stone-400 font-normal">日本快速入境審查申報</span>
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/1P4niaKfXpHnrlVkiexFmxa2Q0U7kwOvj6yUINn--WNo/edit?usp=sharing" target="_blank" class="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition font-bold text-amber-800 flex flex-col gap-1">
+                    <span class="text-base">📊</span>
+                    <span>家族旅行雲端帳本</span>
+                    <span class="text-[10px] text-amber-600 font-normal">即時記錄匯款與分攤</span>
+                </a>
+                <a href="https://www.taoyuan-airport.com/" target="_blank" class="p-3 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200 transition font-bold text-sky-800 flex flex-col gap-1">
+                    <span class="text-base">🛫</span>
+                    <span>桃園機場航班即時表</span>
+                    <span class="text-[10px] text-sky-600 font-normal">第一/第二航廈起降狀況</span>
+                </a>
+                <a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" class="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition font-bold text-emerald-800 flex flex-col gap-1">
+                    <span class="text-base">💴</span>
+                    <span>台灣銀行即時牌告匯率</span>
+                    <span class="text-[10px] text-emerald-600 font-normal">日圓現鈔換匯參考</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾宣告 -->
+    <footer class="bg-white border-t-2 border-stone-200 py-6 px-4 text-center text-xs text-stone-400 font-medium">
+        🏡 家族旅行手帳大廳 ｜ 更新時間：{now_str} ｜ 祝全家人每一次出發都平安滿載！✨
+    </footer>
+
+    <!-- ================= 政策島 3D 引擎與小人物自然散步系統 ================= -->
+    <script>
+        const container = document.getElementById('island-canvas-container');
+        let scene, camera, renderer, controls;
+        let characters = {{}};
+        let raycaster, mouse;
+        let isAutoRotate = true;
+        let activeSpeaker = null;
+        let bubbleTimeout = null;
+
+        // 角色行走路徑定義 (順時針在島上柏油路散步巡遊)
+        const islandRoadPoints = [
+            new THREE.Vector3(-6.5, 0.45, 2.5),  // 0: 西側起點 (靠近阿純出發點)
+            new THREE.Vector3(-4.5, 0.45, -2.5), // 1: 西北彎道 (靠近鳥居)
+            new THREE.Vector3(0, 0.5, -4.5),     // 2: 北側高點 (阿蘇火山下)
+            new THREE.Vector3(4.5, 0.5, -2.5),   // 3: 東北坡道 (黑川秘湯旁)
+            new THREE.Vector3(6.5, 0.45, 1.5),   // 4: 東側岬角 (櫻島觀景點)
+            new THREE.Vector3(4.0, 0.45, 4.5),   // 5: 東南水岸 (渡輪旁)
+            new THREE.Vector3(-1.0, 0.45, 4.8),  // 6: 南側平坦公路 (紅色休旅車停靠處)
+            new THREE.Vector3(-4.5, 0.45, 4.0),  // 7: 西南轉角
+        ];
+        const roadCurve = new THREE.CatmullRomCurve3(islandRoadPoints, true);
+
+        // 4 位角色初始路徑參數 (錯開起始位置與速度)
+        const CHAR_CONFIGS = {{
+            achun: {{
+                name: "阿純",
+                shirtColor: 0xe11d48, // 深紅冬裝
+                pantsColor: 0x334155,
+                hatType: "beanie",
+                prop: "suitcase",
+                progress: 0.05,
+                speed: 0.016,
+                walkPhase: 0
+            }},
+            yijhang: {{
+                name: "姨丈",
+                shirtColor: 0x15803d, // 軍綠夾克
+                pantsColor: 0x1e3a8a,
+                hatType: "sunglasses",
+                prop: "key",
+                progress: 0.75,
+                speed: 0.015,
+                walkPhase: 1.5
+            }},
+            ayee: {{
+                name: "阿姨",
+                shirtColor: 0xf97316, // 暖橘大衣
+                pantsColor: 0x475569,
+                hatType: "beret",
+                prop: "book",
+                progress: 0.40,
+                speed: 0.014,
+                walkPhase: 3.0
+            }},
+            alu: {{
+                name: "阿嚕",
+                shirtColor: 0x0284c7, // 藍色風衣
+                pantsColor: 0x1e293b,
+                hatType: "cap",
+                prop: "camera",
+                progress: 0.55,
+                speed: 0.017,
+                walkPhase: 4.5
+            }}
+        }};
+
+        function initIsland3D() {{
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            // 1. Scene
+            scene = new THREE.Scene();
+            scene.background = null; // 透明背景，融合網頁淡藍底色
+
+            // 2. Camera (等角透視視角)
+            camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 1000);
+            camera.position.set(16, 17, 19);
+            camera.lookAt(0, 0, 0);
+
+            // 3. Renderer
+            renderer = new THREE.WebGLRenderer({{ antialias: true, alpha: true }});
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // 4. OrbitControls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.maxPolarAngle = Math.PI / 2.15; // 不可鑽入島嶼地底
+            controls.minDistance = 12;
+            controls.maxDistance = 38;
+            controls.autoRotate = isAutoRotate;
+            controls.autoRotateSpeed = 0.7;
+
+            // 5. Lights (柔和日系暖光)
+            const ambient = new THREE.AmbientLight(0xfff7ed, 0.9);
+            scene.add(ambient);
+
+            const sunLight = new THREE.DirectionalLight(0xffedd5, 1.1);
+            sunLight.position.set(15, 25, 12);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 1024;
+            sunLight.shadow.mapSize.height = 1024;
+            sunLight.shadow.bias = -0.0005;
+            scene.add(sunLight);
+
+            const hemiLight = new THREE.HemisphereLight(0xbae6fd, 0xfef3c7, 0.4);
+            scene.add(hemiLight);
+
+            // 6. 構建政策島地形
+            buildIslandTerrain();
+
+            // 7. 構建 4 位 3D 小人物
+            build3DCharacters();
+
+            // 8. 射線拾取
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            renderer.domElement.addEventListener('pointerdown', onIslandPointerDown);
+
+            window.addEventListener('resize', onWindowResize);
+
+            // 開始渲染迴圈
+            animate();
+        }}
+
+        function buildIslandTerrain() {{
+            const islandGroup = new THREE.Group();
+            scene.add(islandGroup);
+
+            // 浮空島岩層底部 (Terracotta / Earth Cliff)
+            const cliffGeo = new THREE.CylinderGeometry(8.2, 5.0, 3.2, 32);
+            const cliffMat = new THREE.MeshLambertMaterial({{ color: 0x854d0e }});
+            const cliffMesh = new THREE.Mesh(cliffGeo, cliffMat);
+            cliffMesh.position.y = -1.6;
+            cliffMesh.receiveShadow = true;
+            islandGroup.add(cliffMesh);
+
+            // 浮空島綠色草地頂面 (Fresh Matcha Grass)
+            const grassGeo = new THREE.CylinderGeometry(8.5, 8.4, 0.5, 32);
+            const grassMat = new THREE.MeshLambertMaterial({{ color: 0x4ade80 }});
+            const grassMesh = new THREE.Mesh(grassGeo, grassMat);
+            grassMesh.position.y = 0.15;
+            grassMesh.receiveShadow = true;
+            islandGroup.add(grassMesh);
+
+            // 散步柏油公路 (環形道路管道)
+            const roadGeo = new THREE.TubeGeometry(roadCurve, 64, 0.65, 8, true);
+            const roadMat = new THREE.MeshLambertMaterial({{ color: 0xe2e8f0 }});
+            const roadMesh = new THREE.Mesh(roadGeo, roadMat);
+            roadMesh.position.y = 0.05;
+            roadMesh.receiveShadow = true;
+            islandGroup.add(roadMesh);
+
+            // 錦江灣迷你水域 (東南側海灣)
+            const seaGeo = new THREE.CylinderGeometry(3.2, 3.2, 0.35, 24);
+            const seaMat = new THREE.MeshLambertMaterial({{ color: 0x38bdf8, transparent: true, opacity: 0.85 }});
+            const seaMesh = new THREE.Mesh(seaGeo, seaMat);
+            seaMesh.position.set(4.5, 0.2, 2.5);
+            islandGroup.add(seaMesh);
+
+            // 迷你櫻島渡輪
+            const boatGeo = new THREE.BoxGeometry(1.2, 0.4, 0.6);
+            const boatMat = new THREE.MeshLambertMaterial({{ color: 0xffffff }});
+            const boat = new THREE.Mesh(boatGeo, boatMat);
+            boat.position.set(4.5, 0.48, 2.5);
+            boat.rotation.y = 0.4;
+            islandGroup.add(boat);
+
+            // 迷你阿蘇中岳火山
+            const volcanoGeo = new THREE.ConeGeometry(2.4, 2.0, 16);
+            const volcanoMat = new THREE.MeshLambertMaterial({{ color: 0x57534e }});
+            const volcano = new THREE.Mesh(volcanoGeo, volcanoMat);
+            volcano.position.set(-0.5, 1.4, -2.8);
+            volcano.castShadow = true;
+            islandGroup.add(volcano);
+
+            // 火山口熔岩
+            const craterGeo = new THREE.CylinderGeometry(0.6, 0.8, 0.1, 16);
+            const craterMat = new THREE.MeshBasicMaterial({{ color: 0xef4444 }});
+            const crater = new THREE.Mesh(craterGeo, craterMat);
+            crater.position.set(-0.5, 2.38, -2.8);
+            islandGroup.add(crater);
+
+            // 黑川秘湯小溫泉池
+            const onsenGeo = new THREE.CylinderGeometry(1.2, 1.3, 0.4, 16);
+            const onsenMat = new THREE.MeshLambertMaterial({{ color: 0x78716c }});
+            const onsen = new THREE.Mesh(onsenGeo, onsenMat);
+            onsen.position.set(2.8, 0.5, -2.5);
+            islandGroup.add(onsen);
+
+            const waterGeo = new THREE.CylinderGeometry(1.05, 1.05, 0.1, 16);
+            const waterMat = new THREE.MeshLambertMaterial({{ color: 0x0ea5e9 }});
+            const onsenWater = new THREE.Mesh(waterGeo, waterMat);
+            onsenWater.position.set(2.8, 0.68, -2.5);
+            islandGroup.add(onsenWater);
+
+            // 國寶霧島朱紅小鳥居
+            buildToriiGate(islandGroup, -3.2, 0.4, -0.8, -0.4);
+
+            // 8 人座自駕紅色休旅車 (停在路邊，可愛圓潤)
+            buildMinivan(islandGroup, -1.8, 0.45, 3.6, -0.2);
+
+            // 散落小松樹 (低多邊形積木風格)
+            const treePositions = [
+                [-5.5, 0.4, 0.5], [-4.2, 0.4, 1.8], [1.2, 0.4, -1.5], [5.8, 0.4, -0.5], [2.2, 0.4, 1.8]
+            ];
+            treePositions.forEach(pos => {{
+                buildPineTree(islandGroup, pos[0], pos[1], pos[2]);
+            }});
+        }}
+
+        function buildPineTree(parent, x, y, z) {{
+            const group = new THREE.Group();
+            group.position.set(x, y, z);
+
+            const trunkGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.6, 6);
+            const trunkMat = new THREE.MeshLambertMaterial({{ color: 0x78350f }});
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = 0.3;
+            group.add(trunk);
+
+            const leavesMat = new THREE.MeshLambertMaterial({{ color: 0x15803d }});
+            const leaf1 = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.9, 6), leavesMat);
+            leaf1.position.y = 0.8;
+            group.add(leaf1);
+
+            const leaf2 = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.7, 6), leavesMat);
+            leaf2.position.y = 1.3;
+            group.add(leaf2);
+
+            parent.add(group);
+        }}
+
+        function buildToriiGate(parent, x, y, z, rotY) {{
+            const torii = new THREE.Group();
+            torii.position.set(x, y, z);
+            torii.rotation.y = rotY;
+
+            const mat = new THREE.MeshLambertMaterial({{ color: 0xdc2626 }});
+            const postGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.4, 8);
+            
+            const postL = new THREE.Mesh(postGeo, mat);
+            postL.position.set(-0.6, 0.7, 0);
+            torii.add(postL);
+
+            const postR = new THREE.Mesh(postGeo, mat);
+            postR.position.set(0.6, 0.7, 0);
+            torii.add(postR);
+
+            const topGeo = new THREE.BoxGeometry(1.6, 0.12, 0.16);
+            const topBar = new THREE.Mesh(topGeo, mat);
+            topBar.position.set(0, 1.35, 0);
+            torii.add(topBar);
+
+            parent.add(torii);
+        }}
+
+        function buildMinivan(parent, x, y, z, rotY) {{
+            const van = new THREE.Group();
+            van.name = "minivan";
+            van.position.set(x, y, z);
+            van.rotation.y = rotY;
+
+            // 車身 (亮紅)
+            const bodyMat = new THREE.MeshLambertMaterial({{ color: 0xdc2626 }});
+            const bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 1.0), bodyMat);
+            bodyMesh.position.y = 0.55;
+            bodyMesh.castShadow = true;
+            van.add(bodyMesh);
+
+            // 車窗 (淡藍)
+            const glassMat = new THREE.MeshLambertMaterial({{ color: 0xbae6fd }});
+            const glass = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.35, 0.88), glassMat);
+            glass.position.y = 0.72;
+            van.add(glass);
+
+            // 車頂行李架 ＆ 雙色行李箱
+            const rack = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.06, 0.8), new THREE.MeshLambertMaterial({{ color: 0x334155 }}));
+            rack.position.y = 0.98;
+            van.add(rack);
+
+            const luggage1 = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.22, 0.5), new THREE.MeshLambertMaterial({{ color: 0xfacc15 }}));
+            luggage1.position.set(-0.25, 1.12, 0);
+            van.add(luggage1);
+
+            const luggage2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.45), new THREE.MeshLambertMaterial({{ color: 0x38bdf8 }}));
+            luggage2.position.set(0.25, 1.1, 0);
+            van.add(luggage2);
+
+            // 4 個黑色小輪胎
+            const wheelMat = new THREE.MeshLambertMaterial({{ color: 0x1e293b }});
+            const wheelGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.15, 12);
+            wheelGeo.rotateZ(Math.PI / 2);
+
+            [[-0.55, 0.2, 0.52], [0.55, 0.2, 0.52], [-0.55, 0.2, -0.52], [0.55, 0.2, -0.52]].forEach(wp => {{
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.position.set(wp[0], wp[1], wp[2]);
+                van.add(wheel);
+            }});
+
+            parent.add(van);
+        }}
+
+        // ======================= 構建 3D 走動小人物 (Chibi Walkers) =======================
+        function build3DCharacters() {{
+            Object.keys(CHAR_CONFIGS).forEach(role => {{
+                const cfg = CHAR_CONFIGS[role];
+                const charGroup = new THREE.Group();
+                charGroup.name = `char-${{role}}`;
+                charGroup.userData = {{ role: role, name: cfg.name, jumping: 0 }};
+
+                // 1. 身體 (Body Capsule)
+                const bodyMat = new THREE.MeshLambertMaterial({{ color: cfg.shirtColor }});
+                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.65, 12), bodyMat);
+                body.position.y = 0.62;
+                body.castShadow = true;
+                charGroup.add(body);
+                charGroup.body = body;
+
+                // 2. 頭部 (Head Sphere)
+                const headMat = new THREE.MeshLambertMaterial({{ color: 0xfde68a }}); // 可愛皮膚肉色
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 12), headMat);
+                head.position.y = 1.18;
+                head.castShadow = true;
+                charGroup.add(head);
+
+                // 3. 眼睛五官 (Cute dot eyes)
+                const eyeMat = new THREE.MeshBasicMaterial({{ color: 0x1e293b }});
+                const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat);
+                eyeL.position.set(0.12, 1.2, 0.32);
+                charGroup.add(eyeL);
+
+                const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat);
+                eyeR.position.set(-0.12, 1.2, 0.32);
+                charGroup.add(eyeR);
+
+                // 4. 帽子/髮型
+                if (cfg.hatType === "beanie") {{
+                    // 阿純：紅毛帽 + 蓬鬆毛球
+                    const hatMat = new THREE.MeshLambertMaterial({{ color: 0xdc2626 }});
+                    const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), hatMat);
+                    beanie.position.y = 1.24;
+                    charGroup.add(beanie);
+
+                    const pompom = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshLambertMaterial({{ color: 0xffffff }}));
+                    pompom.position.y = 1.62;
+                    charGroup.add(pompom);
+                }} else if (cfg.hatType === "sunglasses") {{
+                    // 姨丈：黑墨鏡 + 短髮
+                    const glassMat = new THREE.MeshBasicMaterial({{ color: 0x0f172a }});
+                    const shades = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.12, 0.12), glassMat);
+                    shades.position.set(0, 1.22, 0.32);
+                    charGroup.add(shades);
+
+                    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.35, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.45), new THREE.MeshLambertMaterial({{ color: 0x5a3825 }}));
+                    hair.position.y = 1.22;
+                    charGroup.add(hair);
+                }} else if (cfg.hatType === "beret") {{
+                    // 阿姨：亮黃貝雷帽
+                    const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.4, 0.12, 14), new THREE.MeshLambertMaterial({{ color: 0xfbbf24 }}));
+                    beret.position.set(0, 1.5, 0);
+                    beret.rotation.z = -0.15;
+                    charGroup.add(beret);
+                }} else if (cfg.hatType === "cap") {{
+                    // 阿嚕：深藍棒球帽
+                    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), new THREE.MeshLambertMaterial({{ color: 0x0369a1 }}));
+                    cap.position.y = 1.24;
+                    charGroup.add(cap);
+
+                    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.05, 0.22), new THREE.MeshLambertMaterial({{ color: 0x0284c7 }}));
+                    visor.position.set(0, 1.28, 0.42);
+                    charGroup.add(visor);
+                }}
+
+                // 5. 雙腳 (動態踩踏踏步)
+                const legMat = new THREE.MeshLambertMaterial({{ color: cfg.pantsColor }});
+                const legGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.36, 8);
+                legGeo.translate(0, -0.18, 0); // 樞紐設定在臀部
+
+                const legL = new THREE.Mesh(legGeo, legMat);
+                legL.position.set(0.12, 0.36, 0);
+                charGroup.add(legL);
+                charGroup.legL = legL;
+
+                const legR = new THREE.Mesh(legGeo, legMat);
+                legR.position.set(-0.12, 0.36, 0);
+                charGroup.add(legR);
+                charGroup.legR = legR;
+
+                // 6. 雙手 (自然前後擺動)
+                const armMat = new THREE.MeshLambertMaterial({{ color: cfg.shirtColor }});
+                const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.36, 6);
+                armGeo.translate(0, -0.16, 0); // 樞紐設定在肩膀
+
+                const armL = new THREE.Mesh(armGeo, armMat);
+                armL.position.set(0.32, 0.85, 0);
+                charGroup.add(armL);
+                charGroup.armL = armL;
+
+                const armR = new THREE.Mesh(armGeo, armMat);
+                armR.position.set(-0.32, 0.85, 0);
+                charGroup.add(armR);
+                charGroup.armR = armR;
+
+                // 7. 特色隨身道具
+                if (cfg.prop === "suitcase") {{
+                    // 阿純的黃色行李箱
+                    const bag = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.42, 0.32), new THREE.MeshLambertMaterial({{ color: 0xfacc15 }}));
+                    bag.position.set(0.45, 0.24, -0.1);
+                    charGroup.add(bag);
+                }} else if (cfg.prop === "camera") {{
+                    // 阿嚕的單眼相機
+                    const cam = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.14), new THREE.MeshLambertMaterial({{ color: 0x1e293b }}));
+                    cam.position.set(0, 0.7, 0.32);
+                    charGroup.add(cam);
+                }} else if (cfg.prop === "book") {{
+                    // 阿姨的美食手冊
+                    const book = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.24, 0.06), new THREE.MeshLambertMaterial({{ color: 0xffffff }}));
+                    book.position.set(-0.38, 0.65, 0.2);
+                    book.rotation.y = 0.5;
+                    charGroup.add(book);
+                }}
+
+                // 柔和貼地小陰影
+                const shadowMat = new THREE.MeshBasicMaterial({{ color: 0x1c1917, transparent: true, opacity: 0.25 }});
+                const shadowMesh = new THREE.Mesh(new THREE.CircleGeometry(0.32, 12), shadowMat);
+                shadowMesh.rotation.x = -Math.PI / 2;
+                shadowMesh.position.y = 0.06;
+                charGroup.add(shadowMesh);
+
+                scene.add(charGroup);
+                characters[role] = charGroup;
+            }});
+        }}
+
+        // ======================= 渲染動畫迴圈 (自然走動引擎) =======================
+        let clock = new THREE.Clock();
+
+        function animate() {{
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // 更新 4 位小人物自然散步巡遊
+            Object.keys(characters).forEach(role => {{
+                const charGroup = characters[role];
+                const cfg = CHAR_CONFIGS[role];
+
+                // 沿著島嶼公路曲線前進
+                cfg.progress = (cfg.progress + cfg.speed * delta) % 1.0;
+                const pos = roadCurve.getPointAt(cfg.progress);
+                const tangent = roadCurve.getTangentAt(cfg.progress);
+
+                // 設定人物位置與面朝行走方向
+                charGroup.position.set(pos.x, pos.y, pos.z);
+                
+                // 跳躍動畫處理
+                if (charGroup.userData.jumping > 0) {{
+                    charGroup.userData.jumping -= delta * 3.5;
+                    const jumpY = Math.sin(Math.max(0, charGroup.userData.jumping) * Math.PI) * 0.8;
+                    charGroup.position.y += Math.max(0, jumpY);
+                }}
+
+                // 人物身體朝向行走方向 (平滑轉向)
+                const targetLook = new THREE.Vector3().copy(pos).add(tangent);
+                charGroup.lookAt(targetLook.x, charGroup.position.y, targetLook.z);
+
+                // 雙腿交替踏步動畫 (自然行軍步態)
+                cfg.walkPhase += delta * 7.5;
+                const legSwing = Math.sin(cfg.walkPhase) * 0.65;
+                charGroup.legL.rotation.x = legSwing;
+                charGroup.legR.rotation.x = -legSwing;
+
+                // 雙手相反擺動
+                charGroup.armL.rotation.x = -legSwing * 0.6;
+                charGroup.armR.rotation.x = legSwing * 0.6;
+
+                // 身體隨著每一步微幅自然起伏 (Natural Body Bob)
+                charGroup.body.position.y = 0.62 + Math.abs(Math.sin(cfg.walkPhase)) * 0.05;
+            }});
+
+            // 更新 3D 浮動對話氣泡投影至 HTML 螢幕坐標
+            updateSpeechBubbles();
+
+            controls.update();
+            renderer.render(scene, camera);
+        }}
+
+        // 將 3D 世界座標換算為 HTML 畫布像素位置
+        function updateSpeechBubbles() {{
+            if (!activeSpeaker) return;
+
+            const charGroup = characters[activeSpeaker];
+            const bubble = document.getElementById(`bubble-${{activeSpeaker}}`);
+            if (!charGroup || !bubble) return;
+
+            const headPos = new THREE.Vector3();
+            charGroup.getWorldPosition(headPos);
+            headPos.y += 1.85; // 氣泡位於頭頂上方
+
+            headPos.project(camera);
+
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            const sx = (headPos.x * 0.5 + 0.5) * w;
+            const sy = (-(headPos.y * 0.5) + 0.5) * h;
+
+            // 確保在視錐前方
+            if (headPos.z < 1) {{
+                bubble.style.left = `${{sx}}px`;
+                bubble.style.top = `${{sy}}px`;
+            }} else {{
+                bubble.classList.remove('active');
+            }}
+        }}
+
+        function onIslandPointerDown(e) {{
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+
+            for (let hit of intersects) {{
+                let p = hit.object;
+                while (p && p !== scene) {{
+                    if (p.userData && p.userData.role) {{
+                        triggerCharacterSpeak(p.userData.role);
+                        return;
+                    }}
+                    if (p.name === "minivan") {{
+                        triggerCharacterSpeak('yijhang');
+                        return;
+                    }}
+                    p = p.parent;
+                }}
+            }}
+        }}
+
+        function triggerCharacterSpeak(role) {{
+            const charGroup = characters[role];
+            if (charGroup) {{
+                charGroup.userData.jumping = 1.0; // 觸發開心向上跳躍
+            }}
+
+            // 關閉其他氣泡
+            document.querySelectorAll('.island-speech-bubble').forEach(b => b.classList.remove('active'));
+
+            activeSpeaker = role;
+            const bubble = document.getElementById(`bubble-${{role}}`);
+            if (bubble) {{
+                updateSpeechBubbles();
+                bubble.classList.add('active');
+
+                if (bubbleTimeout) clearTimeout(bubbleTimeout);
+                bubbleTimeout = setTimeout(() => {{
+                    bubble.classList.remove('active');
+                    activeSpeaker = null;
+                }}, 4200);
+            }}
+        }}
+
+        function focusCharacter(role) {{
+            const charGroup = characters[role];
+            if (charGroup) {{
+                // 將視角平滑轉移到該角色
+                controls.target.set(charGroup.position.x, 0.5, charGroup.position.z);
+            }}
+            triggerCharacterSpeak(role);
+        }}
+
+        function cheerEveryone() {{
+            const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+            roles.forEach((r, idx) => {{
+                setTimeout(() => {{
+                    if (characters[r]) characters[r].userData.jumping = 1.0;
+                }}, idx * 120);
+            }});
+            const lucky = roles[Math.floor(Math.random() * roles.length)];
+            triggerCharacterSpeak(lucky);
+        }}
+
+        function toggleAutoRotate() {{
+            isAutoRotate = !isAutoRotate;
+            controls.autoRotate = isAutoRotate;
+            const btn = document.getElementById('rotate-text');
+            if (btn) btn.textContent = `視角旋轉：${{isAutoRotate ? '開' : '關'}}`;
+        }}
+
+        function onWindowResize() {{
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }}
+
+        // 自動輪巡說話
+        let tourIndex = 0;
+        setInterval(() => {{
+            if (!activeSpeaker) {{
+                const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+                tourIndex = (tourIndex + 1) % roles.length;
+                triggerCharacterSpeak(roles[tourIndex]);
+            }}
+        }}, 8000);
+
+        // 頁面載入後初始化 3D 政策島
+        document.addEventListener('DOMContentLoaded', () => {{
+            initIsland3D();
+        }});
+    </script>
+
+</body>
+</html>"""
+
+    output_path = os.path.join(BASE_DIR, 'index.html')
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f"🎉 政策島風格家族旅行手帳大廳 (Three.js 3D 走動小人物) 建立成功：{output_path}")
+
+if __name__ == '__main__':
+    build_portal()
