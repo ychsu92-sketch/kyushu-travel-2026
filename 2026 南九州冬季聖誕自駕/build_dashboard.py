@@ -939,6 +939,9 @@ def build():
                     </div>
                 </div>
             </div>
+
+            <!-- 全寬獨立切割美食專區 (橫向延伸至右側空白，不跟行程時間軸擠在同一排版匡內) -->
+            <div id="day-meals-container" class="cute-card p-5 sm:p-6 border-2 border-orange-200/90 bg-white relative space-y-5 shadow-sm"></div>
         </section>
 
         <!-- TAB 2: 九州手繪探索地圖 -->
@@ -2993,12 +2996,11 @@ def build():
         function renderDayMealsSection(dayPlan, idx) {{
             let mealsContainer = document.getElementById('day-meals-container');
             if (!mealsContainer) {{
-                // Create container right below timeline
-                const timelineParent = document.getElementById('timeline-container').parentNode;
+                const itineraryTab = document.getElementById('tab-content-itinerary');
                 mealsContainer = document.createElement('div');
                 mealsContainer.id = 'day-meals-container';
-                mealsContainer.className = 'mt-8 pt-6 border-t-2 border-dashed border-red-200 space-y-4';
-                timelineParent.appendChild(mealsContainer);
+                mealsContainer.className = 'cute-card p-5 sm:p-6 border-2 border-orange-200/90 bg-white relative space-y-5 shadow-sm';
+                itineraryTab.appendChild(mealsContainer);
             }}
             mealsContainer.innerHTML = '';
 
