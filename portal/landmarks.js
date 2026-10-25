@@ -807,8 +807,9 @@
                 lx = -3.24;
                 lz = 10.15;
             } else if (item.code === 'L04') {
-                lx = item.x;
-                lz = item.z - 0.32;
+                // 阿蘇中岳火山口：平移至公路北側後方安全距離，山體裙擺完全避開自駕車道與路緣石，徹底消除交界閃爍破圖！
+                lx = item.x + 0.45;
+                lz = item.z - 0.95;
             } else if (roadSamples.length > 0) {
                 let nearestPt = null;
                 let minD = 999;

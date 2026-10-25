@@ -118,15 +118,27 @@
         smile.rotation.x = Math.PI;
         smile.position.set(0, -0.06, 0.275);
 
-        // 及肩栗色長髮與兩側髮束
-        const hairBack = new THREE.Mesh(new THREE.SphereGeometry(0.30, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.65), hairMat);
-        hairBack.rotation.x = -0.35;
-        const lockL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.28, 7), hairMat);
-        lockL.position.set(-0.24, -0.12, 0.06);
-        lockL.rotation.z = 0.2;
+        // 及肩栗色長髮（後頭部包覆與溫柔側髮，嚴格露出正臉膚色，眼睛絕不長在頭髮上！）
+        const hairBack = new THREE.Mesh(
+            new THREE.SphereGeometry(0.298, 14, 10, Math.PI * 0.25, Math.PI * 1.5, 0, Math.PI * 0.75),
+            hairMat
+        );
+        hairBack.position.set(0, -0.02, -0.03);
+
+        // 日系可愛側分齊瀏海（位置在額頭上方 y = 0.12~0.16，自然垂墜於眉骨上方，完全不覆蓋雙眼）
+        const bangs = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.292, 0.296, 0.08, 12, 1, false, Math.PI * 0.70, Math.PI * 0.60),
+            hairMat
+        );
+        bangs.position.set(0, 0.12, 0.04);
+        bangs.rotation.x = 0.18;
+
+        const lockL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 0.28, 7), hairMat);
+        lockL.position.set(-0.24, -0.10, 0.06);
+        lockL.rotation.z = 0.16;
         const lockR = lockL.clone();
-        lockR.position.set(0.24, -0.12, 0.06);
-        lockR.rotation.z = -0.2;
+        lockR.position.set(0.24, -0.10, 0.06);
+        lockR.rotation.z = -0.16;
 
         // 招牌黃色針織毛帽 + 反摺帽簷 + 白色大毛球
         const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.31, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.56), hatMat);
@@ -137,7 +149,7 @@
         const pom = new THREE.Mesh(new THREE.SphereGeometry(0.10, 10, 10), pomMat);
         pom.position.set(0, 0.39, -0.03);
 
-        headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBack, lockL, lockR, beanie, brim, pom);
+        headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBack, bangs, lockL, lockR, beanie, brim, pom);
         root.add(headGroup);
 
         // 左右手臂（左手拿銀色筆電隨時打「物理治療紀錄」、右手拿外帶熱拿鐵咖啡杯）
@@ -606,18 +618,31 @@
         blushR.position.set(0.15, -0.04, 0.25);
         blushR.rotation.y = 0.35;
 
-        // 蓬鬆捲髮造型
-        const hairBase = new THREE.Mesh(new THREE.SphereGeometry(0.295, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.62), hairMat);
-        hairBase.rotation.x = -0.28;
-        headGroup.add(head, eyeL, eyeR, blushL, blushR, hairBase);
+        // 優雅溫婉捲髮造型（後頭部包覆與兩側蓬鬆波浪，完全露出臉蛋，笑眼與腮紅清爽呈現，絕不長在頭髮上！）
+        const hairBase = new THREE.Mesh(
+            new THREE.SphereGeometry(0.292, 14, 10, Math.PI * 0.28, Math.PI * 1.44, 0, Math.PI * 0.72),
+            hairMat
+        );
+        hairBase.position.set(0, 0.01, -0.04);
 
+        // 溫柔側旁分瀏海（位於額頭頂部 y = 0.14~0.18，完全在笑眼上方）
+        const ayeeBangs = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.285, 0.29, 0.07, 10, 1, false, Math.PI * 0.72, Math.PI * 0.55),
+            hairMat
+        );
+        ayeeBangs.position.set(0, 0.14, 0.03);
+        ayeeBangs.rotation.x = 0.15;
+
+        headGroup.add(head, eyeL, eyeR, blushL, blushR, hairBase, ayeeBangs);
+
+        // 兩側與後方的蓬鬆髮捲（嚴格分佈於頭部兩側與後頸，不壓迫眼臉）
         const curlPositions = [
-            [-0.22, 0.12, 0.05], [0.22, 0.12, 0.05],
-            [-0.25, -0.02, -0.05], [0.25, -0.02, -0.05],
-            [0, 0.25, -0.08], [-0.14, 0.22, 0.12], [0.14, 0.22, 0.12]
+            [-0.22, 0.10, 0.02], [0.22, 0.10, 0.02],
+            [-0.25, -0.04, -0.06], [0.25, -0.04, -0.06],
+            [0, 0.24, -0.10], [-0.15, 0.21, -0.02], [0.15, 0.21, -0.02]
         ];
         curlPositions.forEach(p => {
-            const c = new THREE.Mesh(new THREE.SphereGeometry(0.095, 8, 8), hairMat);
+            const c = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), hairMat);
             c.position.set(p[0], p[1], p[2]);
             headGroup.add(c);
         });
@@ -836,29 +861,84 @@
         const armMeshR = armMeshL.clone();
         armR.add(armMeshR);
 
-        // 阿嚕專屬 3D 復古相機 (掛在胸前/右手拿著，景點停車時舉起拍照！)
+        // 阿嚕專屬 3D 經典復古高階相機（大幅放大加強，銀黑雙色機身 + 大口徑光學鍍膜鏡頭 + 經典紅標快門 + 掛帶，一眼即辨！）
         const cameraGroup = new THREE.Group();
-        const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.09), new THREE.MeshLambertMaterial({ color: 0x334155 }));
-        const camGrip = new THREE.Mesh(new THREE.BoxGeometry(0.182, 0.075, 0.092), new THREE.MeshLambertMaterial({ color: 0xb45309 }));
-        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.052, 0.065, 10), new THREE.MeshLambertMaterial({ color: 0x0284c7 }));
-        lens.rotation.x = Math.PI / 2;
-        lens.position.set(0.02, 0, 0.055);
-        const flash = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.032, 0.025), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
-        flash.position.set(-0.055, 0.035, 0.05);
-        const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
-        flashGlow.position.set(-0.055, 0.035, 0.07);
+        const silverCamMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 }); // 頂蓋與底板經典銀色金屬
+        const camGripMat   = new THREE.MeshLambertMaterial({ color: 0x1e293b }); // 機身中央防滑黑蒙皮
+        const camLeatherMat= new THREE.MeshLambertMaterial({ color: 0xb45309 }); // 復古焦糖皮質飾邊
+        const lensBlackMat = new THREE.MeshLambertMaterial({ color: 0x0f172a, flatShading: true }); // 大口徑金屬鏡筒
+        const lensGoldMat  = new THREE.MeshBasicMaterial({ color: 0xf59e0b }); // 奢華金圈鏡頭飾環
+        const glassMat     = new THREE.MeshBasicMaterial({ color: 0x38bdf8 }); // 湛藍光學多層鍍膜前玉
+        const redDotMat    = new THREE.MeshBasicMaterial({ color: 0xef4444 }); // 經典紅標 (Leica Red Dot)
 
-        // 拍照爆閃光源 (PointLight) 與瞬間星芒光環 (Flash Burst Star)
-        const flashLight = new THREE.PointLight(0xffffff, 0, 8.0);
-        flashLight.position.set(-0.055, 0.035, 0.12);
+        // 1. 寬版經典復古機身 (大幅放大至 0.28 × 0.18 × 0.13，視覺份量十足)
+        const camBase = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.18, 0.13), camGripMat);
+        const camTopPlate = new THREE.Mesh(new THREE.BoxGeometry(0.282, 0.045, 0.132), silverCamMat);
+        camTopPlate.position.y = 0.07;
+        const camBottomPlate = new THREE.Mesh(new THREE.BoxGeometry(0.282, 0.025, 0.132), silverCamMat);
+        camBottomPlate.position.y = -0.08;
+        const camGripAccent = new THREE.Mesh(new THREE.BoxGeometry(0.284, 0.085, 0.134), camLeatherMat);
+        camGripAccent.position.y = -0.005;
+
+        // 2. 機頂快門鈕、轉盤與紅標
+        const shutterBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.024, 0.035, 12), redDotMat);
+        shutterBtn.position.set(0.08, 0.105, 0.02);
+        const modeDial = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.030, 12), silverCamMat);
+        modeDial.position.set(-0.08, 0.102, 0.02);
+        const redDotLogo = new THREE.Mesh(new THREE.CircleGeometry(0.022, 10), redDotMat);
+        redDotLogo.position.set(0.09, 0.045, 0.068);
+
+        // 3. 大口徑大光圈鏡頭群 (多重金屬階層 + 藍色鍍膜前玉玻璃 + 奢華金圈)
+        const lensBase = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.082, 0.05, 14), lensBlackMat);
+        lensBase.rotation.x = Math.PI / 2;
+        lensBase.position.set(0, -0.005, 0.085);
+
+        const goldRing = new THREE.Mesh(new THREE.CylinderGeometry(0.079, 0.079, 0.012, 14), lensGoldMat);
+        goldRing.rotation.x = Math.PI / 2;
+        goldRing.position.set(0, -0.005, 0.105);
+
+        const lensFront = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.076, 0.045, 14), lensBlackMat);
+        lensFront.rotation.x = Math.PI / 2;
+        lensFront.position.set(0, -0.005, 0.125);
+
+        const glassOptic = new THREE.Mesh(new THREE.CircleGeometry(0.065, 14), glassMat);
+        glassOptic.position.set(0, -0.005, 0.149);
+
+        // 4. 機頂復古熱靴閃光燈
+        const flashHousing = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.045, 0.035), silverCamMat);
+        flashHousing.position.set(-0.065, 0.055, 0.07);
+        const flashWindow = new THREE.Mesh(new THREE.PlaneGeometry(0.052, 0.032), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+        flashWindow.position.set(-0.065, 0.055, 0.089);
+
+        const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
+        flashGlow.position.set(-0.065, 0.055, 0.11);
+
+        // 5. 拍照爆閃光源 (PointLight) 與星芒光環
+        const flashLight = new THREE.PointLight(0xffffff, 0, 9.5);
+        flashLight.position.set(-0.065, 0.055, 0.18);
         const flashBurst = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.42, 0.42),
+            new THREE.PlaneGeometry(0.55, 0.55),
             new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })
         );
-        flashBurst.position.set(-0.055, 0.035, 0.14);
+        flashBurst.position.set(-0.065, 0.055, 0.20);
 
-        cameraGroup.add(camBody, camGrip, lens, flash, flashGlow, flashLight, flashBurst);
-        cameraGroup.position.set(-0.12, -0.14, 0.14);
+        // 6. 專業皮質相機背帶 (掛在阿嚕胸前)
+        const strapMat = new THREE.MeshLambertMaterial({ color: 0x78350f });
+        const strapL = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.22, 6), strapMat);
+        strapL.position.set(-0.14, 0.10, -0.02);
+        strapL.rotation.z = -0.35;
+        const strapR = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.22, 6), strapMat);
+        strapR.position.set(0.14, 0.10, -0.02);
+        strapR.rotation.z = 0.35;
+
+        cameraGroup.add(
+            camBase, camTopPlate, camBottomPlate, camGripAccent,
+            shutterBtn, modeDial, redDotLogo,
+            lensBase, goldRing, lensFront, glassOptic,
+            flashHousing, flashWindow, flashGlow, flashLight, flashBurst,
+            strapL, strapR
+        );
+        cameraGroup.position.set(-0.10, -0.12, 0.17);
         armR.add(cameraGroup);
 
         root.add(armL, armR);

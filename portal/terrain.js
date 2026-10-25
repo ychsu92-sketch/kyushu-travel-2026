@@ -302,39 +302,53 @@
 
         // 1. 田園拼布色塊 (熊本平原、人吉盆地、宮崎平原、知覽茶園)
         const patchDefs = [
-            // 熊本與菊池平原農田 (提升 Y 軸避免與草地產生 Z-fighting 破圖閃爍)
-            { x: -1.08, z: -12.24, w: 1.7, d: 1.2, rot: 0.2,  color: 0x9cb376, y: 0.88 },
-            { x: 0.72,  z: -12.96, w: 1.5, d: 1.1, rot: -0.15,color: 0xb5a876, y: 0.88 },
-            { x: -2.64, z: -11.40, w: 1.4, d: 1.0, rot: 0.35, color: 0x829e65, y: 0.88 },
-            // 阿蘇牛奶之路冬日枯草原 (移除與阿蘇火山和內牧聚落衝突破圖的重疊區塊)
-            { x: 5.40,  z: -17.04, w: 1.9, d: 1.4, rot: -0.3, color: 0xb89f72, y: 1.08 },
+            // 熊本與菊池平原農田 (自動貼合等高線台地高度 + 深度偏移 polygonOffset，杜絕 Z-fighting 破圖閃爍)
+            { x: -1.08, z: -12.24, w: 1.7, d: 1.2, rot: 0.2,   color: 0x9cb376 },
+            { x: 0.72,  z: -12.96, w: 1.5, d: 1.1, rot: -0.15, color: 0xb5a876 },
+            { x: -2.64, z: -11.40, w: 1.4, d: 1.0, rot: 0.35,  color: 0x829e65 },
+            // 阿蘇外輪山冬日枯草原 (精確避開阿蘇火山體與自駕公路)
+            { x: 5.60,  z: -17.20, w: 1.6, d: 1.2, rot: -0.3,  color: 0xb89f72 },
             // 人吉球磨盆地與霧島山麓茶園
-            { x: -0.72, z: -2.64,  w: 2.0, d: 1.5, rot: 0.25, color: 0x8fa868, y: 1.08 },
-            { x: -2.16, z: 2.16,   w: 1.8, d: 1.3, rot: -0.2, color: 0x9ab372, y: 0.88 },
+            { x: -0.72, z: -2.64,  w: 2.0, d: 1.5, rot: 0.25,  color: 0x8fa868 },
+            { x: -2.16, z: 2.16,   w: 1.8, d: 1.3, rot: -0.2,  color: 0x9ab372 },
             // 薩摩半島知覽茶園與指宿菜の花田（冬季暖黃綠）
-            { x: -5.52, z: 11.76,  w: 1.7, d: 1.4, rot: 0.18, color: 0xa3bd6a, y: 0.88 },
-            { x: -5.04, z: 13.68,  w: 1.5, d: 1.1, rot: -0.1, color: 0xd4be6a, y: 0.88 },
+            { x: -5.52, z: 11.76,  w: 1.7, d: 1.4, rot: 0.18,  color: 0xa3bd6a },
+            { x: -5.04, z: 13.68,  w: 1.5, d: 1.1, rot: -0.1,  color: 0xd4be6a },
             // 大隅半島與宮崎日南陽光草坡
-            { x: 0.72,  z: 11.04,  w: 2.1, d: 1.6, rot: -0.25,color: 0x8ca668, y: 0.88 },
-            { x: 8.16,  z: 1.80,   w: 1.9, d: 2.3, rot: 0.12, color: 0x96b070, y: 0.88 },
-            { x: 6.60,  z: -4.20,  w: 2.2, d: 1.7, rot: -0.2, color: 0x7d965e, y: 1.08 }
+            { x: 0.72,  z: 11.04,  w: 2.1, d: 1.6, rot: -0.25, color: 0x8ca668 },
+            { x: 8.16,  z: 1.80,   w: 1.9, d: 2.3, rot: 0.12,  color: 0x96b070 },
+            { x: 6.60,  z: -4.20,  w: 2.2, d: 1.7, rot: -0.2,  color: 0x7d965e }
         ];
 
         patchDefs.forEach(p => {
             const pg = new THREE.Group();
+            const groundY = sampleTerraceBaseY(p.x, p.z);
+            const py = (p.y !== undefined) ? Math.max(p.y, groundY + 0.02) : (groundY + 0.02);
+            const baseMat = new THREE.MeshLambertMaterial({
+                color: p.color,
+                flatShading: true,
+                polygonOffset: true,
+                polygonOffsetFactor: -1.2,
+                polygonOffsetUnits: -1.2
+            });
             const base = new THREE.Mesh(
-                new THREE.BoxGeometry(p.w, 0.08, p.d),
-                new THREE.MeshLambertMaterial({ color: p.color, flatShading: true })
+                new THREE.BoxGeometry(p.w, 0.06, p.d),
+                baseMat
             );
             pg.add(base);
             // 田畦條紋細節
-            const stripeMat = new THREE.MeshLambertMaterial({ color: 0x657d4c });
+            const stripeMat = new THREE.MeshLambertMaterial({
+                color: 0x657d4c,
+                polygonOffset: true,
+                polygonOffsetFactor: -1.8,
+                polygonOffsetUnits: -1.8
+            });
             for (let s = -2; s <= 2; s++) {
-                const stripe = new THREE.Mesh(new THREE.BoxGeometry(p.w * 0.88, 0.095, 0.07), stripeMat);
+                const stripe = new THREE.Mesh(new THREE.BoxGeometry(p.w * 0.88, 0.075, 0.07), stripeMat);
                 stripe.position.z = s * (p.d * 0.18);
                 pg.add(stripe);
             }
-            pg.position.set(p.x, p.y, p.z);
+            pg.position.set(p.x, py, p.z);
             pg.rotation.y = p.rot;
             pg.receiveShadow = true;
             biomeGroup.add(pg);
@@ -543,9 +557,24 @@
         });
         const roadCurve = new THREE.CatmullRomCurve3(curvePoints, true, 'catmullrom', 0.35);
 
-        const roadMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
-        const curbMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
-        const dashMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+        const roadMat = new THREE.MeshLambertMaterial({
+            color: 0x64748b,
+            polygonOffset: true,
+            polygonOffsetFactor: -1.5,
+            polygonOffsetUnits: -1.5
+        });
+        const curbMat = new THREE.MeshLambertMaterial({
+            color: 0xe2e8f0,
+            polygonOffset: true,
+            polygonOffsetFactor: -1.2,
+            polygonOffsetUnits: -1.2
+        });
+        const dashMat = new THREE.MeshBasicMaterial({
+            color: 0xfacc15,
+            polygonOffset: true,
+            polygonOffsetFactor: -2.5,
+            polygonOffsetUnits: -2.5
+        });
         const ferryBuoyMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
 
         const samples = 360;
