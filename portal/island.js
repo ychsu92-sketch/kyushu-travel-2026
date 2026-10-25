@@ -1,3 +1,153 @@
+    // 歡呼專屬熱血/逗趣台詞庫（全家四人自我意識與幸福感爆棚）
+    const CHEER_QUOTES = {
+        achun: [
+            '耶！九州自駕大成功！物治師帶大家滿血衝刺！🎉🙌',
+            '太棒了！今天大家核心都超穩，今晚黑豚肉吃到飽！🥩✨',
+            '歡呼！筆電先放一邊，享受南九州最棒的陽光！☀️💃',
+            '全家一起出遊萬歲！這趟旅程我要給一百顆星！🌟🎊'
+        ],
+        yijhang: [
+            '……（單手握方向盤微笑鳴笛）出發！全家平安順利。🚗🎉',
+            '……嗯！這趟自駕油耗漂亮，大家玩得開心最重要。🕶️👍',
+            '……（推墨鏡）第 1000 關倒試管過了，大家歡呼得好！📱🏆',
+            '……下一站隨妳們挑，Sienta 加滿油隨時出發。🚙💨'
+        ],
+        ayee: [
+            '大家太棒啦～！阿姨再加碼買十盒蜜柑慶祝！🍊🎊',
+            '耶～全家人聚在一起最幸福了！今晚吃大餐囉！🍲🥳',
+            '好開心喔！大家笑得比南九州的溫泉還溫暖！♨️❤️',
+            '歡呼歡呼！沿途每家甜點店阿姨都帶你們去！🍰🙌'
+        ],
+        alu: [
+            '轟～！本熊核心算力超頻！放煙火慶祝全家旅行！🎆🐻',
+            '偵測到全家幸福指數達到 99999%！熊生圓滿啦！🎊🐾',
+            '喀嚓！本熊把大家歡呼的瞬間拍成底片存檔了！📸✨',
+            '宇宙最讚自駕團！本熊舉旗向南九州全島宣告！🚩🐻'
+        ]
+    };
+
+    // 煙火粒子特效系統 (Fireworks System)
+    const activeFireworks = [];
+    const FIREWORK_COLORS = [0xff3b30, 0xff9500, 0xffcc00, 0x34c759, 0x00c7be, 0x32ade6, 0x5856d6, 0xaf52de, 0xff2d55, 0xffffff];
+
+    function launchFireworksFromCar(count = 3) {
+        if (!scene || !propState || !propState.minivan) return;
+        const van = propState.minivan;
+        const startX = van.position.x;
+        const startY = van.position.y + 0.55;
+        const startZ = van.position.z;
+
+        for (let i = 0; i < count; i++) {
+            setTimeout(() => {
+                createSingleFirework(
+                    startX + (Math.random() - 0.5) * 0.35,
+                    startY,
+                    startZ + (Math.random() - 0.5) * 0.35
+                );
+            }, i * 220);
+        }
+    }
+
+    function createSingleFirework(sx, sy, sz) {
+        const pCount = 75;
+        const color = FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)];
+        const geom = new THREE.BufferGeometry();
+        const positions = new Float32Array(pCount * 3);
+        const velocities = [];
+
+        // 煙火爆發中心點（從車頂升空 1.6~2.6m 後炸開）
+        const explodeY = sy + 1.6 + Math.random() * 0.9;
+        const explodeX = sx + (Math.random() - 0.5) * 0.8;
+        const explodeZ = sz + (Math.random() - 0.5) * 0.8;
+
+        for (let i = 0; i < pCount; i++) {
+            positions[i * 3 + 0] = sx;
+            positions[i * 3 + 1] = sy;
+            positions[i * 3 + 2] = sz;
+
+            // 球狀向外擴散隨機向量
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(Math.random() * 2 - 1);
+            const spd = 1.6 + Math.random() * 2.2;
+            velocities.push({
+                vx: Math.sin(phi) * Math.cos(theta) * spd,
+                vy: Math.sin(phi) * Math.sin(theta) * spd + 1.2,
+                vz: Math.cos(phi) * spd
+            });
+        }
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const mat = new THREE.PointsMaterial({
+            color: color,
+            size: 0.16,
+            transparent: true,
+            opacity: 1.0,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const pSystem = new THREE.Points(geom, mat);
+        pSystem.castShadow = false;
+        pSystem.receiveShadow = false;
+        scene.add(pSystem);
+
+        activeFireworks.push({
+            pSystem,
+            velocities,
+            age: 0,
+            maxAge: 1.85,
+            sx, sy, sz,
+            explodeX, explodeY, explodeZ,
+            stage: 'launch' // 'launch' 升空 -> 'explode' 綻放
+        });
+    }
+
+    function updateFireworks(delta) {
+        if (!activeFireworks.length) return;
+        for (let i = activeFireworks.length - 1; i >= 0; i--) {
+            const fw = activeFireworks[i];
+            fw.age += delta;
+            const posAttr = fw.pSystem.geometry.attributes.position;
+            const arr = posAttr.array;
+
+            if (fw.stage === 'launch') {
+                const launchProg = Math.min(1.0, fw.age / 0.38);
+                const curY = fw.sy + (fw.explodeY - fw.sy) * launchProg;
+                const curX = fw.sx + (fw.explodeX - fw.sx) * launchProg;
+                const curZ = fw.sz + (fw.explodeZ - fw.sz) * launchProg;
+                for (let k = 0; k < arr.length / 3; k++) {
+                    arr[k * 3 + 0] = curX + (Math.random() - 0.5) * 0.04;
+                    arr[k * 3 + 1] = curY + (Math.random() - 0.5) * 0.04;
+                    arr[k * 3 + 2] = curZ + (Math.random() - 0.5) * 0.04;
+                }
+                if (launchProg >= 1.0) {
+                    fw.stage = 'explode';
+                    fw.age = 0;
+                }
+            } else {
+                const expT = fw.age / fw.maxAge;
+                fw.pSystem.material.opacity = Math.max(0, 1.0 - expT * expT);
+                fw.pSystem.material.size = Math.max(0.04, 0.18 * (1.0 - expT * 0.6));
+                for (let k = 0; k < arr.length / 3; k++) {
+                    const v = fw.velocities[k];
+                    arr[k * 3 + 0] += v.vx * delta;
+                    arr[k * 3 + 1] += v.vy * delta;
+                    arr[k * 3 + 2] += v.vz * delta;
+                    v.vy -= 2.6 * delta; // 煙火重力下墜
+                    v.vx *= 0.96;
+                    v.vz *= 0.96;
+                }
+            }
+            posAttr.needsUpdate = true;
+
+            if (fw.stage === 'explode' && fw.age >= fw.maxAge) {
+                scene.remove(fw.pSystem);
+                fw.pSystem.geometry.dispose();
+                fw.pSystem.material.dispose();
+                activeFireworks.splice(i, 1);
+            }
+        }
+    }
 /**
  * portal/island.js
  * 南九州 2.5D 冬日自駕浮空島主控制器：
@@ -2104,6 +2254,7 @@
             updateBubbleScreenPosition();
             updateCharacterMarkersPosition();
             updateAvatarDockNotes(elapsed);
+            updateFireworks(delta);
             renderer.render(scene, camera);
         }
         loop();
@@ -3476,17 +3627,32 @@
 
     function cheerEveryone() {
         const roles = ['achun', 'yijhang', 'ayee', 'alu'];
+        // 全體跳躍歡呼
         roles.forEach((r, idx) => {
             setTimeout(() => {
                 if (characters[r]) {
                     characters[r].userData.jumping = 1.0;
                     characters[r].userData.quirkType = 1 + (idx % 3);
-                    characters[r].userData.quirkDuration = 2.4;
-                    characters[r].userData.quirkMaxDur = 2.4;
+                    characters[r].userData.quirkDuration = 2.6;
+                    characters[r].userData.quirkMaxDur = 2.6;
                 }
-            }, idx * 110);
+            }, idx * 90);
         });
-        triggerFamilyBanter();
+
+        // 1. 車頂彩色煙火連續爆發！
+        launchFireworksFromCar(4);
+
+        // 2. 隨機指定一人大聲講出專屬歡呼台詞
+        const luckyRole = roles[Math.floor(Math.random() * roles.length)];
+        const pool = CHEER_QUOTES[luckyRole] || CHEER_QUOTES.achun;
+        const quote = pool[Math.floor(Math.random() * pool.length)];
+
+        // 延遲 180ms 配合煙火升空瞬間開口！
+        setTimeout(() => {
+            triggerCharacterSpeak(luckyRole, quote, true, false);
+            const spotEl = document.getElementById('bubble-spot-tag');
+            if (spotEl) spotEl.textContent = '🎆 全員大歡呼！';
+        }, 180);
     }
 
     function toggleAutoRotate() {
