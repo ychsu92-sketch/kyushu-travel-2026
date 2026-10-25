@@ -941,7 +941,7 @@ def build():
             </div>
 
             <!-- 全寬獨立切割美食專區 (橫向延伸至右側空白，不跟行程時間軸擠在同一排版匡內) -->
-            <div id="day-meals-container" class="cute-card p-5 sm:p-6 border-2 border-orange-200/90 bg-white relative space-y-5 shadow-sm"></div>
+            <div id="day-meals-container" class="cute-card p-5 sm:p-6 border-2 border-orange-200 bg-white relative space-y-5 shadow-sm w-full overflow-hidden mt-6"></div>
         </section>
 
         <!-- TAB 2: 九州手繪探索地圖 -->
@@ -2999,7 +2999,7 @@ def build():
                 const itineraryTab = document.getElementById('tab-content-itinerary');
                 mealsContainer = document.createElement('div');
                 mealsContainer.id = 'day-meals-container';
-                mealsContainer.className = 'cute-card p-5 sm:p-6 border-2 border-orange-200/90 bg-white relative space-y-5 shadow-sm';
+                mealsContainer.className = 'cute-card p-5 sm:p-6 border-2 border-orange-200 bg-white relative space-y-5 shadow-sm w-full overflow-hidden mt-6';
                 itineraryTab.appendChild(mealsContainer);
             }}
             mealsContainer.innerHTML = '';
@@ -3008,58 +3008,70 @@ def build():
             if (!meals) return;
 
             const hasLateNight = !!meals.latenight && meals.latenight.length > 0;
-            const gridColsClass = hasLateNight ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-4' : 'grid-cols-1 md:grid-cols-3';
+            // 響應式優化：在桌面 (>=1024px) 一字排開 4 欄；平板 2 欄；手機 1 欄，確保每張卡片皆有充足寬度
+            const gridColsClass = hasLateNight ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
 
             mealsContainer.innerHTML = `
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-orange-100">
+                <div class="washi-tape washi-tape-gold"></div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-orange-100">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="cute-pill bg-orange-100 text-orange-800 font-black">🍽️ 當日美饌與微醺宵夜</span>
-                            <span class="text-xs text-stone-400">${{hasLateNight ? '早・午・晚・宵夜酒吧 各 3 選' : '早・午・晚 各 3 選'}}</span>
+                            <span class="cute-pill bg-orange-100 text-orange-800 font-black">🍽️ 當日美饌與微醺提案</span>
+                            <span class="text-xs text-stone-500 font-medium">${{hasLateNight ? '早・午・晚・宵夜酒吧 各 3 選（共 12 選）' : '早・午・晚 各 3 選（共 9 選）'}}</span>
                         </div>
-                        <h4 class="text-base font-black text-stone-800 mt-1">🍱 Day ${{idx + 1}} 美食美饌與推薦清單</h4>
+                        <h4 class="text-base sm:text-lg font-black text-stone-800 mt-1 flex items-center gap-2">
+                            <span>🍱</span> Day ${{idx + 1}} 專屬美饌特搜清單
+                        </h4>
                     </div>
-                    <button type="button" onclick="jumpToDayRestaurants(${{idx + 1}})" class="px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition">
+                    <button type="button" onclick="jumpToDayRestaurants(${{idx + 1}})" class="px-4 py-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95 shrink-0 self-start sm:self-auto">
                         <span>🍱</span> 前往餐廳總整理做訂位 ↗
                     </button>
                 </div>
 
-                <div class="grid ${{gridColsClass}} gap-4 text-xs">
+                <div class="grid ${{gridColsClass}} gap-3.5 sm:gap-4 text-xs">
                     <!-- 早餐 -->
-                    <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-200 space-y-2.5">
-                        <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-amber-200">
-                            <span class="flex items-center gap-1"><span>🌅</span> 早餐 3 選</span>
-                            <span class="text-[10px] text-amber-800 font-bold">活力朝食</span>
+                    <div class="bg-amber-50/50 rounded-2xl p-3 sm:p-3.5 border border-amber-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-amber-200">
+                                <span class="flex items-center gap-1"><span>🌅</span> 早餐 3 選</span>
+                                <span class="text-[10px] text-amber-800 font-bold">活力朝食</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-breakfast-list"></div>
                         </div>
-                        <div class="space-y-2" id="day-meals-breakfast-list"></div>
                     </div>
 
                     <!-- 午餐 -->
-                    <div class="bg-orange-50/50 rounded-2xl p-4 border border-orange-200 space-y-2.5">
-                        <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-orange-200">
-                            <span class="flex items-center gap-1"><span>☀️</span> 午餐 3 選</span>
-                            <span class="text-[10px] text-orange-800 font-bold">在地名物</span>
+                    <div class="bg-orange-50/50 rounded-2xl p-3 sm:p-3.5 border border-orange-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-orange-200">
+                                <span class="flex items-center gap-1"><span>☀️</span> 午餐 3 選</span>
+                                <span class="text-[10px] text-orange-800 font-bold">在地名物</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-lunch-list"></div>
                         </div>
-                        <div class="space-y-2" id="day-meals-lunch-list"></div>
                     </div>
 
                     <!-- 晚餐 -->
-                    <div class="bg-rose-50/50 rounded-2xl p-4 border border-rose-200 space-y-2.5">
-                        <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-rose-200">
-                            <span class="flex items-center gap-1"><span>🌙</span> 晚餐 3 選</span>
-                            <span class="text-[10px] text-rose-800 font-bold">夜間饗宴</span>
+                    <div class="bg-rose-50/50 rounded-2xl p-3 sm:p-3.5 border border-rose-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-rose-200">
+                                <span class="flex items-center gap-1"><span>🌙</span> 晚餐 3 選</span>
+                                <span class="text-[10px] text-rose-800 font-bold">夜間饗宴</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-dinner-list"></div>
                         </div>
-                        <div class="space-y-2" id="day-meals-dinner-list"></div>
                     </div>
 
                     ${{hasLateNight ? `
                     <!-- 宵夜＆酒吧 -->
-                    <div class="bg-purple-50/50 rounded-2xl p-4 border border-purple-200 space-y-2.5">
-                        <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-purple-200">
-                            <span class="flex items-center gap-1"><span>🍸</span> 宵夜＆酒吧 3 選</span>
-                            <span class="text-[10px] text-purple-800 font-bold">微醺夜食</span>
+                    <div class="bg-purple-50/50 rounded-2xl p-3 sm:p-3.5 border border-purple-200/90 space-y-2.5 flex flex-col justify-between">
+                        <div>
+                            <div class="font-black text-stone-800 flex items-center justify-between pb-1.5 border-b border-purple-200">
+                                <span class="flex items-center gap-1"><span>🍸</span> 宵夜＆酒吧 3 選</span>
+                                <span class="text-[10px] text-purple-800 font-bold">微醺夜食</span>
+                            </div>
+                            <div class="space-y-2 mt-2.5" id="day-meals-latenight-list"></div>
                         </div>
-                        <div class="space-y-2" id="day-meals-latenight-list"></div>
                     </div>
                     ` : ''}}
                 </div>
@@ -3071,8 +3083,8 @@ def build():
 
                 meals[mType].forEach(opt => {{
                     const row = document.createElement('div');
-                    // 統一固定高度 h-[156px]，確保早中晚宵夜4欄卡片水平完全齊平對齊，絕不大小不一
-                    row.className = 'bg-white p-3 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between h-[156px] min-h-[156px] max-h-[156px] overflow-hidden';
+                    // 統一固定高度 h-[152px]，box-border 與 overflow-hidden 雙重鎖死，嚴格對齊且絕不超框
+                    row.className = 'bg-white p-3 rounded-2xl border border-stone-200/90 shadow-2xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col justify-between h-[152px] min-h-[152px] max-h-[152px] overflow-hidden box-border w-full';
                     
                     // 1. 精簡訂位標籤為 2~4 字，確保絕不溢出到隔壁欄位
                     const rawRes = (opt.reserve_type || '').toLowerCase();
@@ -3106,27 +3118,28 @@ def build():
                         badgeIcon = '📅';
                     }}
 
-                    // 2. 乾淨純粹的店名 (過濾括號宣傳詞與重複菜品後綴)
+                    // 2. 乾淨純粹的店名 (過濾所有括號備註、宣傳詞、日文副標題與菜品後綴)
                     let cleanName = (opt.name || '').trim();
-                    cleanName = cleanName.replace(/\\s*[\\(（][^()（）]*(靈魂|神店|傳奇|酒吧|小酌|專門|夜酌|老始祖|霸主|朝食|百匯|便當|居酒|昭和|名物|老舖)[^()（）]*[\\)）]/g, '');
-                    cleanName = cleanName.replace(/\\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '');
+                    cleanName = cleanName.replace(/\\s*[\\(（][^()（）]*[\\)）]/g, '').trim();
+                    cleanName = cleanName.replace(/\\s*(炭焙手沖咖啡|手作泡芙與點心|晨光日式朝食|和洋朝食百匯|特選咖哩與在地小酌|夜間酒餚居酒時光|天然溫泉和洋朝食|展望赤牛漢堡排|元祖流水麵)$/g, '').trim();
 
                     // 3. 價格精簡乾淨
                     let cleanPrice = (opt.price || '').split('~')[0].split('/')[0].trim();
                     if (cleanPrice.includes('住宿內含')) cleanPrice = '住宿內含';
+                    if (cleanPrice.includes('機票內含') || cleanPrice.includes('機票資格')) cleanPrice = '機票內含';
 
                     // 4. 地點精簡
                     const cleanArea = (opt.area || '').split(' ')[0].trim();
 
                     row.innerHTML = `
-                        <div class="space-y-1.5">
+                        <div class="space-y-1.5 min-w-0">
                             <!-- 頂部獨立標籤列 (嚴格控制寬度，絕不溢出) -->
-                            <div class="flex items-center justify-between gap-1">
+                            <div class="flex items-center justify-between gap-1 min-w-0">
                                 <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md border ${{badgeClass}} font-bold shrink-0 shadow-2xs">
                                     <span>${{badgeIcon}}</span>
                                     <span>${{badgeLabel}}</span>
                                 </span>
-                                ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[70px]">📍 ${{cleanArea}}</span>` : ''}}
+                                ${{cleanArea ? `<span class="text-[10px] text-stone-400 font-bold truncate max-w-[65px] shrink-0">📍 ${{cleanArea}}</span>` : ''}}
                             </div>
 
                             <!-- 乾淨純粹店名 (單行截斷，字體清爽易讀) -->
@@ -3140,16 +3153,16 @@ def build():
                             </div>
                         </div>
 
-                        <!-- 底部價格與操作區 (按鈕精簡，徹底解決擠壓出界與卡住問題) -->
-                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px] gap-2">
-                            <span class="font-mono text-stone-800 font-black tracking-tight shrink-0 text-xs truncate max-w-[75px]">
+                        <!-- 底部價格與操作區 (按鈕防超框專用結構：min-w-0 flex-1 彈性空間 + shrink-0 按鈕組) -->
+                        <div class="flex items-center justify-between pt-1.5 border-t border-stone-100 text-[11px] gap-1.5 min-w-0 w-full mt-auto">
+                            <span class="font-mono text-stone-800 font-black tracking-tight text-xs truncate min-w-0 flex-1">
                                 ${{cleanPrice}}
                             </span>
                             <div class="flex items-center gap-1 shrink-0">
-                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[11px] font-bold transition active:scale-95 shadow-2xs">
+                                <button type="button" onclick="jumpToRestaurant('${{opt.id}}')" class="whitespace-nowrap px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[10px] font-bold transition active:scale-95 shadow-2xs">
                                     攻略 ↗
                                 </button>
-                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + opt.area)}}" target="_blank" class="w-6 h-6 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-xs font-bold transition active:scale-95 shadow-2xs shrink-0" title="Google 地圖導航">
+                                <a href="https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(opt.name + ' ' + (opt.area || ''))}}" target="_blank" class="w-5 h-5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center text-[10px] font-bold transition active:scale-95 shadow-2xs shrink-0" title="Google 地圖導航">
                                     🗺️
                                 </a>
                             </div>
