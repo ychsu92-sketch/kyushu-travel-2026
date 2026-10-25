@@ -834,9 +834,10 @@
                 }
             }
 
-            // 根據真實地形 Raycast 取樣高度貼合台地表面
-            let baseY = sampleGroundY ? sampleGroundY(lx, lz) : 0.80;
+            // 根據真實地形取樣高度貼合台地表面
+            let baseY = sampleGroundY ? sampleGroundY(lx, lz) : 0.88;
             if (item.code === 'L15') baseY = Math.max(0.72, baseY - 0.04);
+            else baseY += 0.012; // 微微墊高 1.2cm，確保地標基座、跑道、石垣永不被草地微凸起覆蓋
 
             meshGroup.position.set(lx, baseY, lz);
             item.renderX = lx;

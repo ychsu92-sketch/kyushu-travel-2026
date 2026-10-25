@@ -26,8 +26,8 @@
     let lastStopLandmarkId = null;
     let visitedLandmarksInLap = new Set(); // 紀錄單圈已停靠過的景點，避免阿蘇密集區來回重複上下車
     let driveCooldown = 0;                 // 兩次下車之間的最小行車冷卻秒數
-    let travelMode = 'straggler_achun'; // 'all_aboard' | 'straggler_achun' | 'straggler_alu' | 'straggler_ayee' | 'everyone_walk'
-    let stragglerRole = 'achun';
+    let travelMode = 'all_aboard'; // 全員乘車 'all_aboard'，杜絕人物落後公路閃現穿模問題
+    let stragglerRole = null;
     let stragglerScriptIdx = { achun: 0, alu: 0, ayee: 0 };
 
     // 對話氣泡與人物鎖定追蹤控制
@@ -2007,26 +2007,13 @@
             if (stopTimer <= 0) {
                 isStoppedAtLandmark = false;
                 driveCooldown = 7.2; // 剛出發後至少暢快行駛 7.2 秒巡航賞景，才允許再次靠站
-                // 離開景點準備啟程時，大幅提高有人被落下車的機率（60% 落單追車、26% 全員坐車、14% 全家散步）：
-                // 其中阿純被落下車時會直接開飛碟 (UFO) 在後面狂追！
-                const roll = Math.random();
-                if (roll < 0.26) {
-                    travelMode = 'all_aboard';
-                    stragglerRole = null;
-                    const carScript = (Math.random() < 0.75)
-                        ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
-                        : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
-                    if (carScript) triggerCustomBanterScript(carScript, false);
-                } else if (roll < 0.86) {
-                    const candidates = ['achun', 'achun', 'alu', 'ayee']; // 提高阿純開飛碟追車的出現比重
-                    stragglerRole = candidates[Math.floor(Math.random() * candidates.length)];
-                    travelMode = 'straggler_' + stragglerRole;
-                    triggerCustomBanterScript(pickStragglerScript(stragglerRole), false);
-                } else {
-                    travelMode = 'everyone_walk';
-                    stragglerRole = null;
-                    triggerCustomBanterScript(pickWalkTogetherScript(), false);
-                }
+                // 離開景點準備啟程：全家全員坐在全景敞篷 Toyota Sienta 內兜風賞景，徹底消除人物落後車輛與瞬間閃現回車旁的穿模現象！
+                travelMode = 'all_aboard';
+                stragglerRole = null;
+                const carScript = (Math.random() < 0.70)
+                    ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                    : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                if (carScript) triggerCustomBanterScript(carScript, false);
             }
         } else {
             if (driveCooldown > 0) {
@@ -2069,7 +2056,7 @@
 
         // 檢查是否經過櫻島渡輪海面段 (1.2x 地圖座標)，並動態取樣真實地表高度避免小巴陷入台地
         const onFerry = (vanPos.x > -4.56 && vanPos.x < -3.12 && vanPos.z > 9.78 && vanPos.z < 10.62);
-        const rawVanGroundY = getGroundY(vanPos.x, vanPos.z) + 0.05;
+        const rawVanGroundY = Math.max(vanPos.y, getGroundY(vanPos.x, vanPos.z) + 0.05);
         const vanGroundY = onFerry ? 0.38 : getMountainSummitY(vanPos.x, vanPos.z, rawVanGroundY);
 
         // 魔法口袋小巴機制 (Pocket Car)：抵達景點下車後，小巴收進姨丈口袋（完全不遮擋景點！）；出發前再從口袋變出來！
@@ -2187,8 +2174,8 @@
 
             if (remainTransitMs > 120) {
                 const handoffDelayMs = remainTransitMs + 200;
-                // 停留時間充分延長（約 14.5~16 秒）：確保第一波、中段互動與出發呼喊完整演出，所有人沉浸做動作（如阿純席地打病歷）
-                stopTimer = Math.max(14.5, ((handoffDelayMs + spotDurationMs) / 1000) + 8.5);
+                // 停留時間充分延長（約 18~24 秒）：確保第一波、中段互動與出發呼喊完整演出，所有人沉浸做動作（如阿純席地打病歷、野餐茶席）
+                stopTimer = Math.max(18.5, ((handoffDelayMs + spotDurationMs) / 1000) + 7.5);
                 stopTotalDuration = stopTimer;
                 dialogBusyUntilMs = nowMs + handoffDelayMs + spotDurationMs;
                 spotArrivalQueueTimer = setTimeout(() => {
@@ -2196,7 +2183,7 @@
                     triggerCustomBanterScript(spotScript, true);
                 }, handoffDelayMs);
             } else {
-                stopTimer = Math.max(14.0, (spotDurationMs / 1000) + 8.0);
+                stopTimer = Math.max(18.0, (spotDurationMs / 1000) + 7.5);
                 stopTotalDuration = stopTimer;
                 triggerCustomBanterScript(spotScript, true);
             }
@@ -2304,15 +2291,15 @@
                     const ra = roamAnchorsLocal[idx];
                     spotAnchorX = vanPos.x + (ra.x * cosA + ra.z * sinA);
                     spotAnchorZ = vanPos.z + (-ra.x * sinA + ra.z * cosA);
-                    spotAnchorY = getGroundY(spotAnchorX, spotAnchorZ) + 0.04;
+                    spotAnchorY = Math.max(doorSideY, getGroundY(spotAnchorX, spotAnchorZ) + 0.05);
                 }
 
                 // 景點專屬漫步微動控制：
                 // 阿純席地而坐打字、姨丈站立玩手遊、阿嚕舉相機取景 ➔ 定點定格 (不位移，確保坐姿與拍照持續穩定不亂晃！)
-                // 阿姨 ➔ 保持微幅自然走動分送點心
+                // 阿姨 ➔ 散步時微幅走動，展開野餐墊茶席時保持原地不動避免野餐墊穿模滑動
                 let wanderX = 0;
                 let wanderZ = 0;
-                if (role === 'ayee') {
+                if (role === 'ayee' && !charGroup.userData.isSpotBusy) {
                     const wPhase = elapsed * 1.4 + idx * 2.1;
                     wanderX = Math.sin(wPhase) * 0.10 * roamWeight;
                     wanderZ = Math.cos(wPhase * 0.8) * 0.08 * roamWeight;
@@ -2514,7 +2501,7 @@
             charGroup.userData.prevZ = c.cz;
 
             const charOnFerry = (c.cx > -4.56 && c.cx < -3.12 && c.cz > 9.78 && c.cz < 10.62);
-            const rawCharY = getGroundY(c.cx, c.cz) + 0.04;
+            const rawCharY = Math.max(vanGroundY, getGroundY(c.cx, c.cz) + 0.05);
             charGroup.userData.baseY = charOnFerry
                 ? 0.42
                 : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(c.cx, c.cz, rawCharY));
@@ -2544,10 +2531,10 @@
         }
     }
 
-    // 根據精簡後台詞字數動態計算對話框停留時間：基礎 1.95 秒 + 每個字 65 毫秒 (16~24 字約停留 3.0 ~ 3.5 秒，好讀且高頻明快)
+    // 根據台詞字數動態計算對話框停留時間：確保文字有充分閱讀時間（基礎 3.6 秒 + 每個字 110 毫秒，最短 4.8 秒，最長 7.8 秒）
     function calcReadDurationMs(text) {
         const len = (text || '').length;
-        return Math.max(2600, Math.min(3900, 1950 + len * 65));
+        return Math.max(4800, Math.min(7800, 3600 + len * 110));
     }
 
     function calcScriptDurationMs(script) {
@@ -2555,7 +2542,7 @@
         let total = 0;
         script.forEach((line, idx) => {
             total += calcReadDurationMs(line.text);
-            if (idx < script.length - 1) total += 280;
+            if (idx < script.length - 1) total += 520;
         });
         return total;
     }
@@ -2582,10 +2569,19 @@
                 }
             }, cumulativeDelay);
             banterTimers.push(tid);
-            // 下一句在當前這句完整顯示完畢後，再留 280ms 輕快呼吸間隔接話
-            cumulativeDelay += lineReadMs + 280;
+            // 下一句在當前這句完整顯示完畢後，再留 520ms 舒適呼吸間隔接話
+            cumulativeDelay += lineReadMs + 520;
         });
-        dialogBusyUntilMs = performance.now() + cumulativeDelay - 280;
+        dialogBusyUntilMs = performance.now() + cumulativeDelay - 520;
+
+        // 若在景點停靠中，自動延展景點停留時間，確保對話完全播完且讀完後才啟程
+        if (isStoppedAtLandmark) {
+            const neededSec = (cumulativeDelay / 1000) + 2.8;
+            if (stopTimer < neededSec) {
+                stopTimer = neededSec;
+                stopTotalDuration = Math.max(stopTotalDuration, stopTimer);
+            }
+        }
     }
 
     // 抵達景點下車時，觸發該景點專屬的接力感言 (1~3人隨機洗牌，發言順序全隨機)

@@ -543,22 +543,21 @@
 
         // 阿姨野餐墊與點心茶席配件 (Gingham Picnic Blanket & Sweets Feast)
         const picnicMatGroup = new THREE.Group();
-        picnicMatGroup.position.set(0.18, 0.01, 0.18);
+        picnicMatGroup.position.set(0.24, 0.035, 0.20);
 
-        // 紅白格紋野餐墊
+        // 紅白格紋野餐墊 (採用具備微厚度之立體編織薄盒，杜絕穿模與 Z-fighting 破圖)
         const matBase = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.82, 0.82),
+            new THREE.BoxGeometry(0.82, 0.012, 0.82),
             new THREE.MeshLambertMaterial({ color: 0xfef2f2 })
         );
-        matBase.rotation.x = -Math.PI / 2;
+        matBase.position.y = 0.006;
         picnicMatGroup.add(matBase);
         // 紅色格紋交錯裝飾方塊
         const redSqMat = new THREE.MeshLambertMaterial({ color: 0xef4444 });
         for (let ix = -3; ix <= 3; ix += 2) {
             for (let iz = -3; iz <= 3; iz += 2) {
-                const sq = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.11), redSqMat);
-                sq.rotation.x = -Math.PI / 2;
-                sq.position.set(ix * 0.11, 0.003, iz * 0.11);
+                const sq = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.014, 0.11), redSqMat);
+                sq.position.set(ix * 0.11, 0.008, iz * 0.11);
                 picnicMatGroup.add(sq);
             }
         }
@@ -568,12 +567,12 @@
             new THREE.CylinderGeometry(0.10, 0.08, 0.07, 10),
             new THREE.MeshLambertMaterial({ color: 0x92400e })
         );
-        basket.position.set(-0.16, 0.04, -0.14);
+        basket.position.set(-0.16, 0.045, -0.14);
         const berryMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
         for (let i = 0; i < 5; i++) {
             const b = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.045, 6), berryMat);
             b.rotation.x = Math.PI;
-            b.position.set(-0.16 + (Math.sin(i * 1.5)) * 0.04, 0.07, -0.14 + (Math.cos(i * 1.5)) * 0.04);
+            b.position.set(-0.16 + (Math.sin(i * 1.5)) * 0.04, 0.075, -0.14 + (Math.cos(i * 1.5)) * 0.04);
             picnicMatGroup.add(b);
         }
         picnicMatGroup.add(basket);
@@ -583,13 +582,13 @@
             new THREE.BoxGeometry(0.22, 0.018, 0.16),
             new THREE.MeshLambertMaterial({ color: 0x1c1917 })
         );
-        tray.position.set(0.14, 0.015, -0.12);
+        tray.position.set(0.14, 0.020, -0.12);
         const sw1 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0xf472b6 }));
-        sw1.position.set(0.10, 0.035, -0.12);
+        sw1.position.set(0.10, 0.040, -0.12);
         const sw2 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0xffffff }));
-        sw2.position.set(0.14, 0.035, -0.12);
+        sw2.position.set(0.14, 0.040, -0.12);
         const sw3 = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), new THREE.MeshLambertMaterial({ color: 0x84cc16 }));
-        sw3.position.set(0.18, 0.035, -0.12);
+        sw3.position.set(0.18, 0.040, -0.12);
         picnicMatGroup.add(tray, sw1, sw2, sw3);
 
         // 陶瓷保溫熱茶壺
@@ -993,10 +992,11 @@
                 }
 
                 if (ud.isSpotBusy) {
-                    // 坐在露營休閒椅上
+                    // 坐在露營休閒椅上（桌椅骨架垂直貼合地面 baseY 絕不穿模下陷，阿純骨盆準確落座帆布椅面）
                     ud.legL.rotation.x = -Math.PI * 0.44;
                     ud.legR.rotation.x = -Math.PI * 0.44;
                     charGroup.position.y = baseY - 0.12;
+                    if (ud.campingDeskGroup) ud.campingDeskGroup.position.y = 0.12;
 
                     // 每 5.2 秒觸發一段 1.8 秒的舒爽「大伸懶腰」放鬆胸椎腰椎 (Deep Spine Stretch & Yawn)
                     const stretchCycle = (elapsed * 0.95 + (ud.actionPhase || 0)) % 5.2;

@@ -48,9 +48,66 @@
         return tex;
     }
 
+    // 輔助函式：判斷任意 (x, z) 是否在多邊形內部
+    function isPointInPolygon(x, z, poly, scale, cx, cz) {
+        let inside = false;
+        const n = poly.length;
+        for (let i = 0; i < n; i++) {
+            const x1 = cx + (poly[i][0] - cx) * scale;
+            const z1 = cz + (poly[i][1] - cz) * scale;
+            const next = poly[(i + 1) % n];
+            const x2 = cx + (next[0] - cx) * scale;
+            const z2 = cz + (next[1] - cz) * scale;
+            if ((z1 > z) !== (z2 > z)) {
+                const xCross = (x2 - x1) * (z - z1) / (z2 - z1 + 1e-12) + x1;
+                if (x < xCross) inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+    // 全島台地等高線階梯解析網格 (Terrace Elevation Grid - 徹底解決階梯高地穿模融合問題)
+    let terraceGrid = null;
+    const GRID_MIN_X = -10, GRID_MAX_X = 12, GRID_STEP_X = 0.4;
+    const GRID_MIN_Z = -24, GRID_MAX_Z = 18, GRID_STEP_Z = 0.4;
+    const gridCols = Math.ceil((GRID_MAX_X - GRID_MIN_X) / GRID_STEP_X);
+    const gridRows = Math.ceil((GRID_MAX_Z - GRID_MIN_Z) / GRID_STEP_Z);
+
+    function initTerraceGrid(pts) {
+        if (!pts || !pts.length) return;
+        terraceGrid = new Float32Array(gridCols * gridRows);
+        for (let r = 0; r < gridRows; r++) {
+            const z = GRID_MIN_Z + r * GRID_STEP_Z;
+            for (let c = 0; c < gridCols; c++) {
+                const x = GRID_MIN_X + c * GRID_STEP_X;
+                let h = 0.88; // 第一階 Coastal Meadow 表面基準高度 (turfMesh1 頂面)
+                if (isPointInPolygon(x, z, pts, 0.60, 2.16, -5.40)) {
+                    h = 1.34; // 第三階 中央山麓高原層 (meshT3 頂面)
+                } else if (isPointInPolygon(x, z, pts, 0.82, 0.96, -2.40)) {
+                    h = 1.06; // 第二階 內陸丘陵台地 (meshT2 頂面)
+                }
+                terraceGrid[r * gridCols + c] = h;
+            }
+        }
+    }
+
+    function sampleTerraceBaseY(x, z) {
+        if (!terraceGrid) return 0.88;
+        const c = (x - GRID_MIN_X) / GRID_STEP_X;
+        const r = (z - GRID_MIN_Z) / GRID_STEP_Z;
+        if (c < 0 || c >= gridCols - 1 || r < 0 || r >= gridRows - 1) return 0.88;
+        const c0 = Math.floor(c), r0 = Math.floor(r);
+        const fx = c - c0, fz = r - r0;
+        const v00 = terraceGrid[r0 * gridCols + c0];
+        const v10 = terraceGrid[r0 * gridCols + (c0 + 1)];
+        const v01 = terraceGrid[(r0 + 1) * gridCols + c0];
+        const v11 = terraceGrid[(r0 + 1) * gridCols + (c0 + 1)];
+        return (v00 * (1 - fx) + v10 * fx) * (1 - fz) + (v01 * (1 - fx) + v11 * fx) * fz;
+    }
+
     // 計算任一 (x, z) 在南九州地表上的基礎海拔高度 (供物件、景點與道路自動貼合高低起伏，已隨 1.2x 地圖比例擴展)
     function getTerrainElevation(x, z) {
-        let h = 0.78;
+        let h = sampleTerraceBaseY(x, z);
         const regions = [
             { x: 3.94,  z: -15.53, r: 4.32, amp: 0.85 }, // 阿蘇高地
             { x: 4.91,  z: -19.37, r: 3.84, amp: 0.75 }, // 黑川・九重高原
@@ -484,8 +541,8 @@
             if (pt.mode === 'ferry') {
                 return new THREE.Vector3(pt.x, 0.12, pt.z);
             }
-            const gy = sampleGroundY ? sampleGroundY(pt.x, pt.z) : 0.86;
-            return new THREE.Vector3(pt.x, gy + 0.04, pt.z);
+            const gy = sampleGroundY ? sampleGroundY(pt.x, pt.z) : 0.88;
+            return new THREE.Vector3(pt.x, gy + 0.05, pt.z);
         });
         const roadCurve = new THREE.CatmullRomCurve3(curvePoints, true, 'catmullrom', 0.35);
 
@@ -510,22 +567,23 @@
                     roadGroup.add(buoy);
                 }
             } else {
-                const gy = sampleGroundY ? sampleGroundY(pos.x, pos.z) : 0.80;
+                const gy = sampleGroundY ? sampleGroundY(pos.x, pos.z) : 0.88;
+                const roadY = Math.max(pos.y, gy + 0.04);
                 const curb = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.06, 0.42), curbMat);
-                curb.position.set(pos.x, gy + 0.02, pos.z);
+                curb.position.set(pos.x, roadY - 0.015, pos.z);
                 curb.rotation.y = angle;
                 curb.receiveShadow = true;
                 roadGroup.add(curb);
 
                 const seg = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.07, 0.40), roadMat);
-                seg.position.set(pos.x, gy + 0.035, pos.z);
+                seg.position.set(pos.x, roadY, pos.z);
                 seg.rotation.y = angle;
                 seg.receiveShadow = true;
                 roadGroup.add(seg);
 
                 if (i % 2 === 0) {
                     const dash = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.18), dashMat);
-                    dash.position.set(pos.x, gy + 0.042, pos.z);
+                    dash.position.set(pos.x, roadY + 0.01, pos.z);
                     dash.rotation.y = angle;
                     roadGroup.add(dash);
                 }
@@ -565,6 +623,11 @@
 
     function buildSouthKyushuTerrain(scene, coastData, routeData) {
         const root = new THREE.Group();
+
+        // 0. 初始化階梯高地地形解析網格（確保道路、景點、車輛與角色能精確貼合所有台地表面）
+        if (coastData && coastData.mainland) {
+            initTerraceGrid(coastData.mainland);
+        }
 
         // 1. 南九州主島（含 3 層立體等高線階梯台地 + 程序化微縮模型凹凸貼圖，1.2x 地圖尺寸）
         const mainland = buildLayeredLandmass(coastData.mainland, {
