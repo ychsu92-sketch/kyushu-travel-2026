@@ -1,0 +1,5 @@
+# Local preview & OS files
+preview.html
+.DS_Store
+__pycache__/
+*.pyc
