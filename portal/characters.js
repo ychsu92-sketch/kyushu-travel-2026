@@ -127,40 +127,49 @@
         smile.rotation.x = Math.PI;
         smile.position.set(0, -0.075, 0.28);
 
-        // 後頭部包覆栗色長髮（嚴格收在後腦與後頸 z <= -0.04，前額與下巴 100% 潔淨露出，絕不穿透到下巴變成鬍子！）
-        const hairBack = new THREE.Mesh(
-            new THREE.SphereGeometry(0.295, 14, 10, Math.PI * 0.30, Math.PI * 1.40, 0, Math.PI * 0.65),
+        // 栗色秀髮基底（完整包覆後腦、兩側太陽穴與耳後，完美銜接毛帽簷，徹底消除側邊禿頭空洞！）
+        // theta 從 0 到 0.78pi，涵蓋頂部至頸部；phi 從 0.18pi 到 1.64pi，完整包覆後腦與左右兩側耳側（留出正臉 0.54pi 露出精緻五官）
+        const hairBase = new THREE.Mesh(
+            new THREE.SphereGeometry(0.296, 16, 12, Math.PI * 0.18, Math.PI * 1.64, 0, Math.PI * 0.78),
             hairMat
         );
-        hairBack.position.set(0, 0.02, -0.05);
+        hairBase.position.set(0, 0.02, -0.02);
 
-        // 輕盈齊瀏海（位於高額頭 y = 0.16~0.20，緊貼額骨頂部，遠在眼睛 y = 0.015 上方，完全錯開）
+        // 兩側豐盈及肩長髮片（順著臉頰外側溫柔包覆，自然服貼頭部，告別生硬圓柱體！）
+        // 左側髮片 (x = -0.22)
+        const sideHairL = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.095, 0.28, 8, 1, false),
+            hairMat
+        );
+        sideHairL.position.set(-0.21, -0.08, 0.04);
+        sideHairL.rotation.set(-0.08, 0.18, 0.12);
+        // 右側髮片 (x = +0.22)
+        const sideHairR = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.095, 0.28, 8, 1, false),
+            hairMat
+        );
+        sideHairR.position.set(0.21, -0.08, 0.04);
+        sideHairR.rotation.set(-0.08, -0.18, -0.12);
+
+        // 柔和自然側分齊瀏海（位於高額頭 y = 0.15~0.19，自然弧度微貼額骨，完全在眉眼上方）
         const bangs = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.288, 0.292, 0.055, 12, 1, false, Math.PI * 0.72, Math.PI * 0.56),
+            new THREE.CylinderGeometry(0.292, 0.295, 0.065, 12, 1, false, Math.PI * 0.68, Math.PI * 0.64),
             hairMat
         );
-        bangs.position.set(0, 0.17, 0.02);
-        bangs.rotation.x = 0.12;
+        bangs.position.set(0, 0.15, 0.025);
+        bangs.rotation.x = 0.14;
 
-        // 兩側長垂髮（自然順著耳側垂落，位置在左右外側 x = +-0.25、深度 z = -0.02，落在肩膀後方，絕不長到下巴前緣！）
-        const lockL = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.28, 7), hairMat);
-        lockL.position.set(-0.25, -0.14, -0.02);
-        lockL.rotation.z = 0.14;
-        const lockR = lockL.clone();
-        lockR.position.set(0.25, -0.14, -0.02);
-        lockR.rotation.z = -0.14;
+        // 招牌亮黃針織毛帽（大號飽滿毛帽，完整罩在頭髮上方，帽子邊緣自然壓住秀髮，造型超可愛！）
+        const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.315, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.54), hatMat);
+        beanie.position.set(0, 0.12, -0.03);
+        beanie.rotation.x = -0.10;
+        const brim = new THREE.Mesh(new THREE.TorusGeometry(0.285, 0.048, 8, 18), hatMat);
+        brim.rotation.x = Math.PI / 2 - 0.10;
+        brim.position.set(0, 0.14, 0.01);
+        const pom = new THREE.Mesh(new THREE.SphereGeometry(0.10, 10, 10), pomMat);
+        pom.position.set(0, 0.44, -0.09);
 
-        // 招牌亮黃針織毛帽（帽體整體抬高至 y = 0.14、略微向後仰戴，帽簷 y = 0.16 位於高額頭上方，雙眼完全豁然開朗！）
-        const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.305, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.52), hatMat);
-        beanie.position.set(0, 0.14, -0.04);
-        beanie.rotation.x = -0.15; // 俏皮向後仰戴
-        const brim = new THREE.Mesh(new THREE.TorusGeometry(0.275, 0.042, 8, 16), hatMat);
-        brim.rotation.x = Math.PI / 2 - 0.15;
-        brim.position.set(0, 0.16, -0.01);
-        const pom = new THREE.Mesh(new THREE.SphereGeometry(0.095, 10, 10), pomMat);
-        pom.position.set(0, 0.44, -0.11);
-
-        headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBack, bangs, lockL, lockR, beanie, brim, pom);
+        headGroup.add(head, eyeL, eyeR, blushL, blushR, smile, hairBase, bangs, sideHairL, sideHairR, beanie, brim, pom);
         root.add(headGroup);
 
         // 左右手臂（左手拿銀色筆電隨時打「物理治療紀錄」、右手拿外帶熱拿鐵咖啡杯）
