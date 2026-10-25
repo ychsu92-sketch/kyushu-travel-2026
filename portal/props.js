@@ -130,24 +130,35 @@
         });
         g.add(interiorGroup);
 
-        // 4. 高頂挑高透明玻璃座艙 + A/B/C/D 柱 + 懸浮式雙色黑車頂
-        const glassCabin = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.32, 1.24), glassMat);
-        glassCabin.position.set(0, 0.64, -0.10);
-        g.add(glassCabin);
+        // 4. 全景敞篷無車頂設計 (Open-Top Safari Convertible)：移除天花板與車頂遮擋，完整露出 4 位家人！
+        // 前傾通透敞篷擋風玻璃
+        const frontWindshield = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.28, 0.025), glassMat);
+        frontWindshield.position.set(0, 0.58, 0.38);
+        frontWindshield.rotation.x = -0.32;
+        // 黑色擋風玻璃外框 (A 柱精緻支架)
+        const aPillarL = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.29, 0.035), roofBlackMat);
+        aPillarL.position.set(-0.38, 0.58, 0.38);
+        aPillarL.rotation.x = -0.32;
+        const aPillarR = aPillarL.clone();
+        aPillarR.position.x = 0.38;
+        const topHeaderBar = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.03, 0.035), roofBlackMat);
+        topHeaderBar.position.set(0, 0.70, 0.33);
+        topHeaderBar.rotation.x = -0.32;
+        g.add(frontWindshield, aPillarL, aPillarR, topHeaderBar);
 
-        // 黑色車窗立柱 (營造懸浮車頂感)
-        [[-0.38, 0.42], [0.38, 0.42], [-0.38, -0.05], [0.38, -0.05], [-0.38, -0.68], [0.38, -0.68]].forEach(p => {
-            const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.34, 0.05), roofBlackMat);
-            pillar.position.set(p[0], 0.64, p[1]);
-            g.add(pillar);
-        });
-
-        // 圓潤挑高車頂與車側導流凹槽
-        const roof = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.07, 1.28), bodyPaintMat);
-        roof.position.set(0, 0.82, -0.10);
-        const roofSpoiler = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.05, 0.14), bodyPaintMat);
-        roofSpoiler.position.set(0, 0.83, -0.72);
-        g.add(roof, roofSpoiler);
+        // 敞篷座艙半高側邊護欄與後座防滾安全拱架 (Safari Sports Arch)
+        const sideRailL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.06, 1.08), trimBlackMat);
+        sideRailL.position.set(-0.41, 0.51, -0.16);
+        const sideRailR = sideRailL.clone();
+        sideRailR.position.x = 0.41;
+        // 車尾運動風防滾架 (位於第三排後方，完全不遮擋第 1、2 排頭部視線)
+        const rollBar = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.04, 0.04), roofBlackMat);
+        rollBar.position.set(0, 0.68, -0.68);
+        const rollPostL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.20, 0.04), roofBlackMat);
+        rollPostL.position.set(-0.37, 0.58, -0.68);
+        const rollPostR = rollPostL.clone();
+        rollPostR.position.x = 0.37;
+        g.add(sideRailL, sideRailR, rollBar, rollPostL, rollPostR);
 
         // 後視鏡
         const mirrorL = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.07, 0.06), roofBlackMat);
@@ -171,24 +182,7 @@
             g.add(headHousing, ledLamp, fogLamp, tailLamp);
         });
 
-        // 6. 冬季自駕車頂橫桿與雙色行李箱 (稍微退至第 3 排上方，不遮擋第 1、2 排乘員頭頂視線)
-        const rackBar1 = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.03, 0.05), trimBlackMat);
-        rackBar1.position.set(0, 0.87, -0.25);
-        const rackBar2 = rackBar1.clone();
-        rackBar2.position.z = -0.58;
-        const roofBox = new THREE.Mesh(
-            new THREE.BoxGeometry(0.32, 0.13, 0.52),
-            new THREE.MeshLambertMaterial({ color: 0xf8fafc })
-        );
-        roofBox.position.set(0.14, 0.94, -0.42);
-        const skiBag = new THREE.Mesh(
-            new THREE.BoxGeometry(0.22, 0.11, 0.46),
-            new THREE.MeshLambertMaterial({ color: 0xf59e0b })
-        );
-        skiBag.position.set(-0.16, 0.93, -0.42);
-        g.add(rackBar1, rackBar2, roofBox, skiBag);
-
-        // 7. 4 顆冬季雙色切削鋁圈雪胎 (含輪圈蓋細節)
+        // 6. 4 顆冬季雙色切削鋁圈雪胎 (含輪圈蓋細節)
         const wheels = [];
         const tireGeo = new THREE.CylinderGeometry(0.155, 0.155, 0.11, 14);
         tireGeo.rotateZ(Math.PI / 2);

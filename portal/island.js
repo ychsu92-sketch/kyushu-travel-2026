@@ -1940,8 +1940,66 @@
         const onFerry = (vanPos.x > -4.56 && vanPos.x < -3.12 && vanPos.z > 9.78 && vanPos.z < 10.62);
         const rawVanGroundY = getGroundY(vanPos.x, vanPos.z) + 0.05;
         const vanGroundY = onFerry ? 0.38 : getMountainSummitY(vanPos.x, vanPos.z, rawVanGroundY);
-        van.position.set(vanPos.x, vanGroundY, vanPos.z);
-        van.rotation.y = vanAngle;
+
+        // 魔法口袋小巴機制 (Pocket Car)：抵達景點下車後，小巴收進姨丈口袋（完全不遮擋景點！）；出發前再從口袋變出來！
+        if (isStoppedAtLandmark) {
+            const elapsedInStop = Math.max(0, stopTotalDuration - stopTimer);
+            const yijhangChar = characters['yijhang'];
+            let pocketX = vanPos.x;
+            let pocketZ = vanPos.z;
+            let pocketY = vanGroundY + 0.38;
+            if (yijhangChar) {
+                pocketX = yijhangChar.position.x;
+                pocketZ = yijhangChar.position.z;
+                pocketY = (yijhangChar.userData.baseY || yijhangChar.position.y) + 0.38;
+            }
+
+            if (elapsedInStop < 0.90) {
+                // 1. 下車階段 (0 ~ 0.9秒)：小巴在停車格正常顯示，滑門開啟，全家下車步出
+                van.visible = true;
+                van.scale.setScalar(1.18);
+                van.position.set(vanPos.x, vanGroundY, vanPos.z);
+                van.rotation.y = vanAngle;
+            } else if (elapsedInStop < 1.75) {
+                // 2. 收車進口袋階段 (0.9 ~ 1.75秒)：小巴帶螺旋縮小特效，旋轉飛入姨丈外套口袋！
+                const shrinkT = (elapsedInStop - 0.90) / 0.85;
+                van.visible = true;
+                const curScale = 1.18 * (1.0 - shrinkT);
+                van.scale.setScalar(Math.max(0.001, curScale));
+                const flyArcY = Math.sin(shrinkT * Math.PI) * 0.22;
+                van.position.set(
+                    vanPos.x + (pocketX - vanPos.x) * shrinkT,
+                    vanGroundY + (pocketY - vanGroundY) * shrinkT + flyArcY,
+                    vanPos.z + (pocketZ - vanPos.z) * shrinkT
+                );
+                van.rotation.y = vanAngle + shrinkT * Math.PI * 3.0;
+            } else if (stopTimer > 1.80) {
+                // 3. 景點完全無車期：小巴已安全收在姨丈口袋，景點全貌 100% 毫無遮擋！
+                van.visible = false;
+                van.scale.setScalar(0);
+                van.position.set(pocketX, pocketY, pocketZ);
+            } else {
+                // 4. 開車前變出小巴 (最後 1.8 秒)：姨丈從口袋拿出，小巴彈性膨脹彈跳回停車格！
+                const popT = Math.min(1.0, (1.80 - stopTimer) / 0.85);
+                van.visible = true;
+                const spring = Math.sin(popT * Math.PI * 0.5);
+                const curScale = 1.18 * Math.min(1.0, popT * 1.12); // 帶輕微彈跳過沖感
+                van.scale.setScalar(curScale);
+                const bounceY = Math.sin(spring * Math.PI) * 0.25;
+                van.position.set(
+                    pocketX + (vanPos.x - pocketX) * spring,
+                    pocketY + (vanGroundY - pocketY) * spring + bounceY,
+                    pocketZ + (vanPos.z - pocketZ) * spring
+                );
+                van.rotation.y = vanAngle + (1.0 - spring) * Math.PI * 2.0;
+            }
+        } else {
+            // 公路行駛與散步時：正常 1.18 比例
+            van.visible = true;
+            van.scale.setScalar(1.18);
+            van.position.set(vanPos.x, vanGroundY, vanPos.z);
+            van.rotation.y = vanAngle;
+        }
 
         // 控制 Toyota Sienta 左側電動滑門：抵達景點停留時自動向後滑開，行駛時關閉
         if (van.userData.slidingDoorL) {
@@ -2009,12 +2067,12 @@
             }
         }
 
-        // Toyota Sienta 車艙內部 4 個座位局部座標 (相對於車體中心，乘以車體縮放 1.18)
+        // Toyota Sienta 全景敞篷車艙內部 4 個座位局部座標 (開放式無車頂，清楚露出 4 位乘員！)
         const carSeatsLocal = {
-            yijhang: { x: -0.22, y: 0.24, z: 0.14 },  // 第一排右駕駕駛座
-            ayee:    { x: 0.22,  y: 0.24, z: 0.14 },  // 第一排左前副駕駛座
-            achun:   { x: 0.23,  y: 0.24, z: -0.26 }, // 第二排左側靠窗舒適位
-            alu:     { x: -0.22, y: 0.24, z: -0.26 }  // 第二排右側靠窗位
+            yijhang: { x: -0.22, y: 0.28, z: 0.14 },  // 第一排右駕駕駛座
+            ayee:    { x: 0.22,  y: 0.28, z: 0.14 },  // 第一排左前副駕駛座
+            achun:   { x: 0.23,  y: 0.28, z: -0.26 }, // 第二排左側靠窗舒適位
+            alu:     { x: -0.22, y: 0.28, z: -0.26 }  // 第二排右側靠窗位
         };
 
         const roles = ['achun', 'yijhang', 'ayee', 'alu'];
@@ -2047,13 +2105,13 @@
             charGroup.userData.isUfoChasing = (role === 'achun' && role === stragglerRole && !isStoppedAtLandmark && !isAboard);
 
             if (isAboard) {
-                // 1. 真的坐在 Sienta 七人座車艙座椅上（透過車窗玻璃清晰可見，隨車一起前進）
+                // 1. 真的坐在 Sienta 全景敞篷休旅車上（無天花板遮擋，清晰露出家人招牌打扮）
                 const seat = carSeatsLocal[role];
                 const worldX = van.position.x + seat.x * cosA + seat.z * sinA;
                 const worldZ = van.position.z - seat.x * sinA + seat.z * cosA;
                 const jumpBoost = (charGroup.userData.jumping > 0) ? Math.sin(charGroup.userData.jumping * Math.PI) * 0.18 : 0;
 
-                charGroup.scale.setScalar(0.68);
+                charGroup.scale.setScalar(0.72);
                 charGroup.position.set(worldX, van.position.y + seat.y + jumpBoost, worldZ);
                 charGroup.rotation.y = vanAngle;
                 charGroup.userData.baseY = van.position.y + seat.y;
@@ -2218,9 +2276,10 @@
                 }
             }
 
-            // 2. 人物與 Toyota Sienta 休旅車之間 OBB 碰撞盒嚴格避讓，永不穿透車身
+            // 2. 人物與 Toyota Sienta 休旅車之間 OBB 碰撞盒嚴格避讓，永不穿透車身 (若小巴已收入姨丈口袋則免避讓)
             outsideChars.forEach(c => {
                 if (c.isSummitSpot && c.roamWeight > 0.40) return; // 山頂平台遠離停車場小巴
+                if (isStoppedAtLandmark && van.scale.x < 0.25) return; // 小巴已魔法收進姨丈口袋，開放全區自由行走
                 const distToVan = Math.hypot(c.cx - vanPos.x, c.cz - vanPos.z);
                 if (distToVan > 3.0) return;
 
@@ -2731,7 +2790,12 @@
             if (isSpeaking) {
                 targetText = '💬 發言中…';
             } else if (isStoppedAtLandmark) {
-                if (stopTimer < 1.50) {
+                const elapsedInStop = Math.max(0, stopTotalDuration - stopTimer);
+                if (role === 'yijhang' && elapsedInStop >= 0.85 && elapsedInStop <= 1.85) {
+                    targetText = '🚙 把小巴收進口袋！';
+                } else if (role === 'yijhang' && stopTimer < 1.80) {
+                    targetText = '🚙 從口袋變出小巴！';
+                } else if (stopTimer < 1.50) {
                     targetText = '🚗 回車旁準備…';
                 } else {
                     const list = ROLE_SPOT_STATUSES[role] || [];
