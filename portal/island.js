@@ -2829,8 +2829,8 @@
                 : (c.customSummitY !== null ? c.customSummitY : getMountainSummitY(c.cx, c.cz, rawCharY));
 
             // 景點專屬個性動作標記：
-            // 阿姨四處漫步採買特產，只有在完全停下腳步發言或定點時才算 busy，走動時絕不展開野餐墊！
-            charGroup.userData.isSpotBusy = isInSpotActivity && (c.role !== 'ayee' || !moving);
+            // 只要在移動邁步 (moving)，阿純與阿姨絕對不處於 busy 狀態，徹底杜絕帶著桌子或野餐墊走動！
+            charGroup.userData.isSpotBusy = isInSpotActivity && !moving;
 
             // 若是落單追車苦主，加快腳步頻率並舉手揮動呼喊；景點散開漫步或走回車旁時亦播放雙腳邁步動畫
             const animElapsed = (c.role === stragglerRole && !c.isStoppedAtLandmark) ? elapsed * 1.65 : elapsed;

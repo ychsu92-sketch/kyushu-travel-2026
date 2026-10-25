@@ -1140,6 +1140,13 @@
         }
 
         if (isWalking) {
+            // 行走邁步時：阿純嚴格收納露營桌椅（絕不帶桌子走路！），手上拿著隨身筆電與熱拿鐵
+            if (ud.role === 'achun') {
+                if (ud.campingDeskGroup) ud.campingDeskGroup.visible = false;
+                ud.deskScale = 0;
+                if (ud.laptopGroup) ud.laptopGroup.visible = true;
+                if (ud.cupGroup) ud.cupGroup.visible = true;
+            }
             // 行走時四肢擺動與輕快彈跳 + 隨機邊走邊做小動作
             const stride = Math.sin(phase) * 0.58;
             ud.legL.rotation.x = stride;
@@ -1223,24 +1230,25 @@
             }
 
             if (ud.role === 'achun') {
-                // 阿純景點動作配件：打紀錄時自動長出木質露營桌與帆布折疊椅，外加伸懶腰動作
+                // 阿純景點動作配件：只有在完全就座定點打紀錄時 (isSpotBusy 且非 moving)，才展開木質露營桌與折疊椅！
+                const shouldShowDesk = !!(ud.isSpotBusy && !moving);
                 if (ud.campingDeskGroup) {
-                    if (ud.isSpotBusy) {
+                    if (shouldShowDesk) {
                         ud.deskScale = Math.min(1.0, (ud.deskScale || 0) + delta * 4.0);
                         ud.campingDeskGroup.visible = true;
                     } else {
-                        ud.deskScale = Math.max(0, (ud.deskScale || 0) - delta * 5.0);
+                        ud.deskScale = Math.max(0, (ud.deskScale || 0) - delta * 6.0);
                         if (ud.deskScale <= 0.01) ud.campingDeskGroup.visible = false;
                     }
                     ud.campingDeskGroup.scale.setScalar(ud.deskScale);
                 }
 
-                // 核心修復：當桌上有筆電時，手上不應同時拿著第二台筆電與外帶拿鐵杯！
-                const hasDesk = !!(ud.isSpotBusy || (ud.deskScale && ud.deskScale > 0.05));
+                // 核心修復：只有在展開桌子且定點坐好時，手上筆電才隱藏；走路邁步時手上隨身拿著筆電！
+                const hasDesk = !!(shouldShowDesk && ud.deskScale && ud.deskScale > 0.05);
                 if (ud.laptopGroup) ud.laptopGroup.visible = !hasDesk;
                 if (ud.cupGroup) ud.cupGroup.visible = !hasDesk;
 
-                if (ud.isSpotBusy) {
+                if (shouldShowDesk) {
                     // 坐在露營休閒椅上（桌椅骨架垂直貼合地面 baseY 絕不穿模下陷，阿純骨盆準確落座帆布椅面）
                     ud.legL.rotation.x = -Math.PI * 0.44;
                     ud.legR.rotation.x = -Math.PI * 0.44;
