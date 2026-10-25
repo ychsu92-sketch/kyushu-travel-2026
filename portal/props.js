@@ -820,6 +820,7 @@
     function populateIslandProps(parent, tramCurve, isMobile, sampleGroundY, roadCurve, landmarksData) {
         const propsGroup = new THREE.Group();
         const getGroundY = sampleGroundY || (() => 0.80);
+        const sceneObstacles = [];
 
         // 預先取樣自駕道路中心線，供靜態道具與樹木避開行車與人物散步走廊
         const roadSamples = [];
@@ -904,6 +905,7 @@
             m.position.set(pos.x, pos.y, pos.z);
             m.rotation.y = s.rot;
             propsGroup.add(m);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.65 });
         });
 
         // 5. 日式木造町家聚落組 (10 處城鎮群落，1.2x 地圖座標)
@@ -926,6 +928,7 @@
             m.position.set(pos.x, pos.y, pos.z);
             m.rotation.y = v.rot;
             propsGroup.add(m);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.85 });
         });
 
         // 6. 日本街角自動販賣機與紅郵筒組 (6 處，1.2x 地圖座標)
@@ -944,6 +947,7 @@
             vm.position.set(pos.x, pos.y, pos.z);
             vm.rotation.y = vc.rot;
             propsGroup.add(vm);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.40 });
         });
 
         // 7. 阿蘇草千里與霧島牧場放牧赤牛群 (7 頭會低頭吃草的赤牛，1.2x 地圖座標)
@@ -966,6 +970,7 @@
             cow.userData.phase = idx * 1.3;
             propsGroup.add(cow);
             cattleList.push(cow);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.50 });
         });
 
         // 8. 海岸岬角白色燈塔與河川朱紅拱橋 (1.2x 地圖座標)
@@ -994,6 +999,7 @@
             b.position.set(pos.x, pos.y, pos.z);
             b.rotation.y = br.rot;
             propsGroup.add(b);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.60 });
         });
 
         // 9. 小貓與柴犬 (放大為 1.25x，增加到 8 隻，1.2x 地圖座標)
@@ -1115,6 +1121,7 @@
             torii.position.set(pos.x, pos.y, pos.z);
             torii.rotation.y = tc.rot;
             propsGroup.add(torii);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.45 });
         });
 
         // 13. 九州懷舊鄉間巴士候車亭與站牌 (10 處點綴於鄉間長途路肩)
@@ -1137,6 +1144,7 @@
             bs.position.set(pos.x, pos.y, pos.z);
             bs.rotation.y = bc.rot;
             propsGroup.add(bs);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.42 });
         });
 
         // 14. 暖光石燈籠與路旁地藏小祠 (10 處古街道守護)
@@ -1159,6 +1167,7 @@
             sl.position.set(pos.x, pos.y, pos.z);
             sl.rotation.y = lc.rot;
             propsGroup.add(sl);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.35 });
         });
 
         // 15. 宮崎/日南沿海風力發電機群 (6 座旋轉風車，佇立於日向灘海崖)
@@ -1178,6 +1187,7 @@
             wt.rotation.y = -0.4 + idx * 0.15;
             propsGroup.add(wt);
             windTurbines.push(wt);
+            sceneObstacles.push({ x: tc.x, z: tc.z, r: 0.55 });
         });
 
         // 16. 彩色近海漁船 (6 艘停泊於鹿兒島錦江灣與宮崎日南外海，輕微浪湧晃動)
@@ -1217,7 +1227,10 @@
             rSign.position.set(pos.x, pos.y, pos.z);
             rSign.rotation.y = sc.rot;
             propsGroup.add(rSign);
+            sceneObstacles.push({ x: pos.x, z: pos.z, r: 0.35 });
         });
+
+        window.KyushuIsland.Obstacles = sceneObstacles;
 
         return { propsGroup, minivan, tram, ferry, pets, walkers, cattleList, windTurbines, fishingBoats, sampleGroundY: getGroundY };
     }
