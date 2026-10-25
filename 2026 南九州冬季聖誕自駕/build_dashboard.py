@@ -769,11 +769,11 @@ def build():
             <button onclick="openTab('costs')" id="tab-btn-costs" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
                 <span>👛</span> 記帳
             </button>
-            <button onclick="openTab('bookings')" id="tab-btn-bookings" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
-                <span>📌</span> 預約
-            </button>
             <button onclick="openTab('stays')" id="tab-btn-stays" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
-                <span>🏡</span> 住宿
+                <span>🏨</span> 住宿/預約
+            </button>
+            <button onclick="openTab('stamps')" id="tab-btn-stamps" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
+                <span>🎴</span> 集章巡禮
             </button>
             <button onclick="openTab('checklist')" id="tab-btn-checklist" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
                 <span>🎒</span> 行李
@@ -1384,12 +1384,152 @@ def build():
                 </div>
             </div>
         </section>
-        <!-- TAB 4: 預約小便條 -->
-        <section id="tab-content-bookings" class="tab-content hidden space-y-6">
-            <div class="cute-card p-6 relative border-2 border-amber-200 space-y-6">
+        <!-- TAB 4: 🎴 南九州自駕集章巡禮 ＆ 家族微電影靈感 -->
+        <section id="tab-content-stamps" class="tab-content hidden space-y-6">
+            <div class="cute-card p-6 relative border-2 border-red-200 bg-white space-y-6">
                 <div class="washi-tape washi-tape-gold"></div>
 
-                <div class="flex items-center justify-between pb-4 border-b-2 border-stone-100">
+                <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b-2 border-red-50 gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="cute-pill bg-red-100 text-red-800 font-black">🏮 御朱印風觀光巡禮</span>
+                            <span class="cute-pill bg-amber-100 text-amber-800 font-bold">🎬 家族微電影鏡頭建議</span>
+                            <span class="text-xs text-stone-400">長輩自然不尷尬・創造一生難忘回憶</span>
+                        </div>
+                        <h3 class="text-xl font-black text-stone-800 mt-2 flex items-center gap-2">
+                            <span>🎴</span> 南九州自駕集章巡禮 ＆ 家族回憶底片
+                        </h3>
+                        <p class="text-xs text-stone-500 mt-1">
+                            收集 12 處日式觀光印記・自然捕捉長輩最真實開心的電影感鏡頭・解鎖家族榮譽大師勳章！
+                        </p>
+                    </div>
+
+                    <!-- 快速操作按鈕 -->
+                    <div class="flex items-center gap-2 self-start md:self-auto shrink-0">
+                        <button type="button" onclick="unlockAllStamps()" class="px-3.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition active:scale-95 shadow-2xs">
+                            ✨ 一鍵全亮 (預覽)
+                        </button>
+                        <button type="button" onclick="resetAllStamps()" class="px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs font-bold transition active:scale-95">
+                            🔄 重設進度
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 全家探索進度條 -->
+                <div class="bg-gradient-to-r from-red-50 via-amber-50 to-orange-50 rounded-2xl p-4 border border-red-200 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <span class="text-stone-800 flex items-center gap-1.5">
+                            <span class="text-base">⛩️</span>
+                            <span>全家南九州探索進度：</span>
+                            <span id="stamps-count-label" class="font-mono text-red-700 font-black text-sm">0 / 12</span>
+                        </span>
+                        <span id="stamps-percent-label" class="font-mono text-red-600 font-black text-sm">0%</span>
+                    </div>
+                    <div class="w-full bg-white/80 rounded-full h-3.5 p-0.5 border border-red-200 shadow-inner overflow-hidden">
+                        <div id="stamps-progress-bar" class="h-full rounded-full bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500 transition-all duration-500 shadow-sm" style="width: 0%;"></div>
+                    </div>
+                    <div class="text-[11px] text-stone-500 flex items-center justify-between">
+                        <span>💡 每抵達一個景點，點擊右側日式印章即可蓋印記錄！</span>
+                        <span class="font-bold text-amber-700" id="stamps-status-hint">準備啟程出發 ❄️</span>
+                    </div>
+                </div>
+
+                <!-- 12 大日式集章卡片清單 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="stamps-grid-container"></div>
+
+                <!-- 家族榮譽大師成就榜 -->
+                <div class="pt-6 border-t-2 border-stone-100 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-base font-black text-stone-800 flex items-center gap-2">
+                                <span>🎖️</span> 家族專屬榮譽大師成就榜
+                            </h4>
+                            <p class="text-xs text-stone-500 mt-0.5">晚餐居酒屋小酌時秀給長輩看，榮譽感爆棚的專屬頭銜！</p>
+                        </div>
+                        <span class="cute-pill bg-purple-100 text-purple-800 font-bold text-xs" id="badges-unlocked-count">已解鎖 0 / 6</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5" id="badges-grid-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: 旅宿與預約 -->
+        <section id="tab-content-stays" class="tab-content hidden space-y-6">
+            <!-- 機票 -->
+            <div>
+                <h3 class="text-lg font-black text-stone-800 mb-3 flex items-center gap-2">
+                    <span>✈️</span> 中華航空直飛來回機票
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="cute-card p-5 relative border-2 border-sky-200 bg-gradient-to-b from-white to-sky-50">
+                        <div class="flex items-center justify-between pb-2 border-b border-sky-100">
+                            <span class="cute-pill bg-sky-100 text-sky-700">去程 12/22 (二)</span>
+                            <span class="font-mono font-bold text-sky-700">華航 CI194 直飛</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <div class="text-2xl font-black text-stone-800">TPE</div>
+                                <div class="text-xs text-stone-400">台北桃園 (T2)</div>
+                                <div class="text-sm font-black text-sky-600 mt-0.5">14:30</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="text-xs text-stone-400">2 小時航程</div>
+                                <div class="text-sky-500 text-base">✈️💨</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-black text-stone-800">KMJ</div>
+                                <div class="text-xs text-stone-400">熊本機場</div>
+                                <div class="text-sm font-black text-sky-600 mt-0.5">17:30</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-stone-500 pt-2 border-t border-sky-100 flex justify-between">
+                            <span>4人同行 ｜ 托運 23kg + 隨身 7kg</span>
+                            <span class="font-bold text-sky-600">機票費用：NT$ 33,150</span>
+                        </div>
+                    </div>
+
+                    <div class="cute-card p-5 relative border-2 border-amber-200 bg-gradient-to-b from-white to-amber-50">
+                        <div class="flex items-center justify-between pb-2 border-b border-amber-100">
+                            <span class="cute-pill bg-amber-100 text-amber-700">回程 12/28 (一)</span>
+                            <span class="font-mono font-bold text-amber-700">華航 CI195 直飛</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <div class="text-2xl font-black text-stone-800">KMJ</div>
+                                <div class="text-xs text-stone-400">熊本新航廈</div>
+                                <div class="text-sm font-black text-amber-600 mt-0.5">18:35</div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="text-xs text-stone-400">2.5 小時航程</div>
+                                <div class="text-amber-500 text-base">✈️💨</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-black text-stone-800">TPE</div>
+                                <div class="text-xs text-stone-400">台北桃園 (T2)</div>
+                                <div class="text-sm font-black text-amber-600 mt-0.5">20:10</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-stone-500 pt-2 border-t border-amber-100 flex justify-between">
+                            <span>提早 2 小時抵達熊本新航廈採買伴手禮</span>
+                            <span class="font-bold text-emerald-700">平安返台</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 住宿安排 -->
+            <div>
+                <h3 class="text-lg font-black text-stone-800 mb-3 flex items-center gap-2">
+                    <span>🏡</span> 6 晚旅宿安排 (已確認訂房)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="stays-grid"></div>
+            </div>
+
+            <!-- 出發前重點預約便利貼 -->
+            <div class="cute-card p-6 relative border-2 border-amber-200 space-y-4">
+                <div class="washi-tape washi-tape-gold"></div>
+                <div class="flex items-center justify-between pb-3 border-b-2 border-stone-100">
                     <div>
                         <h3 class="text-lg font-black text-stone-800 flex items-center gap-2">
                             <span>📌</span> 出發前重點預約便利貼 (共 5 項)
@@ -1457,76 +1597,8 @@ def build():
             </div>
         </section>
 
-        <!-- TAB 5: 旅宿與機票 -->
-        <section id="tab-content-stays" class="tab-content hidden space-y-6">
-            <div>
-                <h3 class="text-lg font-black text-stone-800 mb-3 flex items-center gap-2">
-                    <span>✈️</span> 中華航空直飛來回機票
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="cute-card p-5 relative border-2 border-sky-200 bg-gradient-to-b from-white to-sky-50">
-                        <div class="flex items-center justify-between pb-2 border-b border-sky-100">
-                            <span class="cute-pill bg-sky-100 text-sky-700">去程 12/22 (二)</span>
-                            <span class="font-mono font-bold text-sky-700">華航 CI194 直飛</span>
-                        </div>
-                        <div class="flex items-center justify-between py-3">
-                            <div>
-                                <div class="text-2xl font-black text-stone-800">TPE</div>
-                                <div class="text-xs text-stone-400">台北桃園 (T2)</div>
-                                <div class="text-sm font-black text-sky-600 mt-0.5">14:30</div>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div class="text-xs text-stone-400">2 小時航程</div>
-                                <div class="text-sky-500 text-base">✈️💨</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-2xl font-black text-stone-800">KMJ</div>
-                                <div class="text-xs text-stone-400">熊本機場</div>
-                                <div class="text-sm font-black text-sky-600 mt-0.5">17:30</div>
-                            </div>
-                        </div>
-                        <div class="text-xs text-stone-500 pt-2 border-t border-sky-100 flex justify-between">
-                            <span>4人同行 ｜ 托運 23kg + 隨身 7kg</span>
-                            <span class="font-bold text-sky-600">機票費用：NT$ 33,150</span>
-                        </div>
-                    </div>
-
-                    <div class="cute-card p-5 relative border-2 border-amber-200 bg-gradient-to-b from-white to-amber-50">
-                        <div class="flex items-center justify-between pb-2 border-b border-amber-100">
-                            <span class="cute-pill bg-amber-100 text-amber-700">回程 12/28 (一)</span>
-                            <span class="font-mono font-bold text-amber-700">華航 CI195 直飛</span>
-                        </div>
-                        <div class="flex items-center justify-between py-3">
-                            <div>
-                                <div class="text-2xl font-black text-stone-800">KMJ</div>
-                                <div class="text-xs text-stone-400">熊本新航廈</div>
-                                <div class="text-sm font-black text-amber-600 mt-0.5">18:35</div>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div class="text-xs text-stone-400">2.5 小時航程</div>
-                                <div class="text-amber-500 text-base">✈️💨</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-2xl font-black text-stone-800">TPE</div>
-                                <div class="text-xs text-stone-400">台北桃園 (T2)</div>
-                                <div class="text-sm font-black text-amber-600 mt-0.5">20:10</div>
-                            </div>
-                        </div>
-                        <div class="text-xs text-stone-500 pt-2 border-t border-amber-100 flex justify-between">
-                            <span>提早 2 小時抵達熊本新航廈採買伴手禮</span>
-                            <span class="font-bold text-emerald-700">平安返台</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-lg font-black text-stone-800 mb-3 flex items-center gap-2">
-                    <span>🏡</span> 6 晚旅宿安排 (已確認訂房)
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="stays-grid"></div>
-            </div>
-        </section>
+        <!-- 兼容空標籤 -->
+        <div id="tab-content-bookings" class="hidden"></div>
 
         <!-- TAB 6: 行李檢查表 (徹底修復重來錯誤) -->
         <section id="tab-content-checklist" class="tab-content hidden space-y-6">
@@ -1878,6 +1950,7 @@ def build():
         }}
 
         function openTab(tabName) {{
+            if (tabName === 'bookings') tabName = 'stays';
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.xmas-tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -1887,9 +1960,9 @@ def build():
             if (targetContent) targetContent.classList.remove('hidden');
             if (targetBtn) targetBtn.classList.add('active');
             if (tabName === 'costs') initCosts();
-                renderRestaurants();
             if (tabName === 'restaurants') renderRestaurants();
             if (tabName === 'tools') renderCoupons();
+            if (tabName === 'stamps') initStamps();
         }}
 
         function initTimelineDays() {{
@@ -4030,6 +4103,560 @@ function doGet(e) {{
             if (!jpyInput) return;
             if (val === '') {{ jpyInput.value = ''; return; }}
             jpyInput.value = Math.round(parseFloat(val) / rate);
+        }}
+
+        // ======================= 🎴 南九州自駕集章巡禮 ＆ 家族微電影靈感 =======================
+        const STAMPS_DATA = [
+            {{
+                id: 'kumamoto_castle',
+                day: 'Day 1~2',
+                name: '熊本城 ＆ 櫻之馬場城彩苑',
+                area: '熊本市中央區',
+                icon: '🏯',
+                category: '歷史名城',
+                stamp_title: '銀杏名城',
+                stamp_sub: '熊本城天守',
+                film_tip: '捕捉長輩漫步城彩苑老街，咬下第一口熱呼呼芥末蓮藕餅的驚奇笑容（自然側拍 5 秒）。',
+                photo_spot: '天守閣仰角大合照、城彩苑古風燈籠前',
+                badge_tag: 'history'
+            }},
+            {{
+                id: 'aso_volcano',
+                day: 'Day 2',
+                name: '阿蘇中岳火口 ＆ 草千里之濱',
+                area: '阿蘇市火山群',
+                icon: '🌋',
+                category: '活火山高原',
+                stamp_title: '雄大中岳',
+                stamp_sub: '阿蘇大火口',
+                film_tip: '長輩手捧熱呼呼咖啡，站在草千里遠眺冒著白煙的活火山，海風吹過頭髮的悠閒側影。',
+                photo_spot: '草千里大草原背影、阿蘇火山口冒煙同框',
+                badge_tag: 'drive'
+            }},
+            {{
+                id: 'kurokawa_onsen',
+                day: 'Day 2',
+                name: '黑川溫泉街 ＆ 地藏堂',
+                area: '南小國町黑川',
+                icon: '♨️',
+                category: '秘湯老街',
+                stamp_title: '秘湯黑川',
+                stamp_sub: '竹林露天湯',
+                film_tip: '黃昏時長輩穿著日式花浴衣、踩著木屐漫步在竹燈籠點綴的石板斜坡上，提燈漫步的背影步態。',
+                photo_spot: '丸鈴橋竹燈祭、山彥旅館仙人風呂',
+                badge_tag: 'onsen'
+            }},
+            {{
+                id: 'takachiho_gorge',
+                day: 'Day 3',
+                name: '高千穗峽 ＆ 真名井瀑布',
+                area: '宮崎縣高千穗',
+                icon: '🚣',
+                category: '神話峽谷',
+                stamp_title: '神話飛瀑',
+                stamp_sub: '高千穗泛舟',
+                film_tip: '划船破水前行時，從船尾低角度抓拍長輩仰望 17 公尺飛瀑水氣飄過臉龐的震撼讚嘆神情。',
+                photo_spot: '小船穿過瀑布旁、峽谷御橋向下俯瞰視角',
+                badge_tag: 'shrine'
+            }},
+            {{
+                id: 'amano_yasugawara',
+                day: 'Day 3',
+                name: '天岩戶神社 ＆ 天安河原',
+                area: '高千穗町岩戶',
+                icon: '⛩️',
+                category: '神話源流',
+                stamp_title: '神話源流',
+                stamp_sub: '天安疊石印',
+                film_tip: '在清涼寧靜的溪谷巨大洞窟中，拍長輩專注地在石堆上疊上一顆祈福小圓石的平靜特寫。',
+                photo_spot: '大洞窟千萬疊石鳥居前、岩戶溪流步道綠意',
+                badge_tag: 'shrine'
+            }},
+            {{
+                id: 'kirishima_shrine',
+                day: 'Day 4',
+                name: '霧島神宮 ＆ 千年神木',
+                area: '鹿兒島縣霧島',
+                icon: '⛩️',
+                category: '朱紅神宮',
+                stamp_title: '天孫降臨',
+                stamp_sub: '霧島神宮',
+                film_tip: '穿梭在參天古杉林蔭參道中，冬日陽光穿過樹稍灑在長輩肩頭，長輩漫步的慢動作鏡頭。',
+                photo_spot: '鮮紅大鳥居階梯、800年巨杉前仰望',
+                badge_tag: 'shrine'
+            }},
+            {{
+                id: 'shiroyama_observatory',
+                day: 'Day 4',
+                name: '城山公園展望台（櫻島全景）',
+                area: '鹿兒島市城山町',
+                icon: '🗻',
+                category: '海灣火山',
+                stamp_title: '錦江櫻島',
+                stamp_sub: '城山展望雄姿',
+                film_tip: '全員倚靠在城山觀景台欄杆，背景是壯麗的櫻島活火山與海灣，四人一邊聊天一邊指著火山的側錄。',
+                photo_spot: '遠眺櫻島全景家庭合照、鹿兒島市街夕照',
+                badge_tag: 'drive'
+            }},
+            {{
+                id: 'sakurajima_ferry',
+                day: 'Day 5',
+                name: '櫻島渡輪 ＆ 溶岩海濱足湯',
+                area: '鹿兒島港～櫻島',
+                icon: '⛴️',
+                category: '航海足湯',
+                stamp_title: '航海足湯',
+                stamp_sub: '櫻島渡輪航行',
+                film_tip: '在渡輪頂層甲板上，一邊吹著海風吃熱騰騰的藪金烏龍麵，看海鷗飛過海面的滿足吃相。',
+                photo_spot: '錦江灣甲板海風吹拂照、櫻島熔岩海濱公園足湯',
+                badge_tag: 'drive'
+            }},
+            {{
+                id: 'ibusuki_sand_bath',
+                day: 'Day 5',
+                name: '指宿天然砂蒸溫泉',
+                area: '指宿市砂樂',
+                icon: '♨️',
+                category: '天然黑砂浴',
+                stamp_title: '砂蒸名湯',
+                stamp_sub: '指宿天然黑砂',
+                film_tip: '長輩被溫熱海砂整個埋住、頭戴日式毛巾、只露出一顆頭看著海浪滾滾的無奈又好笑放鬆表情！',
+                photo_spot: '砂堆中四顆頭一字排開的經典合照（全家最珍貴笑料）',
+                badge_tag: 'onsen'
+            }},
+            {{
+                id: 'chiran_samurai',
+                day: 'Day 5',
+                name: '知覽武家屋敷庭園',
+                area: '南九州市知覽町',
+                icon: '🏡',
+                category: '薩摩小京都',
+                stamp_title: '薩摩古韻',
+                stamp_sub: '知覽武家屋敷',
+                film_tip: '信步在整齊古樸的生垣石牆與枯山水青苔庭園之間，拍下長輩駐足欣賞百年石燈籠的文雅背影。',
+                photo_spot: '江戶風石垣巷弄深邃景深、枯山水名園',
+                badge_tag: 'history'
+            }},
+            {{
+                id: 'udo_shrine',
+                day: 'Day 6',
+                name: '鵜戶神宮 ＆ 龜石運玉投擲',
+                area: '宮崎縣日南市',
+                icon: '🌊',
+                category: '海崖奇觀',
+                stamp_title: '開運神玉',
+                stamp_sub: '鵜戶神宮龜石',
+                film_tip: '長輩站在崖邊，左手拿著小陶球『運玉』，全神貫注揮臂丟向海中龜石凹洞的熱血神情（必開慢動作！）。',
+                photo_spot: '海蝕洞窟朱紅神殿、崖邊驚濤拍岸投運玉處',
+                badge_tag: 'shrine'
+            }},
+            {{
+                id: 'sunmesse_aoshima',
+                day: 'Day 6~7',
+                name: '日南摩艾石像 ＆ 青島神社',
+                area: '宮崎日南與青島',
+                icon: '🗿',
+                category: '太平洋海岸',
+                stamp_title: '太平洋岸',
+                stamp_sub: '日南摩艾青島',
+                film_tip: '以 7 尊巨大摩艾石像為背景，全員戴上墨鏡或遮陽帽並肩站立、吹著太平洋海風的公路巨星感背影！',
+                photo_spot: '摩艾石像下牽手剪影、鬼之洗衣板玄武岩地質',
+                badge_tag: 'drive'
+            }}
+        ];
+
+        const BADGES_DATA = [
+            {{
+                id: 'driver',
+                name: '九州自駕首席掌舵官',
+                icon: '🚗',
+                tag: 'drive',
+                desc: '無論山路彎道或濱海公路，穩健帶領全家平安暢遊九州！',
+                req: '完成阿蘇火山、櫻島渡輪、日南海岸等公路探索 (滿 2 處解鎖)'
+            }},
+            {{
+                id: 'onsen',
+                name: '南九州名湯特級鑒定師',
+                icon: '♨️',
+                tag: 'onsen',
+                desc: '從黑川仙人露天風呂到指宿黑砂蒸熱泉，精通南九州各大泉質名湯！',
+                req: '解鎖黑川溫泉與指宿砂浴名湯'
+            }},
+            {{
+                id: 'shrine',
+                name: '神話大地福祿全收大師',
+                icon: '⛩️',
+                tag: 'shrine',
+                desc: '走遍八百萬神明聚會所，天孫降臨神宮與海崖神社福氣招好招滿！',
+                req: '解鎖高千穗峽、天安河原、霧島神宮與鵜戶神宮 (滿 2 處解鎖)'
+            }},
+            {{
+                id: 'luck',
+                name: '鵜戶龜石開運神射手',
+                icon: '🎯',
+                tag: 'udo',
+                desc: '一擲入洞！象徵 2027 全年運勢爆棚、身體安康、大吉大利！',
+                req: '解鎖鵜戶神宮運玉投擲印章'
+            }},
+            {{
+                id: 'food',
+                name: '九州究極美食品鑑委員會長',
+                icon: '🥩',
+                tag: 'history',
+                desc: '挑剔的味蕾只為最道地的滋味點讚，全家公認最懂吃的靈魂人物！',
+                req: '解鎖熊本城彩苑、知覽古町等名勝印記'
+            }},
+            {{
+                id: 'movie',
+                name: '2026 家族微電影奧斯卡最佳劇組',
+                icon: '🎬',
+                tag: 'all',
+                desc: '這趟旅程不是普通的旅行，而是一部值得世代相傳的精彩紀錄片！',
+                req: '全數收集 12 枚南九州自駕印記'
+            }}
+        ];
+
+        function playStampSound() {{
+            try {{
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(140, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.13);
+            }} catch(e) {{}}
+        }}
+
+        function getStampsProgress() {{
+            try {{
+                return JSON.parse(localStorage.getItem('kyushu_trip_stamps_v1') || '{{}}');
+            }} catch(e) {{
+                return {{}};
+            }}
+        }}
+
+        function saveStampsProgress(data) {{
+            try {{
+                localStorage.setItem('kyushu_trip_stamps_v1', JSON.stringify(data));
+            }} catch(e) {{}}
+        }}
+
+        function initStamps() {{
+            renderStamps();
+        }}
+
+        function renderStamps() {{
+            const container = document.getElementById('stamps-grid-container');
+            if (!container) return;
+            const progress = getStampsProgress();
+            container.innerHTML = '';
+
+            let stampedCount = 0;
+
+            STAMPS_DATA.forEach(item => {{
+                const stampInfo = progress[item.id] || null;
+                const isStamped = !!(stampInfo && stampInfo.stamped);
+                if (isStamped) stampedCount++;
+
+                const card = document.createElement('div');
+                card.className = `cute-card p-4 sm:p-5 relative border-2 ${{isStamped ? 'border-red-300 bg-red-50/20' : 'border-stone-200 bg-white'}} hover:border-red-300 transition-all flex flex-col justify-between space-y-3.5 shadow-2xs`;
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <!-- 頂部標籤與天數 -->
+                        <div class="flex items-center justify-between pb-2 border-b border-stone-100">
+                            <span class="cute-pill bg-red-50 text-red-700 font-bold text-[10px] border border-red-200">
+                                ${{item.day}} ｜ ${{item.category}}
+                            </span>
+                            <span class="text-[10px] text-stone-400 font-bold truncate max-w-[120px]">
+                                📍 ${{item.area}}
+                            </span>
+                        </div>
+
+                        <!-- 景點名稱與日式戳印區 -->
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-black text-stone-800 text-sm sm:text-base leading-snug truncate" title="${{item.name}}">
+                                    ${{item.icon}} ${{item.name}}
+                                </h4>
+                                <p class="text-[11px] text-stone-500 font-medium mt-1 line-clamp-1" title="${{item.photo_spot}}">
+                                    📸 推薦：${{item.photo_spot}}
+                                </p>
+                                ${{isStamped ? `
+                                    <div class="inline-flex items-center gap-1 mt-2 text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 shadow-2xs">
+                                        <span>✅</span> 蓋印於 ${{stampInfo.time || '南九州自駕之旅'}}
+                                    </div>
+                                ` : `
+                                    <div class="text-[10px] text-stone-400 mt-2 font-medium">
+                                        ⚪ 尚未蓋印（抵達現場即可點擊蓋印）
+                                    </div>
+                                `}}
+                            </div>
+
+                            <!-- 戳印本體 (點擊即蓋印) -->
+                            <button type="button" onclick="toggleStamp('${{item.id}}')" class="shrink-0 group focus:outline-none transition-transform" title="點擊蓋印/取消">
+                                ${{isStamped ? `
+                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-3 border-double border-red-600 bg-red-50 text-red-700 flex flex-col items-center justify-center p-1 shadow-md rotate-[-8deg] group-hover:rotate-0 transition-transform active:scale-90">
+                                        <span class="text-[9px] font-black tracking-widest text-red-600 border-b border-red-400 pb-0.5 leading-none">${{item.stamp_title}}</span>
+                                        <span class="text-[11px] font-black tracking-tighter my-0.5 text-red-700 leading-tight">${{item.stamp_sub}}</span>
+                                        <span class="text-[8px] font-mono font-bold text-red-500 scale-90">2026 XMAS</span>
+                                    </div>
+                                ` : `
+                                    <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full border-2 border-dashed border-stone-300 hover:border-red-400 bg-stone-50/70 text-stone-400 hover:text-red-600 flex flex-col items-center justify-center p-1 transition-all group-hover:scale-105 active:scale-95 shadow-2xs">
+                                        <span class="text-xl">🏮</span>
+                                        <span class="text-[10px] font-bold mt-1">點擊蓋印</span>
+                                    </div>
+                                `}}
+                            </button>
+                        </div>
+
+                        <!-- 🎥 給掌鏡者的電影感短片鏡頭建議 -->
+                        <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-2.5 sm:p-3 text-xs text-stone-700 space-y-1">
+                            <div class="font-black text-amber-800 flex items-center gap-1.5 text-[11px]">
+                                <span>🎥</span>
+                                <span>家族微電影・自然抓拍靈感（長輩不尷尬）</span>
+                            </div>
+                            <p class="text-[11px] text-stone-600 leading-relaxed font-medium">
+                                ${{item.film_tip}}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 照片記錄欄 -->
+                    <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
+                        ${{stampInfo && stampInfo.photo ? `
+                            <div class="flex items-center gap-2">
+                                <img src="${{stampInfo.photo}}" class="w-9 h-9 rounded-lg object-cover border border-stone-200 shadow-2xs cursor-pointer" onclick="showStampPhotoPreview('${{item.id}}')" title="點擊放大相片">
+                                <span class="text-[10px] text-emerald-700 font-bold">已保存現場回憶照 ✨</span>
+                            </div>
+                            <button type="button" onclick="removeStampPhoto('${{item.id}}', event)" class="text-[10px] text-stone-400 hover:text-red-500 font-medium transition">
+                                移除相片
+                            </button>
+                        ` : `
+                            <label class="cursor-pointer text-[11px] font-bold text-stone-600 hover:text-red-600 flex items-center gap-1 transition">
+                                <span>📷</span>
+                                <span>存入這站的相簿照片</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="handleStampPhotoUpload('${{item.id}}', event)">
+                            </label>
+                            <span class="text-[10px] text-stone-400">可選拍立得照片</span>
+                        `}}
+                    </div>
+                `;
+                container.appendChild(card);
+            }});
+
+            // 更新探索進度條
+            const total = STAMPS_DATA.length;
+            const pct = Math.round((stampedCount / total) * 100);
+            const countLabel = document.getElementById('stamps-count-label');
+            const pctLabel = document.getElementById('stamps-percent-label');
+            const bar = document.getElementById('stamps-progress-bar');
+            const hint = document.getElementById('stamps-status-hint');
+
+            if (countLabel) countLabel.textContent = `${{stampedCount}} / ${{total}}`;
+            if (pctLabel) pctLabel.textContent = `${{pct}}%`;
+            if (bar) bar.style.width = `${{pct}}%`;
+            if (hint) {{
+                if (stampedCount === 0) hint.textContent = '準備啟程出發 ❄️';
+                else if (stampedCount < 6) hint.textContent = `南九州熱血探索中（已解鎖 ${{stampedCount}} 處）✨`;
+                else if (stampedCount < 12) hint.textContent = `集章進度過半！家族回憶大豐收（${{stampedCount}}/12）🎉`;
+                else hint.textContent = '🎊 12 處名勝全數制霸！家族微電影大圓滿！';
+            }}
+
+            // 更新家族榮譽大師成就榜
+            renderBadges(progress, stampedCount);
+        }}
+
+        function renderBadges(progress, stampedCount) {{
+            const badgeContainer = document.getElementById('badges-grid-container');
+            const countBadge = document.getElementById('badges-unlocked-count');
+            if (!badgeContainer) return;
+            badgeContainer.innerHTML = '';
+
+            let unlockedCount = 0;
+
+            BADGES_DATA.forEach(badge => {{
+                let isUnlocked = false;
+                if (badge.id === 'driver') {{
+                    isUnlocked = !!(progress['aso_volcano']?.stamped || progress['sakurajima_ferry']?.stamped);
+                }} else if (badge.id === 'onsen') {{
+                    isUnlocked = !!(progress['kurokawa_onsen']?.stamped && progress['ibusuki_sand_bath']?.stamped);
+                }} else if (badge.id === 'shrine') {{
+                    isUnlocked = !!(progress['takachiho_gorge']?.stamped || progress['kirishima_shrine']?.stamped);
+                }} else if (badge.id === 'luck') {{
+                    isUnlocked = !!(progress['udo_shrine']?.stamped);
+                }} else if (badge.id === 'food') {{
+                    isUnlocked = !!(progress['kumamoto_castle']?.stamped || progress['chiran_samurai']?.stamped);
+                }} else if (badge.id === 'movie') {{
+                    isUnlocked = stampedCount === STAMPS_DATA.length;
+                }}
+
+                if (isUnlocked) unlockedCount++;
+
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-2xl border transition-all ${{isUnlocked ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300 shadow-sm ring-2 ring-amber-200' : 'bg-stone-50/60 border-stone-200 text-stone-400'}}`;
+
+                div.innerHTML = `
+                    <div class="flex items-center justify-between pb-1.5 border-b ${{isUnlocked ? 'border-amber-200' : 'border-stone-200'}}">
+                        <span class="font-black text-xs ${{isUnlocked ? 'text-amber-900' : 'text-stone-500'}} flex items-center gap-1.5">
+                            <span class="text-base">${{badge.icon}}</span>
+                            <span>${{badge.name}}</span>
+                        </span>
+                        ${{isUnlocked ? `
+                            <span class="cute-pill bg-amber-200 text-amber-900 font-black text-[10px] shadow-2xs">✨ 榮譽解鎖</span>
+                        ` : `
+                            <span class="text-[10px] text-stone-400 font-bold">進行中</span>
+                        `}}
+                    </div>
+                    <p class="text-[11px] ${{isUnlocked ? 'text-stone-700 font-bold' : 'text-stone-400'}} mt-1.5 leading-snug">
+                        ${{badge.desc}}
+                    </p>
+                    <div class="text-[10px] ${{isUnlocked ? 'text-amber-700 font-bold' : 'text-stone-400'}} mt-1">
+                        🎯 條件：${{badge.req}}
+                    </div>
+                `;
+                badgeContainer.appendChild(div);
+            }});
+
+            if (countBadge) countBadge.textContent = `已解鎖 ${{unlockedCount}} / ${{BADGES_DATA.length}}`;
+        }}
+
+        function toggleStamp(stampId) {{
+            playStampSound();
+            const progress = getStampsProgress();
+            if (!progress[stampId]) progress[stampId] = {{}};
+
+            if (progress[stampId].stamped) {{
+                progress[stampId].stamped = false;
+                showToast('已取消蓋印標記。⚪');
+            }} else {{
+                progress[stampId].stamped = true;
+                const now = new Date();
+                progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+                const item = STAMPS_DATA.find(s => s.id === stampId);
+                showToast(`已成功蓋上【${{item ? item.stamp_title : '景點'}}】日式紀念戳章！🏮`);
+            }}
+
+            saveStampsProgress(progress);
+            renderStamps();
+
+            // 如果全滿且剛蓋下最後一枚，慶祝聖誕動效
+            const allDone = STAMPS_DATA.every(s => progress[s.id] && progress[s.id].stamped);
+            if (allDone) fireChristmasCheer();
+        }}
+
+        function unlockAllStamps() {{
+            playStampSound();
+            const progress = getStampsProgress();
+            const now = new Date();
+            const timeStr = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+            STAMPS_DATA.forEach(item => {{
+                if (!progress[item.id]) progress[item.id] = {{}};
+                progress[item.id].stamped = true;
+                progress[item.id].time = timeStr;
+            }});
+            saveStampsProgress(progress);
+            renderStamps();
+            fireChristmasCheer();
+            showToast('已為您一鍵點亮全部 12 枚南九州日式紀念戳章！🎉');
+        }}
+
+        function resetAllStamps() {{
+            localStorage.removeItem('kyushu_trip_stamps_v1');
+            renderStamps();
+            showToast('已重設集章進度，歡迎隨時重新蓋印！⚪');
+        }}
+
+        function handleStampPhotoUpload(stampId, event) {{
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {{
+                const img = new Image();
+                img.onload = function() {{
+                    // 使用 Canvas 壓縮至最大邊 480px，確保 localStorage 容量安全
+                    const maxSide = 480;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > h && w > maxSide) {{
+                        h = Math.round((h * maxSide) / w);
+                        w = maxSide;
+                    }} else if (h > maxSide) {{
+                        w = Math.round((w * maxSide) / h);
+                        h = maxSide;
+                    }}
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const progress = getStampsProgress();
+                    if (!progress[stampId]) progress[stampId] = {{}};
+                    progress[stampId].photo = compressedDataUrl;
+                    if (!progress[stampId].stamped) {{
+                        progress[stampId].stamped = true;
+                        const now = new Date();
+                        progress[stampId].time = `${{now.getFullYear()}}/${{now.getMonth() + 1}}/${{now.getDate()}} ${{String(now.getHours()).padStart(2, '0')}}:${{String(now.getMinutes()).padStart(2, '0')}}`;
+                    }}
+                    saveStampsProgress(progress);
+                    renderStamps();
+                    showToast('已成功為此景點存入家族回憶相片！📷✨');
+                }};
+                img.src = e.target.result;
+            }};
+            reader.readAsDataURL(file);
+        }}
+
+        function removeStampPhoto(stampId, event) {{
+            event.stopPropagation();
+            const progress = getStampsProgress();
+            if (progress[stampId]) {{
+                delete progress[stampId].photo;
+                saveStampsProgress(progress);
+                renderStamps();
+                showToast('已移除此站的相片！');
+            }}
+        }}
+
+        function showStampPhotoPreview(stampId) {{
+            const progress = getStampsProgress();
+            const photoUrl = progress[stampId]?.photo;
+            if (!photoUrl) return;
+
+            let modal = document.getElementById('stamp-photo-modal');
+            if (!modal) {{
+                modal = document.createElement('div');
+                modal.id = 'stamp-photo-modal';
+                modal.className = 'fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 backdrop-blur-xs';
+                modal.onclick = function() {{ modal.classList.add('hidden'); }};
+                modal.innerHTML = `
+                    <div class="bg-white rounded-3xl p-4 max-w-md w-full space-y-3 text-center shadow-2xl border-4 border-amber-300" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-between pb-2 border-b">
+                            <span class="font-black text-sm text-stone-800" id="stamp-modal-title">景點回憶拍立得</span>
+                            <button onclick="document.getElementById('stamp-photo-modal').classList.add('hidden')" class="text-stone-400 hover:text-stone-600 text-lg font-bold">✕</button>
+                        </div>
+                        <img id="stamp-modal-img" src="" class="w-full max-h-[70vh] object-contain rounded-2xl border border-stone-200">
+                        <p class="text-xs text-stone-500 font-medium" id="stamp-modal-caption"></p>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }}
+
+            const item = STAMPS_DATA.find(s => s.id === stampId);
+            document.getElementById('stamp-modal-title').textContent = item ? `📸 ${{item.name}} 回憶` : '景點回憶';
+            document.getElementById('stamp-modal-img').src = photoUrl;
+            document.getElementById('stamp-modal-caption').textContent = item ? `📍 ${{item.area}} ｜ ${{item.stamp_title}}` : '';
+            modal.classList.remove('hidden');
         }}
 
         function copyToClipboard(text, msg) {{
