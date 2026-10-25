@@ -122,6 +122,8 @@
                     currentShowcaseRoot.userData.baseY = 0;
                     currentShowcaseRoot.userData.isSpotBusy = (charPoseIdx === 0);
                     currentShowcaseRoot.userData.isUfoChasing = (currentCode === 'C1' && charPoseIdx === 2);
+                    currentShowcaseRoot.userData.isBroomChasing = (currentCode === 'C3' && charPoseIdx === 2);
+                    currentShowcaseRoot.userData.isDragonChasing = (currentCode === 'C4' && charPoseIdx === 2);
                     window.KyushuIsland.Characters.animateCharacterPose(currentShowcaseRoot, elapsed, delta, charPoseIdx === 1);
                 } else if (currentCategory === 'landmark') {
                     window.KyushuIsland.Landmarks.updateLandmarks([currentShowcaseRoot], elapsed);
@@ -212,6 +214,10 @@
         const poseBtn = document.getElementById('btn-toggle-pose');
 
         if (category === 'character') {
+            charPoseIdx = 0;
+            const txt = document.getElementById('pose-mode-text');
+            if (txt) txt.textContent = '目前：景點專屬動作 (點擊切換)';
+
             const spec = window.KyushuIsland.Characters.CHARACTER_SPECS.find(c => c.code === code);
             currentShowcaseRoot = window.KyushuIsland.Characters.createCharacter(code);
             currentShowcaseRoot.scale.setScalar(0.95);
@@ -267,13 +273,21 @@
     }
 
     function toggleCharPoseMode() {
-        const maxModes = (currentCode === 'C1') ? 3 : 2;
+        const maxModes = (currentCode === 'C1' || currentCode === 'C3' || currentCode === 'C4') ? 3 : 2;
         charPoseIdx = (charPoseIdx + 1) % maxModes;
         const txt = document.getElementById('pose-mode-text');
         if (txt) {
             if (charPoseIdx === 0) txt.textContent = '目前：景點專屬動作 (點擊切換)';
-            else if (charPoseIdx === 1) txt.textContent = (currentCode === 'C1') ? '目前：走路動作 (再點看飛碟🛸)' : '目前：走路擺臂動作 (點擊切換)';
-            else txt.textContent = '目前：🛸 開飛碟追車模式！';
+            else if (charPoseIdx === 1) {
+                if (currentCode === 'C1') txt.textContent = '目前：走路動作 (再點看飛碟🛸)';
+                else if (currentCode === 'C3') txt.textContent = '目前：走路動作 (再點看魔法掃帚🧹)';
+                else if (currentCode === 'C4') txt.textContent = '目前：走路動作 (再點看祥龍騰雲🐉)';
+                else txt.textContent = '目前：走路擺臂動作 (點擊切換)';
+            } else {
+                if (currentCode === 'C1') txt.textContent = '目前：🛸 阿純開飛碟追車模式！';
+                else if (currentCode === 'C3') txt.textContent = '目前：🧹 阿姨騎魔法掃帚追車模式！';
+                else if (currentCode === 'C4') txt.textContent = '目前：🐉 阿嚕騎祥龍騰雲追車模式！';
+            }
         }
     }
 

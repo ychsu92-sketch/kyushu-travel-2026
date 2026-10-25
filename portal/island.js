@@ -1743,99 +1743,99 @@
                 [
                         {
                                 "role": "alu",
-                                "text": "停車啊姨丈！本熊還在思考我思故我在，車門怎麼關上開走了！🐻💦"
+                                "text": "停車啊姨丈！本熊召喚了九州護體神龍，騎在龍頭上騰雲駕霧追車啦！🐉💨"
                         },
                         {
                                 "role": "achun",
-                                "text": "阿嚕快跑！車上的牛乳霜淇淋跟可樂餅再十秒就要被我消滅囉！🍦😋"
+                                "text": "阿嚕快看！車上的牛乳霜淇淋跟可樂餅再十秒就要被我消滅囉！🍦😋"
                         },
                         {
                                 "role": "alu",
-                                "text": "不准動本熊的霜淇淋！啟動棕熊四驅超頻狂奔模式！！🐾💨"
+                                "text": "不准動本熊的霜淇淋！神龍擺尾，全速超頻衝刺！！🐉⚡"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "別丟下本熊！跑出畫面邊界會被瀏覽器當垃圾記憶體回收嗎？！🤖😭"
+                                "text": "別丟下本熊！神龍問在空中超速會被扣除旅行預算嗎？！🐉🤖"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……不會被回收。我有從後照鏡盯著你，跑姿很標準。🕶️🚗"
+                                "text": "……不會扣預算。我有從後照鏡盯著你們，龍飛得挺平穩。🕶️🚗"
                         },
                         {
                                 "role": "ayee",
-                                "text": "阿嚕別慌！阿姨把炸魚餅往車窗外遞，聞著香味跑更有力氣喔！🍢💕"
+                                "text": "阿嚕別慌！阿姨把炸魚餅往車窗外遞，神龍聞著香味飛得更快喔！🍢💕"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "呼嚕呼嚕…本熊的小短腿每秒踏頻突破五百下！快趕上車尾燈了！🐾⚡"
+                                "text": "呼嚕！龍角太滑了！本熊抓著龍鬚像在公路衝浪！快打雙黃燈靠邊！🐉🐻"
                         },
                         {
                                 "role": "achun",
-                                "text": "阿嚕步頻不錯！膝關節屈曲角度很標準，物治師打滿分！👏😆"
+                                "text": "阿嚕騎龍的坐姿太帥了！核心肌群很穩定，物治師打滿分！👏😆"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……（踩煞車開滑門）上車吧，有氧運動量已經超標了。🕶️🚪"
+                                "text": "……（踩煞車開滑門）靠邊停了，神龍請緩降，讓熊熊進車。🕶️🚪"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "報告！奔跑中相機晃動劇烈，本熊拍下了三十張抽象派公路大作！📷🌀"
+                                "text": "報告！高空視野太壯觀，本熊在龍背上拍下了三十張九州連峰全景大作！📷🐉"
                         },
                         {
                                 "role": "ayee",
-                                "text": "阿嚕慢點跑！阿姨手上拿著熱包子在車門口接你啦！🥟🥰"
+                                "text": "阿嚕好厲害！阿姨手上拿著熱騰騰包子在車門口接你啦！🥟🥰"
                         },
                         {
                                 "role": "alu",
-                                "text": "看見包子的白煙了！最後衝刺！熊熊飛撲登車！！🐾💨"
+                                "text": "看見包子的白煙了！神龍俯衝！熊熊飛撲登車！！🐾💨"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "難道這是系統對本熊自由意志的極限壓力測試嗎？！🤖💦"
+                                "text": "報告姨丈！龍說前面路段有測速照相，它已經自動降至限速 60 了！🐉📸"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……不是測試。是剛才看你拍風景拍得太入迷，沒叫你。🕶️📸"
+                                "text": "……守法神龍。剛才看你拍風景拍得太入迷，沒叫你。進來吧。🕶️🚗"
                         },
                         {
                                 "role": "alu",
-                                "text": "原來只是忘了叫本熊！快停車讓哲學熊上座啦！🐻😭"
+                                "text": "原來只是忘了叫本熊！神龍任務完成，哲學熊回座！🐻🙌"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "本熊的散熱風扇全力運轉中！核心溫度逼近 85 度！🔥🤖"
+                                "text": "神龍的祥雲加速器全力運轉中！排氣管噴出的是草莓味水氣！🍓🐉"
                         },
                         {
                                 "role": "achun",
-                                "text": "上車立刻給你喝冰麥茶！再幫你的熊大腿做乳酸排除按摩！🍵💆‍♀️"
+                                "text": "上車立刻給你喝冰麥茶！再幫你的熊大腿做放鬆按摩！🍵💆‍♀️"
                         },
                         {
                                 "role": "alu",
-                                "text": "為了阿純的專業按摩，本熊就算燒乾電容也要追上！🐾⚡"
+                                "text": "為了阿純的專業按摩，本熊就算抓斷龍鬚也要追上！🐾⚡"
                         }
                 ],
                 [
                         {
                                 "role": "alu",
-                                "text": "姨丈！後車牌上的螺絲鬆了一公厘！本熊追車時肉眼看見了！🔧👀"
+                                "text": "等等我！神龍聞到阿姨手上的黑豚飯糰，正在車頂高空流口水！🐉🍙"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……好眼力。剛好靠邊鎖緊螺絲，順便讓你上車。🕶️🚗"
+                                "text": "……車頂承重有限，別讓神龍降落在車頂。靠邊讓你上車。🕶️🚗"
                         },
                         {
                                 "role": "ayee",
-                                "text": "阿嚕立大功啦！快上車，阿姨把整個點心籃都擺在你面前！🧺🎉"
+                                "text": "阿嚕快下來！阿姨特製特大號黑豚飯糰就是留給你的！🍙🎉"
                         }
                 ],
                 [
@@ -1845,7 +1845,7 @@
                         },
                         {
                                 "role": "achun",
-                                "text": "辛苦啦阿嚕！來，這半塊草莓鬆餅獎勵你的超頻狂奔！🍓🍰"
+                                "text": "辛苦啦阿嚕！來，這半塊草莓鬆餅獎勵你的神龍追車！🍓🍰"
                         },
                         {
                                 "role": "yijhang",
@@ -1857,25 +1857,25 @@
                 [
                         {
                                 "role": "ayee",
-                                "text": "哎呀快停車！所有烤糰子跟便當全在我手上，沒我你們會餓肚子！🛍️🏃‍♀️"
+                                "text": "哎呀快停車！阿姨騎著魔法掃帚在天上看你們呢！等等阿姨呀！🧹✨"
                         },
                         {
                                 "role": "achun",
-                                "text": "什麼？！行動糧倉阿姨沒上車？！姨丈快停車，沒點心我打不出病歷！💻😭"
+                                "text": "天啊阿姨騎魔法掃帚追車！姨丈快停車，行動糧倉在天上飛！🧹💻😭"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……（立刻打雙黃燈減速）別急，已經停下來等妳了。🕶️🚗"
+                                "text": "……（立刻打雙黃燈減速）看到了。掃帚飛得很穩，已經在等妳了。🕶️🚗"
                         }
                 ],
                 [
                         {
                                 "role": "ayee",
-                                "text": "等等我呀！老闆娘剛又塞給我四盒燙口黑糖饅頭，快讓我上車餵你們！🥟💨"
+                                "text": "等等我呀！魔法掃帚尾巴掛著四盒燙口黑糖饅頭，快讓我進車餵你們！🥟🧹"
                         },
                         {
                                 "role": "achun",
-                                "text": "我已經在電動滑門邊張開嘴巴待命了！阿姨快上車～！😋🙌"
+                                "text": "我已經在電動滑門邊張開嘴巴待命了！阿姨快降落～！😋🙌"
                         },
                         {
                                 "role": "yijhang",
@@ -1885,53 +1885,53 @@
                 [
                         {
                                 "role": "ayee",
-                                "text": "老公等等！阿姨手上拎著兩箱櫻島蜜柑，跑不快啦！🍊🏃‍♀️"
+                                "text": "老公你看！阿姨學魔女琪琪側坐掃帚，姿勢是不是很優雅！🧹🥰"
                         },
                         {
                                 "role": "alu",
-                                "text": "本熊立刻下車支援！熊熊搬運工啟動，幫阿姨搬蜜柑！🐾📦"
+                                "text": "本熊立刻抓相機！阿姨側坐掃帚的唯美大作一定要收進九州寫真集！📷🌸"
                         },
                         {
                                 "role": "ayee",
-                                "text": "阿嚕真乖！上車阿姨先剝三顆最大最甜的給你吃！🍊🥰"
+                                "text": "阿嚕真乖！降落阿姨先剝三顆最大最甜的櫻島蜜柑給你吃！🍊🥰"
                         }
                 ],
                 [
                         {
                                 "role": "ayee",
-                                "text": "哎呀！剛才跟草莓園老闆聊得太投緣，忘了看時間！🍓😅"
+                                "text": "風好大呀！阿姨的大圍巾飄起來了，掃帚請減速讓阿姨回後座！🧹🧣"
                         },
                         {
                                 "role": "achun",
-                                "text": "沒關係阿姨！看到妳手裡那兩大籃紅通通草莓，一切都原諒了！🍓😍"
+                                "text": "沒關係阿姨！看到妳掃帚籃子裡那兩大籃紅通通草莓，一切都原諒了！🍓😍"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……車門一直為妳開著。慢慢走過來，小心台階。🕶️🚗"
+                                "text": "……車門一直為妳開著。慢慢降落，小心台階。🕶️🚗"
                         }
                 ],
                 [
                         {
                                 "role": "ayee",
-                                "text": "大家抓緊胃袋！阿姨剛剛搶到最後三個限定栗子蒙布朗！🌰💨"
+                                "text": "大家抓緊胃袋！阿姨騎掃帚剛剛搶到最後三個限定栗子蒙布朗！🌰🧹"
                         },
                         {
                                 "role": "achun",
-                                "text": "天啊是傳說中的名店蒙布朗！阿姨妳是全九州最強美食獵人！🏆🤤"
+                                "text": "天啊是傳說中的名店蒙布朗！阿姨妳是全九州最強美食魔法師！🏆🤤"
                         },
                         {
                                 "role": "alu",
-                                "text": "本熊在後座舉起『阿姨萬歲』旗幟熱烈迎接！🚩🐻"
+                                "text": "本熊在後座舉起『掃帚魔女阿姨萬歲』旗幟熱烈迎接！🚩🐻"
                         }
                 ],
                 [
                         {
                                 "role": "ayee",
-                                "text": "呼呼…跑了五十公尺，但便當裡的醬汁一滴都沒灑出來喔！🍱✨"
+                                "text": "阿純阿嚕！阿姨在天上看到下一站的草莓園了，掃帚加速衝刺！🧹🍓"
                         },
                         {
                                 "role": "achun",
-                                "text": "阿姨的動態核心平衡太強大了！完全不需要做前庭復健！👏😆"
+                                "text": "阿姨的空中偵察導航太強大了！完全不需要 Google Maps！👏😆"
                         },
                         {
                                 "role": "yijhang",
@@ -1941,11 +1941,11 @@
                 [
                         {
                                 "role": "ayee",
-                                "text": "老公～你看阿姨買了這條溫泉街特製的粗織羊毛圍巾！🧣🏃‍♀️"
+                                "text": "哎唷！掃帚上的金色緞帶打結了，姨丈快打雙黃燈靠邊接阿姨！🧹🎀"
                         },
                         {
                                 "role": "yijhang",
-                                "text": "……顏色很襯妳。天冷快戴上，進車裡暖和一下。🕶️🧣"
+                                "text": "……車已停妥。緞帶我幫妳解開，天冷快進車裡暖和一下。🕶️🧣"
                         },
                         {
                                 "role": "alu",
@@ -1955,7 +1955,7 @@
                 [
                         {
                                 "role": "ayee",
-                                "text": "安全上車啦！第一排到第三排，每個人手裡都要塞滿點心！🍡🙌"
+                                "text": "安全降落啦！掃帚收進後車廂，第一排到第三排每人塞滿點心！🧹🍡🙌"
                         },
                         {
                                 "role": "achun",
@@ -2334,9 +2334,29 @@
         }
         scheduleNextDialogue();
 
-        // 預編譯場景內全部著色器（含地形、光影、角色與煙火粒子池），徹底消除首次互動時的 WebGL 著色器即時編譯頓挫
+        // 預編譯場景內全部著色器（含地形、光影、角色與煙火粒子池、座騎與道具），徹底消除首次互動時的 WebGL 著色器即時編譯頓挫
         if (renderer && scene && camera) {
+            const warmupObjects = [];
+            if (characters) {
+                Object.values(characters).forEach(cg => {
+                    const ud = cg.userData;
+                    if (!ud) return;
+                    ['ufoGroup', 'broomGroup', 'dragonGroup', 'campingDeskGroup', 'picnicMatGroup'].forEach(k => {
+                        if (ud[k] && !ud[k].visible) {
+                            warmupObjects.push(ud[k]);
+                            ud[k].visible = true;
+                        }
+                    });
+                });
+            }
+            for (let i = 0; i < fireworkPool.length; i++) {
+                fireworkPool[i].pSystem.visible = true;
+            }
             renderer.compile(scene, camera);
+            warmupObjects.forEach(obj => { obj.visible = false; });
+            for (let i = 0; i < fireworkPool.length; i++) {
+                fireworkPool[i].pSystem.visible = false;
+            }
         }
 
         // 啟動渲染迴圈
@@ -2380,14 +2400,34 @@
                 boardElapsed = -1;
                 isStoppedAtLandmark = false;
                 driveCooldown = 2.4; // 啟程後維持約 2.4 秒起步巡航，兼顧每站打卡與公路節奏
-                travelMode = 'all_aboard';
-                stragglerRole = null;
-                // 若當前沒有正在播放的發車呼喊，或對話已播完，才接續行車對話
-                if (!activeSpeaker && banterTimers.length === 0) {
-                    const carScript = (Math.random() < 0.70)
-                        ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
-                        : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
-                    if (carScript) triggerCustomBanterScript(carScript, false);
+                // 恢復離開景點準備啟程時的高頻率落單追車狀態機（60% 落單追車、26% 全員坐車、14% 全家散步）：
+                // 阿純開飛碟 (UFO)、阿姨騎魔法掃帚 (Broom)、阿嚕騎東方祥龍 (Dragon)！
+                const roll = Math.random();
+                if (roll < 0.26) {
+                    travelMode = 'all_aboard';
+                    stragglerRole = null;
+                    if (!activeSpeaker && banterTimers.length === 0) {
+                        const carScript = (Math.random() < 0.70)
+                            ? pickRandomNonRepeating(IN_CAR_BANTER_SCRIPTS, recentScriptHistories.inCar, 5)
+                            : pickRandomNonRepeating(FAMILY_BANTER_SCRIPTS, recentScriptHistories.family, 8);
+                        if (carScript) triggerCustomBanterScript(carScript, false);
+                    }
+                } else if (roll < 0.86) {
+                    // 60% 機率由阿純 (飛碟)、阿姨 (掃帚)、阿嚕 (祥龍) 輪替被落下車追車
+                    const candidates = ['achun', 'ayee', 'alu'];
+                    stragglerRole = candidates[Math.floor(Math.random() * candidates.length)];
+                    travelMode = 'straggler_' + stragglerRole;
+                    if (!activeSpeaker && banterTimers.length === 0) {
+                        const s = pickStragglerScript(stragglerRole);
+                        if (s) triggerCustomBanterScript(s, false);
+                    }
+                } else {
+                    travelMode = 'everyone_walk';
+                    stragglerRole = null;
+                    if (!activeSpeaker && banterTimers.length === 0) {
+                        const walkScript = pickWalkTogetherScript();
+                        if (walkScript) triggerCustomBanterScript(walkScript, false);
+                    }
                 }
             }
         } else {
@@ -2408,24 +2448,38 @@
         const vanAngle = Math.atan2(vanTan.x, vanTan.z);
         const getGroundY = terrainState.sampleGroundY || (() => 0.80);
 
+        const asoCrater = routeData._asoCrater || (routeData._asoCrater = routeData.landmarks.find(l => l.id === 'aso_crater'));
+        const daikanbo = routeData._daikanbo || (routeData._daikanbo = routeData.landmarks.find(l => l.id === 'daikanbo'));
+
         // 計算阿蘇火山 (L04) 與大觀峰 (L05) 的山體隆起高度，讓經過或停靠阿蘇火山的角色與車子直接「上山」站在山頭上，絕不被火山擋住！
         function getMountainSummitY(x, z, baseGroundY) {
             let y = baseGroundY;
-            routeData.landmarks.forEach(lm => {
-                if (lm.id === 'aso_crater' || lm.id === 'daikanbo') {
-                    const lx = lm.renderX !== undefined ? lm.renderX : lm.x;
-                    const lz = lm.renderZ !== undefined ? lm.renderZ : lm.z;
-                    const ly = lm.renderY !== undefined ? lm.renderY : baseGroundY;
-                    const sc = lm.scaleVal || 1.25;
-                    const d = Math.hypot(x - lx, z - lz);
-                    const maxR = (lm.id === 'aso_crater') ? 1.85 * sc : 1.20 * sc;
-                    const peakH = (lm.id === 'aso_crater') ? 1.20 * sc : 0.78 * sc;
-                    if (d < maxR) {
-                        const ratio = Math.max(0, 1.0 - (d / maxR) * 0.72);
-                        y = Math.max(y, ly + peakH * ratio);
-                    }
+            if (asoCrater) {
+                const lx = asoCrater.renderX !== undefined ? asoCrater.renderX : asoCrater.x;
+                const lz = asoCrater.renderZ !== undefined ? asoCrater.renderZ : asoCrater.z;
+                const ly = asoCrater.renderY !== undefined ? asoCrater.renderY : baseGroundY;
+                const sc = asoCrater.scaleVal || 1.25;
+                const d = Math.hypot(x - lx, z - lz);
+                const maxR = 1.85 * sc;
+                const peakH = 1.20 * sc;
+                if (d < maxR) {
+                    const ratio = Math.max(0, 1.0 - (d / maxR) * 0.72);
+                    y = Math.max(y, ly + peakH * ratio);
                 }
-            });
+            }
+            if (daikanbo) {
+                const lx = daikanbo.renderX !== undefined ? daikanbo.renderX : daikanbo.x;
+                const lz = daikanbo.renderZ !== undefined ? daikanbo.renderZ : daikanbo.z;
+                const ly = daikanbo.renderY !== undefined ? daikanbo.renderY : baseGroundY;
+                const sc = daikanbo.scaleVal || 1.25;
+                const d = Math.hypot(x - lx, z - lz);
+                const maxR = 1.20 * sc;
+                const peakH = 0.78 * sc;
+                if (d < maxR) {
+                    const ratio = Math.max(0, 1.0 - (d / maxR) * 0.72);
+                    y = Math.max(y, ly + peakH * ratio);
+                }
+            }
             return y;
         }
 
@@ -2565,6 +2619,8 @@
 
             charGroup.userData.isAboard = isAboard;
             charGroup.userData.isUfoChasing = (role === 'achun' && role === stragglerRole && !isStoppedAtLandmark && !isAboard);
+            charGroup.userData.isBroomChasing = (role === 'ayee' && role === stragglerRole && !isStoppedAtLandmark && !isAboard);
+            charGroup.userData.isDragonChasing = (role === 'alu' && role === stragglerRole && !isStoppedAtLandmark && !isAboard);
 
             if (isAboard) {
                 // 1. 真的坐在 Sienta 全景敞篷休旅車上（無天花板遮擋，清晰露出家人招牌打扮）
@@ -2624,18 +2680,18 @@
             const isSummitSpot = isStoppedAtLandmark && currentLandmark && (currentLandmark.id === 'aso_crater' || currentLandmark.id === 'daikanbo');
             let roamWeight = 0;
 
+            // Sienta 左側電動滑門旁集合點 (車身外側 0.82m，沿車身長度均勻間隔 0.48m，完全避免人物與車身及相互穿模)
+            const doorLocalX = -0.82;
+            const doorLocalZ = (idx - 1.5) * 0.48;
+            const doorSideX = vanPos.x + (doorLocalX * cosA + doorLocalZ * sinA);
+            const doorSideZ = vanPos.z + (-doorLocalX * sinA + doorLocalZ * cosA);
+            const doorSideY = van.position.y;
+
             if (isStoppedAtLandmark && currentLandmark) {
                 // 計算停留階段權重：剛停車 1.2 秒內從車旁散開 (0➔1)、停留期間就位做各自動作、開車前最後 1.8 秒走回車旁 (1➔0)
                 const leaveCarFactor = Math.min(1.0, stopElapsed / 1.20);
                 const returnCarFactor = (boardElapsed < 0) ? 1.0 : Math.max(0, 1.0 - boardElapsed / BOARD_WALK);
                 roamWeight = leaveCarFactor * returnCarFactor; // 0 = 在車旁集合，1 = 在景點定位定點
-
-                // Sienta 左側電動滑門旁集合點 (車身外側 0.82m，沿車身長度均勻間隔 0.48m，完全避免人物與車身及相互穿模)
-                const doorLocalX = -0.82;
-                const doorLocalZ = (idx - 1.5) * 0.48;
-                const doorSideX = vanPos.x + (doorLocalX * cosA + doorLocalZ * sinA);
-                const doorSideZ = vanPos.z + (-doorLocalX * sinA + doorLocalZ * cosA);
-                const doorSideY = van.position.y;
 
                 // 剛下車防瞬移安全錨定：若剛下車或 prevX 殘留遠端舊坐標，強制重置起點為車門旁！
                 if (charGroup.userData.wasAboard || charGroup.userData.prevX === undefined || Math.hypot(charGroup.userData.prevX - doorSideX, charGroup.userData.prevZ - doorSideZ) > 3.2) {
@@ -2775,6 +2831,8 @@
                 cz,
                 cRotY: cRotY || 0,
                 customSummitY,
+                doorSideX,
+                doorSideZ,
                 isSpeakingNow,
                 isMovingOutside,
                 isStoppedAtLandmark,
@@ -2889,26 +2947,28 @@
                     }
                 });
             }
+        }
 
-            // 確保避讓後的最終座標依然不越過陸地邊界，消除障礙物與海岸線邊界互推震盪
-            if (isStoppedAtLandmark && mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
-                const isInside = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
-                outsideChars.forEach(c => {
-                    if (c.isSummitSpot) return;
-                    if (!isInside(c.cx, c.cz)) {
-                        let safeT = 0.0;
-                        for (let step = 1; step <= 8; step++) {
-                            const testT = safeT + (1.0 - safeT) * 0.5;
-                            const tx = doorSideX + (c.cx - doorSideX) * testT;
-                            const tz = doorSideZ + (c.cz - doorSideZ) * testT;
-                            if (isInside(tx, tz)) safeT = testT;
-                        }
-                        safeT = Math.max(0.05, safeT - 0.03);
-                        c.cx = doorSideX + (c.cx - doorSideX) * safeT;
-                        c.cz = doorSideZ + (c.cz - doorSideZ) * safeT;
+        // 確保避讓後的最終座標依然不越過陸地邊界，消除障礙物與海岸線邊界互推震盪（在 3 次碰撞迭代後統一解析一次，省下 90% 多邊形計算）
+        if (isStoppedAtLandmark && mainlandCoastPts && window.KyushuIsland.Terrain.isPointInPolygon) {
+            const isInside = (x, z) => window.KyushuIsland.Terrain.isPointInPolygon(x, z, mainlandCoastPts, 1.0, 0.96, -2.40);
+            outsideChars.forEach(c => {
+                if (c.isSummitSpot) return;
+                if (!isInside(c.cx, c.cz)) {
+                    let safeT = 0.0;
+                    const dsX = (c.doorSideX !== undefined) ? c.doorSideX : vanPos.x;
+                    const dsZ = (c.doorSideZ !== undefined) ? c.doorSideZ : vanPos.z;
+                    for (let step = 1; step <= 8; step++) {
+                        const testT = safeT + (1.0 - safeT) * 0.5;
+                        const tx = dsX + (c.cx - dsX) * testT;
+                        const tz = dsZ + (c.cz - dsZ) * testT;
+                        if (isInside(tx, tz)) safeT = testT;
                     }
-                });
-            }
+                    safeT = Math.max(0.05, safeT - 0.03);
+                    c.cx = dsX + (c.cx - dsX) * safeT;
+                    c.cz = dsZ + (c.cz - dsZ) * safeT;
+                }
+            });
         }
 
         // 第三階段：套用最終安全座標、平滑插值濾波、朝向阻尼、物理高度與專屬姿態動畫
@@ -3003,7 +3063,8 @@
                 delta,
                 moving
             );
-            if (c.role === stragglerRole && !c.isStoppedAtLandmark && charGroup.userData.armL) {
+            const isChasingOnMount = (charGroup.userData.isUfoChasing || charGroup.userData.isBroomChasing || charGroup.userData.isDragonChasing);
+            if (c.role === stragglerRole && !c.isStoppedAtLandmark && !isChasingOnMount && charGroup.userData.armL) {
                 charGroup.userData.armL.rotation.x = -2.3 + Math.sin(elapsed * 14.0) * 0.45;
             }
         });
@@ -3464,7 +3525,10 @@
                 }
             } else {
                 if (role === stragglerRole) {
-                    targetText = (role === 'achun') ? '🛸 飛碟追車！' : '🏃 狂奔追車中！';
+                    if (role === 'achun') targetText = '🛸 飛碟追車！';
+                    else if (role === 'ayee') targetText = '🧹 魔法掃帚飛行！';
+                    else if (role === 'alu') targetText = '🐉 祥龍騰雲追車！';
+                    else targetText = '🏃 狂奔追車中！';
                 } else if (cg && cg.userData && cg.userData.isAboard) {
                     const list = ROLE_DRIVE_STATUSES[role] || [];
                     const dIdx = Math.floor(elapsed * 0.22) % (list.length || 1);
@@ -3474,7 +3538,10 @@
                 }
             }
 
-            if (av.avatarBtn) av.avatarBtn.classList.toggle('speaking', isSpeaking);
+            if (av.avatarBtn && av._wasSpeaking !== isSpeaking) {
+                av._wasSpeaking = isSpeaking;
+                av.avatarBtn.classList.toggle('speaking', isSpeaking);
+            }
             if (av.noteTextEl.textContent !== targetText) {
                 av.noteTextEl.textContent = targetText;
             }
@@ -3632,7 +3699,10 @@
                 if (cg.userData.isAboard) {
                     targetMode = '🚗';
                 } else if (!isStoppedAtLandmark && role === stragglerRole) {
-                    targetMode = (role === 'achun') ? '🛸💨' : '🏃💨';
+                    if (role === 'achun') targetMode = '🛸💨';
+                    else if (role === 'ayee') targetMode = '🧹💨';
+                    else if (role === 'alu') targetMode = '🐉💨';
+                    else targetMode = '🏃💨';
                 }
                 if (modeSpan.textContent !== targetMode) {
                     modeSpan.textContent = targetMode;
@@ -3656,15 +3726,23 @@
             const x = (_reusableMarkerPos.x * 0.5 + 0.5) * w + off.dx;
             const y = (-(_reusableMarkerPos.y * 0.5) + 0.5) * h + off.dy;
 
-            const clampedX = Math.max(48, Math.min(w - 48, x));
-            const clampedY = Math.max(44, Math.min(h - 16, y));
+            const clampedX = Math.round(Math.max(48, Math.min(w - 48, x)));
+            const clampedY = Math.round(Math.max(44, Math.min(h - 16, y)));
+
+            if (el._lastX !== clampedX || el._lastY !== clampedY) {
+                el._lastX = clampedX;
+                el._lastY = clampedY;
+                el.style.left = `${clampedX}px`;
+                el.style.top = `${clampedY}px`;
+            }
 
             const isLocked = (lockedRole === role);
-            el.classList.toggle('locked', isLocked);
-            el.style.left = `${clampedX}px`;
-            el.style.top = `${clampedY}px`;
-            el.style.zIndex = isLocked ? '28' : '22';
-            el.style.transform = isLocked ? 'translate(-50%, -100%) scale(1.14)' : 'translate(-50%, -100%) scale(1)';
+            if (el._wasLocked !== isLocked) {
+                el._wasLocked = isLocked;
+                el.classList.toggle('locked', isLocked);
+                el.style.zIndex = isLocked ? '28' : '22';
+                el.style.transform = isLocked ? 'translate(-50%, -100%) scale(1.14)' : 'translate(-50%, -100%) scale(1)';
+            }
         }
     }
 

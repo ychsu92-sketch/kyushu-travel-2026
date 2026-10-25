@@ -787,11 +787,73 @@
         picnicMatGroup.visible = false;
         root.add(picnicMatGroup);
 
+        // 阿姨落單追車專屬座騎：魔法飛天掃帚 (Magic Flying Broom，預設隱藏，被落下車時召喚側坐飛行追車！)
+        const broomGroup = new THREE.Group();
+        broomGroup.position.set(0, 0.22, 0.04);
+
+        const broomWoodMat   = new THREE.MeshLambertMaterial({ color: 0x78350f }); // 溫潤栗木掃帚柄
+        const broomStrawMat  = new THREE.MeshLambertMaterial({ color: 0xfbbf24, flatShading: true }); // 金黃稻草帚毛
+        const broomBandMat   = new THREE.MeshLambertMaterial({ color: 0x92400e }); // 紮繩深棕束環
+        const broomRibbonMat = new THREE.MeshLambertMaterial({ color: 0xef4444 }); // 魔女大紅蝴蝶結與緞帶
+        const broomStarMat   = new THREE.MeshBasicMaterial({ color: 0xfde047 }); // 尾端魔法流星墜飾
+        const orangeMat      = new THREE.MeshLambertMaterial({ color: 0xf97316 }); // 九州蜜柑
+
+        // 1. 溫潤長木柄（橫向貫穿角色胯下，前長後短）
+        const broomHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.024, 1.25, 8), broomWoodMat);
+        broomHandle.rotation.x = Math.PI / 2; // 沿前後 Z 軸延伸
+        broomHandle.position.set(0, 0, 0.08);
+
+        // 2. 帚頭束繩環
+        const broomBand = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.018, 8, 12), broomBandMat);
+        broomBand.position.set(0, 0, -0.40);
+
+        // 3. 金黃蓬鬆稻草帚頭主錐體
+        const broomHead = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.38, 10), broomStrawMat);
+        broomHead.rotation.x = -Math.PI / 2; // 帚毛朝後開展
+        broomHead.position.set(0, 0, -0.58);
+
+        // 4. 外層層次散開草絲
+        const broomHeadOuter = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.34, 8), broomStrawMat);
+        broomHeadOuter.rotation.x = -Math.PI / 2;
+        broomHeadOuter.position.set(0, 0, -0.55);
+
+        // 5. 掃帚束口紅色蝴蝶結與飄逸緞帶
+        const broomBow = new THREE.Mesh(new THREE.OctahedronGeometry(0.048, 0), broomRibbonMat);
+        broomBow.position.set(0, 0.06, -0.40);
+        const ribbonL = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.14, 0.008), broomRibbonMat);
+        ribbonL.position.set(-0.03, -0.04, -0.40);
+        ribbonL.rotation.z = 0.35;
+        const ribbonR = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.14, 0.008), broomRibbonMat);
+        ribbonR.position.set(0.03, -0.04, -0.40);
+        ribbonR.rotation.z = -0.35;
+
+        // 6. 前端掛著阿姨最愛的點心小竹籃與九州蜜柑（經典餵食屬性隨身攜帶！）
+        const miniBasket = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.055, 8), broomBandMat);
+        miniBasket.position.set(-0.05, -0.08, 0.52);
+        const orange1 = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 8), orangeMat);
+        orange1.position.set(-0.04, -0.05, 0.51);
+        const orange2 = new THREE.Mesh(new THREE.SphereGeometry(0.026, 8, 8), orangeMat);
+        orange2.position.set(-0.06, -0.05, 0.53);
+
+        // 7. 尾端旋轉魔法流星 (Broom Sparkle)
+        const broomSparkle = new THREE.Mesh(new THREE.OctahedronGeometry(0.055, 0), broomStarMat);
+        broomSparkle.position.set(0, 0.02, -0.78);
+
+        broomGroup.add(
+            broomHandle, broomBand, broomHead, broomHeadOuter,
+            broomBow, ribbonL, ribbonR,
+            miniBasket, orange1, orange2, broomSparkle
+        );
+        broomGroup.visible = false;
+        root.add(broomGroup);
+
         root.add(armL, armR);
         root.userData = {
             role: 'ayee',
             legL, legR, armL, armR, headGroup, torso,
             picnicMatGroup,
+            broomGroup,
+            broomSparkle,
             matScale: 0,
             eyes: [eyeL, eyeR],
             heart,
@@ -990,6 +1052,134 @@
         cameraGroup.position.set(-0.10, -0.12, 0.17);
         armR.add(cameraGroup);
 
+        // 阿嚕落單追車專屬座騎：東方祥龍 (Lucky Green Dragon，預設隱藏，被落下車時召喚威風神龍騰雲追車！)
+        const dragonGroup = new THREE.Group();
+        dragonGroup.position.set(0, 0.16, 0.10);
+
+        const jadeMat    = new THREE.MeshLambertMaterial({ color: 0x10b981, flatShading: true }); // 碧玉青翠龍身
+        const bellyMat   = new THREE.MeshLambertMaterial({ color: 0xfef08a }); // 鵝黃龍腹
+        const hornMat    = new THREE.MeshLambertMaterial({ color: 0xf59e0b }); // 金黃祥龍鹿角
+        const whiskerMat = new THREE.MeshBasicMaterial({ color: 0xfde047 }); // 金黃飄逸龍鬚
+        const flameMat   = new THREE.MeshLambertMaterial({ color: 0xef4444, flatShading: true }); // 赤紅龍脊鰭與尾焰
+        const cloudMat   = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.65 }); // 祥雲光環
+
+        // 1. 龍頭部 (Dragon Head Group)
+        const dragonHead = new THREE.Group();
+        dragonHead.position.set(0, 0.16, 0.42);
+
+        // 龍面顎部與凸出龍嘴 (寬 0.20, 高 0.14, 深 0.26)
+        const dragonSnout = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.14, 0.26), jadeMat);
+        dragonSnout.position.set(0, 0, 0.12);
+        const dragonJaw = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.22), bellyMat);
+        dragonJaw.position.set(0, -0.09, 0.11);
+        const dragonForehead = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.18), jadeMat);
+        dragonForehead.position.set(0, 0.08, -0.02);
+
+        // 龍角 (一對分岔鹿角)
+        const hornMainL = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.025, 0.22, 6), hornMat);
+        hornMainL.position.set(-0.09, 0.22, -0.02);
+        hornMainL.rotation.set(-0.35, 0, -0.40);
+        const hornSubL = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.11, 6), hornMat);
+        hornSubL.position.set(-0.13, 0.24, -0.04);
+        hornSubL.rotation.set(-0.55, 0, -0.70);
+
+        const hornMainR = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.025, 0.22, 6), hornMat);
+        hornMainR.position.set(0.09, 0.22, -0.02);
+        hornMainR.rotation.set(-0.35, 0, 0.40);
+        const hornSubR = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.11, 6), hornMat);
+        hornSubR.position.set(0.13, 0.24, -0.04);
+        hornSubR.rotation.set(-0.55, 0, 0.70);
+
+        // 龍眼 (威嚴中帶點可愛的金色大眼)
+        const dragonEyeL = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), hornMat);
+        dragonEyeL.position.set(-0.105, 0.07, 0.06);
+        const dragonPupilL = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), new THREE.MeshBasicMaterial({ color: 0x0f172a }));
+        dragonPupilL.position.set(-0.115, 0.07, 0.075);
+
+        const dragonEyeR = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), hornMat);
+        dragonEyeR.position.set(0.105, 0.07, 0.06);
+        const dragonPupilR = dragonPupilL.clone();
+        dragonPupilR.position.set(0.115, 0.07, 0.075);
+
+        // 龍鬚 (左右兩根隨風飄動的金黃長鬚)
+        const dragonWhiskerL = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.014, 0.32, 6), whiskerMat);
+        dragonWhiskerL.position.set(-0.12, -0.01, 0.22);
+        dragonWhiskerL.rotation.set(0.2, 0.4, -0.6);
+
+        const dragonWhiskerR = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.014, 0.32, 6), whiskerMat);
+        dragonWhiskerR.position.set(0.12, -0.01, 0.22);
+        dragonWhiskerR.rotation.set(0.2, -0.4, 0.6);
+
+        // 白鬍鬚 (下巴祥瑞白髯)
+        const beard = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.12, 6), new THREE.MeshLambertMaterial({ color: 0xf8fafc }));
+        beard.position.set(0, -0.16, 0.19);
+        beard.rotation.x = -0.3;
+
+        dragonHead.add(
+            dragonSnout, dragonJaw, dragonForehead,
+            hornMainL, hornSubL, hornMainR, hornSubR,
+            dragonEyeL, dragonPupilL, dragonEyeR, dragonPupilR,
+            dragonWhiskerL, dragonWhiskerR, beard
+        );
+
+        // 2. 龍身軀節段 (Serpentine Body Segments - 騎座在阿嚕胯下延伸至車後)
+        const bodyGroup = new THREE.Group();
+        // 鞍座段 (阿嚕正下方)
+        const saddle = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.20, 0.38, 10), jadeMat);
+        saddle.rotation.x = Math.PI / 2;
+        saddle.position.set(0, -0.02, 0.12);
+        const saddleBelly = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.38, 8), bellyMat);
+        saddleBelly.rotation.x = Math.PI / 2;
+        saddleBelly.position.set(0, -0.10, 0.12);
+
+        // 龍脊紅鰭
+        const dorsalRidge = new THREE.Group();
+        for (let ri = 0; ri < 4; ri++) {
+            const fin = new THREE.Mesh(new THREE.ConeGeometry(0.038, 0.09, 4), flameMat);
+            fin.position.set(0, 0.12, 0.26 - ri * 0.14);
+            dorsalRidge.add(fin);
+        }
+        bodyGroup.add(saddle, saddleBelly, dorsalRidge);
+
+        // 3. 飄逸龍尾 (Dragon Tail)
+        const dragonTail = new THREE.Group();
+        dragonTail.position.set(0, 0.02, -0.14);
+        const tailSeg1 = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.10, 0.32, 8), jadeMat);
+        tailSeg1.rotation.x = Math.PI / 2 - 0.2;
+        tailSeg1.position.set(0, 0.06, -0.14);
+
+        const tailSeg2 = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.04, 0.28, 8), jadeMat);
+        tailSeg2.rotation.x = Math.PI / 2 - 0.45;
+        tailSeg2.position.set(0, 0.18, -0.36);
+
+        // 尾端赤金火焰飾毛
+        const tailTuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.22, 6), flameMat);
+        tailTuft.rotation.x = -Math.PI / 2 + 0.55;
+        tailTuft.position.set(0, 0.28, -0.52);
+
+        dragonTail.add(tailSeg1, tailSeg2, tailTuft);
+
+        // 4. 祥雲底座 (Swirling Auspicious Clouds)
+        const dragonClouds = new THREE.Group();
+        const cloudPositions = [
+            [-0.24, -0.18, 0.25, 0.14],
+            [0.24, -0.18, 0.25, 0.14],
+            [0, -0.20, -0.18, 0.18],
+            [-0.18, -0.14, -0.05, 0.12],
+            [0.18, -0.14, -0.05, 0.12]
+        ];
+        cloudPositions.forEach(cp => {
+            const cMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(cp[3], 0), cloudMat);
+            cMesh.position.set(cp[0], cp[1], cp[2]);
+            cMesh.castShadow = false;
+            cMesh.receiveShadow = false;
+            dragonClouds.add(cMesh);
+        });
+
+        dragonGroup.add(dragonHead, bodyGroup, dragonTail, dragonClouds);
+        dragonGroup.visible = false;
+        root.add(dragonGroup);
+
         root.add(armL, armR);
 
         root.userData = {
@@ -997,6 +1187,11 @@
             legL, legR, armL, armR, headGroup, torso,
             eyes: [eyeL, eyeR],
             cameraGroup,
+            dragonGroup,
+            dragonTail,
+            dragonWhiskerL,
+            dragonWhiskerR,
+            dragonClouds,
             flashGlow,
             flashLight,
             flashBurst,
@@ -1088,6 +1283,12 @@
             ud.legL.visible = !ud.isUfoChasing;
             ud.legR.visible = !ud.isUfoChasing;
         }
+        if (ud.broomGroup) {
+            ud.broomGroup.visible = !!ud.isBroomChasing;
+        }
+        if (ud.dragonGroup) {
+            ud.dragonGroup.visible = !!ud.isDragonChasing;
+        }
 
         if (ud.isUfoChasing && ud.ufoGroup) {
             // 阿純被落下車時：召喚並駕駛科幻飛碟 (UFO) 在後面高速懸浮追車！
@@ -1105,6 +1306,67 @@
             ud.armL.rotation.y = 0.25;
             ud.armR.rotation.x = -2.35 + Math.sin(elapsed * 15.0) * 0.42;
             ud.headGroup.rotation.y = Math.sin(elapsed * 6.0) * 0.22;
+            return;
+        }
+
+        if (ud.isBroomChasing && ud.broomGroup) {
+            // 阿姨被落下車時：召喚魔法飛天掃帚 (Magic Broom) 側坐優雅追車！
+            if (ud.picnicMatGroup) {
+                ud.picnicMatGroup.visible = false;
+                ud.picnicMatGroup.scale.setScalar(0.001);
+            }
+            const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
+            charGroup.position.y = baseY + 0.38 + Math.sin(elapsed * 6.0) * 0.08 + jumpOffset;
+            ud.broomGroup.rotation.x = 0.20; // 掃帚前傾破風
+            ud.broomGroup.rotation.z = Math.sin(elapsed * 4.5) * 0.08; // 左右隨風微擺
+            // 雙腿側坐微彎
+            ud.legL.rotation.x = -0.55;
+            ud.legR.rotation.x = -0.55;
+            ud.legL.rotation.z = 0.38;
+            ud.legR.rotation.z = 0.38;
+            // 身體微前傾
+            ud.torso.rotation.x = 0.14;
+            // 右手握住掃帚柄破風、左手高舉伴手禮/糰子揮動喊「等等阿姨～！」
+            ud.armR.rotation.x = -1.25;
+            ud.armR.rotation.y = -0.18;
+            ud.armL.rotation.x = -2.30 + Math.sin(elapsed * 13.0) * 0.42;
+            ud.headGroup.rotation.y = Math.sin(elapsed * 5.0) * 0.18;
+            if (ud.broomSparkle) {
+                ud.broomSparkle.rotation.y = elapsed * 8.0;
+                ud.broomSparkle.scale.setScalar(0.85 + Math.sin(elapsed * 10.0) * 0.25);
+            }
+            return;
+        }
+
+        if (ud.isDragonChasing && ud.dragonGroup) {
+            // 阿嚕被落下車時：召喚東方祥龍 (Lucky Dragon) 騎在龍背上威風騰雲追車！
+            const baseY = (ud.baseY !== undefined) ? ud.baseY : 0.76;
+            charGroup.position.y = baseY + 0.48 + Math.sin(elapsed * 5.5) * 0.12 + jumpOffset;
+            ud.dragonGroup.rotation.x = 0.14 + Math.sin(elapsed * 5.5) * 0.06;
+            ud.dragonGroup.rotation.z = Math.cos(elapsed * 4.0) * 0.08;
+            // 龍鬚、龍尾與腳下祥雲隨風飄拂起伏
+            if (ud.dragonTail) ud.dragonTail.rotation.y = Math.sin(elapsed * 6.5) * 0.35;
+            if (ud.dragonWhiskerL) ud.dragonWhiskerL.rotation.z = 0.2 + Math.sin(elapsed * 8.5) * 0.16;
+            if (ud.dragonWhiskerR) ud.dragonWhiskerR.rotation.z = -0.2 - Math.sin(elapsed * 8.5) * 0.16;
+            if (ud.dragonClouds) {
+                for (let ci = 0; ci < ud.dragonClouds.children.length; ci++) {
+                    const c = ud.dragonClouds.children[ci];
+                    c.rotation.y = elapsed * (1.6 + ci * 0.4);
+                    c.position.y = Math.sin(elapsed * 3.5 + ci) * 0.025;
+                }
+            }
+            // 阿嚕雙腿跨坐在龍頸兩側
+            ud.legL.rotation.x = -0.65;
+            ud.legR.rotation.x = -0.65;
+            ud.legL.rotation.z = -0.42;
+            ud.legR.rotation.z = 0.42;
+            // 身體前傾意氣風發
+            ud.torso.rotation.x = 0.18;
+            // 左手緊握龍角，右手舉起相機或興奮揮掌「神龍超車啦～！」
+            ud.armL.rotation.x = -1.35;
+            ud.armL.rotation.y = 0.22;
+            ud.armR.rotation.x = -2.25 + Math.sin(elapsed * 14.0) * 0.45;
+            ud.headGroup.rotation.y = Math.sin(elapsed * 6.0) * 0.20;
             return;
         }
 
