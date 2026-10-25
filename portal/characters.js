@@ -1308,13 +1308,15 @@
                     ud.headGroup.rotation.y = 0.12 * Math.sin(elapsed * 1.5);
                 }
             } else if (ud.role === 'ayee') {
-                // 阿姨景點動作配件：自動展開紅白格紋野餐墊、草莓水果籃與熱茶，開心熱情投餵
+                // 阿姨在景點中是大範圍散步採買逛街的美食評鑑官，絕不帶著野餐墊移動！
                 if (ud.picnicMatGroup) {
-                    if (ud.isSpotBusy) {
+                    // 漫步走動時 (moving 或非靜止 busy) 嚴格隱藏收納野餐墊
+                    const shouldShowMat = ud.isSpotBusy && !moving;
+                    if (shouldShowMat) {
                         ud.matScale = Math.min(1.0, (ud.matScale || 0) + delta * 4.0);
                         ud.picnicMatGroup.visible = true;
                     } else {
-                        ud.matScale = Math.max(0, (ud.matScale || 0) - delta * 5.0);
+                        ud.matScale = Math.max(0, (ud.matScale || 0) - delta * 6.0);
                         if (ud.matScale <= 0.01) ud.picnicMatGroup.visible = false;
                     }
                     ud.picnicMatGroup.scale.setScalar(ud.matScale);
