@@ -553,7 +553,7 @@
         headGroup.add(head, earL, earInnerL, earR, earInnerR, snout, nose, eyeL, eyeR, blushL, blushR, onsenTowel);
         root.add(headGroup);
 
-        // 熊掌左右手
+        // 熊掌左右手與拍照專用復古相機
         const armL = new THREE.Group();
         armL.position.set(-0.29, 0.62, 0);
         const armMeshL = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.08, 0.26, 8), furMat);
@@ -562,13 +562,32 @@
 
         const armR = new THREE.Group();
         armR.position.set(0.29, 0.62, 0);
-        armR.add(armMeshL.clone());
+        const armMeshR = armMeshL.clone();
+        armR.add(armMeshR);
+
+        // 阿嚕專屬 3D 復古相機 (掛在胸前/右手拿著，景點停車時舉起拍照！)
+        const cameraGroup = new THREE.Group();
+        const camBody = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.09), new THREE.MeshLambertMaterial({ color: 0x334155 }));
+        const camGrip = new THREE.Mesh(new THREE.BoxGeometry(0.182, 0.075, 0.092), new THREE.MeshLambertMaterial({ color: 0xb45309 }));
+        const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.052, 0.065, 10), new THREE.MeshLambertMaterial({ color: 0x0284c7 }));
+        lens.rotation.x = Math.PI / 2;
+        lens.position.set(0.02, 0, 0.055);
+        const flash = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.032, 0.025), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+        flash.position.set(-0.055, 0.035, 0.05);
+        const flashGlow = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
+        flashGlow.position.set(-0.055, 0.035, 0.07);
+        cameraGroup.add(camBody, camGrip, lens, flash, flashGlow);
+        cameraGroup.position.set(-0.12, -0.14, 0.14);
+        armR.add(cameraGroup);
+
         root.add(armL, armR);
 
         root.userData = {
             role: 'alu',
             legL, legR, armL, armR, headGroup, torso,
             eyes: [eyeL, eyeR],
+            cameraGroup,
+            flashGlow,
             jumping: 0,
             actionPhase: Math.random() * 10
         };
@@ -792,8 +811,19 @@
             }
 
             if (ud.role === 'achun') {
-                // 阿純：交替表現「拿筆電找咖啡廳狂打物理治療紀錄＋喝拿鐵」與「閉眼歪頭打瞌睡點頭」
-                if (activeQuirk === 3) {
+                // 阿純：景點停車時直接席地而坐，膝上打開銀色筆電狂敲物理治療紀錄，偶爾喝拿鐵！
+                if (ud.isSpotBusy) {
+                    ud.legL.rotation.x = -Math.PI * 0.42;
+                    ud.legR.rotation.x = -Math.PI * 0.42;
+                    charGroup.position.y = baseY - 0.16; // 坐下高度
+                    // 雙手在膝上筆電狂敲字
+                    ud.armL.rotation.x = -1.15 + Math.sin(elapsed * 15.0) * 0.08;
+                    ud.armL.rotation.y = 0.22;
+                    ud.armR.rotation.x = -1.15 + Math.cos(elapsed * 15.0) * 0.08;
+                    ud.armR.rotation.y = -0.22;
+                    ud.headGroup.rotation.x = 0.28 + Math.sin(elapsed * 2.8) * 0.06;
+                    ud.headGroup.rotation.y = Math.cos(elapsed * 1.8) * 0.12;
+                } else if (activeQuirk === 3) {
                     // 香甜站著打瞌睡（閉眼 + 頭一點一點度估）
                     ud.eyes.forEach(e => { e.scale.y = 0.12; });
                     ud.headGroup.rotation.x = 0.25 + Math.abs(Math.sin(elapsed * 2.4)) * 0.20;
@@ -801,7 +831,7 @@
                     ud.armL.rotation.z = 0.20;
                     ud.armR.rotation.x = -0.35;
                 } else {
-                    // 左手托著銀色筆電、右手飛快敲鍵盤打物理治療紀錄＆喝拿鐵找咖啡廳
+                    // 左手托著銀色筆電、右手飛快敲鍵盤打物理治療紀錄＆喝拿鐵
                     ud.armL.rotation.x = -1.18 + Math.sin(elapsed * 2.5) * 0.06;
                     ud.armL.rotation.y = 0.22;
                     ud.armR.rotation.x = -1.12 + Math.sin(elapsed * 12.0) * 0.14;
@@ -810,12 +840,13 @@
                     ud.headGroup.rotation.y = 0.16 * Math.cos(elapsed * 2.2);
                 }
             } else if (ud.role === 'yijhang') {
-                // 姨丈：沉默酷哥司機，一停下來就默默舉起左手手機專心玩「倒試管益智小遊戲」，偶爾酷酷點頭
-                ud.armL.rotation.x = -1.18 + Math.sin(elapsed * 2.5) * 0.08;
-                ud.armL.rotation.y = 0.28;
-                ud.armR.rotation.x = (activeQuirk === 4) ? -1.10 : -0.25; // 右手手指偶爾過去點一下螢幕倒試管
-                ud.headGroup.rotation.x = 0.26;
-                ud.headGroup.rotation.y = 0.18 + Math.sin(elapsed * 1.5) * 0.08;
+                // 姨丈：沉默酷哥司機，景點一停下來就低頭專心雙手握手機玩「倒試管益智小遊戲」，手指連點螢幕
+                ud.armL.rotation.x = -1.22 + Math.sin(elapsed * 2.0) * 0.05;
+                ud.armL.rotation.y = 0.32;
+                ud.armR.rotation.x = -1.20 + Math.sin(elapsed * 7.5) * 0.12; // 右手拇指專注點螢幕倒試管
+                ud.armR.rotation.y = -0.28;
+                ud.headGroup.rotation.x = 0.34;
+                ud.headGroup.rotation.y = 0.12 * Math.sin(elapsed * 1.5);
             } else if (ud.role === 'ayee') {
                 // 阿姨：熱情話匣子＆餵食總隊長，雙手不停把烤糰子與伴手禮遞給大家吃，轉頭開心狂聊
                 ud.armR.rotation.x = -1.15 + Math.sin(elapsed * 5.8) * 0.25;
@@ -829,8 +860,19 @@
                     ud.heart.rotation.y = elapsed * 3.0;
                 }
             } else if (ud.role === 'alu') {
-                // 阿嚕：哲學棕熊「單手托腮仰望天空思考 AI 存在意義」或「盯著自己的熊掌懷疑人生」
-                if (activeQuirk === 3 || activeQuirk === 4) {
+                // 阿嚕：景點停車時雙手舉起復古相機四處取景拍照！相機閃光燈定時閃爍
+                if (ud.isSpotBusy) {
+                    ud.armL.rotation.set(-1.42, 0.26, 0.32);
+                    ud.armR.rotation.set(-1.40, -0.26, -0.32);
+                    ud.headGroup.rotation.y = Math.sin(elapsed * 2.2) * 0.42;
+                    ud.headGroup.rotation.x = -0.08 + Math.cos(elapsed * 1.8) * 0.10;
+                    if (ud.flashGlow) {
+                        const flashPhase = (elapsed * 0.85) % 1.0;
+                        const isFlash = flashPhase > 0.88;
+                        ud.flashGlow.material.opacity = isFlash ? 0.95 : 0;
+                        ud.flashGlow.scale.setScalar(isFlash ? 1.4 : 0.2);
+                    }
+                } else if (activeQuirk === 3 || activeQuirk === 4) {
                     // 抬起兩隻熊掌盯著看：「這雙熊掌是真毛皮還是 Three.js Mesh？」
                     ud.armL.rotation.x = -1.35 + Math.sin(elapsed * 3.0) * 0.15;
                     ud.armR.rotation.x = -1.35 - Math.sin(elapsed * 3.0) * 0.15;
