@@ -813,109 +813,158 @@ def build():
                             </div>
                         </div>
 
-                        <!-- 今日天氣與穿搭提醒 (熊本與南九州逐日精準氣象) -->
-                        <div id="current-day-weather-card" class="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-sky-50/80 via-blue-50/50 to-indigo-50/60 border border-sky-200/80 shadow-xs flex flex-col gap-2">
-                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                <div class="flex items-center gap-2.5">
-                                    <span id="day-weather-icon" class="text-2xl drop-shadow-xs">⛅</span>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <span id="day-weather-city" class="text-xs font-black text-slate-800">熊本市區</span>
-                                            <span id="day-weather-condition" class="cute-pill bg-sky-100 text-sky-800 font-bold text-[11px]">晴時多雲</span>
-                                            <span id="day-weather-temp" class="text-xs font-mono font-black text-rose-600 bg-white px-2 py-0.5 rounded-md border border-rose-200 shadow-2xs">5°C ~ 13°C</span>
+                        <!-- 隨行資訊微型膠囊列 (方案B) ＆ 雙模式視圖切換 (方案A) -->
+                        <div class="mt-4 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2.5">
+                            <!-- 隨行膠囊按鈕群 (點擊開合對應面板) -->
+                            <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold" id="day-capsule-bar">
+                                <!-- 膠囊 1: 天氣與穿搭 -->
+                                <button type="button" onclick="toggleSubPanel('weather')" id="btn-capsule-weather" class="px-3 py-1.5 rounded-xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-stone-200 hover:border-sky-300 font-bold transition flex items-center gap-1.5 shadow-2xs">
+                                    <span id="capsule-weather-icon">⛅</span>
+                                    <span id="capsule-weather-text">5°C ~ 13°C</span>
+                                    <span class="text-[10px] text-stone-400 font-mono" id="capsule-weather-arrow">▾</span>
+                                </button>
+
+                                <!-- 膠囊 2: 今日自駕停車 -->
+                                <button type="button" onclick="toggleSubPanel('parking')" id="btn-capsule-parking" class="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-stone-200 hover:border-emerald-300 font-bold transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>🅿️</span>
+                                    <span>停車場 (<span id="capsule-parking-count">0</span>)</span>
+                                    <span class="text-[10px] text-stone-400 font-mono" id="capsule-parking-arrow">▾</span>
+                                </button>
+
+                                <!-- 膠囊 3: 今日三餐與宵夜 -->
+                                <button type="button" onclick="toggleSubPanel('meals')" id="btn-capsule-meals" class="px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-stone-200 hover:border-amber-300 font-bold transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>🍱</span>
+                                    <span>美饌提案</span>
+                                    <span class="text-[10px] text-stone-400 font-mono" id="capsule-meals-arrow">▾</span>
+                                </button>
+
+                                <!-- 膠囊 4: 臨時加點 -->
+                                <button type="button" onclick="toggleSubPanel('custom')" id="btn-capsule-custom" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-stone-200 hover:border-rose-300 font-bold transition flex items-center gap-1.5 shadow-2xs">
+                                    <span>➕</span>
+                                    <span>臨時加點</span>
+                                    <span class="text-[10px] text-stone-400 font-mono" id="capsule-custom-arrow">▾</span>
+                                </button>
+                            </div>
+
+                            <!-- 模式切換按鈕：長輩清爽 vs 自駕全配 (方案A) -->
+                            <div class="flex items-center gap-1 bg-stone-100 p-1 rounded-2xl border border-stone-200 text-xs font-black shrink-0">
+                                <button type="button" onclick="setDashboardViewMode('clean')" id="btn-mode-clean" class="px-2.5 py-1 rounded-xl transition flex items-center gap-1 bg-white text-stone-800 shadow-2xs">
+                                    <span>🌿</span> 清爽閱讀
+                                </button>
+                                <button type="button" onclick="setDashboardViewMode('driver')" id="btn-mode-driver" class="px-2.5 py-1 rounded-xl transition flex items-center gap-1 text-stone-500 hover:text-stone-800">
+                                    <span>🚗</span> 自駕全配
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 隨選收納面板區 (預設乾淨收合，點擊對應膠囊平滑展開) -->
+                        <div id="subpanels-wrapper" class="space-y-2 mt-2">
+                            <!-- 面板 1: 天氣與穿搭 -->
+                            <div id="panel-weather" class="hidden p-4 rounded-2xl bg-gradient-to-r from-sky-50/90 via-blue-50/50 to-indigo-50/60 border border-sky-200/90 shadow-2xs space-y-2.5 text-xs">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2.5">
+                                        <span id="day-weather-icon" class="text-2xl drop-shadow-xs">⛅</span>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span id="day-weather-city" class="text-xs font-black text-slate-800">熊本市區</span>
+                                                <span id="day-weather-condition" class="cute-pill bg-sky-100 text-sky-800 font-bold text-[11px]">晴時多雲</span>
+                                                <span id="day-weather-temp" class="text-xs font-mono font-black text-rose-600 bg-white px-2 py-0.5 rounded-md border border-rose-200 shadow-2xs">5°C ~ 13°C</span>
+                                            </div>
+                                            <div class="text-[11px] text-slate-500 font-medium mt-0.5" id="day-weather-feeling">涼冷乾爽・早晚溫差大 ｜ 降水機率：10%</div>
                                         </div>
-                                        <div class="text-[11px] text-slate-500 font-medium mt-0.5" id="day-weather-feeling">涼冷乾爽・早晚溫差大 ｜ 降水機率：10%</div>
                                     </div>
+                                    <button type="button" onclick="openTab('checklist')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-bold transition flex items-center gap-1 shadow-2xs">
+                                        <span>🧳</span> 7 天天氣穿搭指南 ↗
+                                    </button>
                                 </div>
-                                <button type="button" onclick="openTab('checklist')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-bold transition flex items-center gap-1 shadow-2xs">
-                                    <span>🧳</span> 7 天天氣穿搭指南 ↗
-                                </button>
+                                <div class="text-[11px] text-slate-700 bg-white/85 p-2.5 rounded-xl border border-sky-100/80 flex items-start gap-1.5 shadow-2xs">
+                                    <span class="shrink-0 text-sm">🧥</span>
+                                    <span><strong>穿著建議：</strong><span id="day-weather-clothing">長袖發熱衣 + 針織毛衣 + 防風防寒夾克，配舒適長褲。</span></span>
+                                </div>
                             </div>
-                            <div class="text-[11px] text-slate-700 bg-white/85 p-2.5 rounded-xl border border-sky-100/80 flex items-start gap-1.5 shadow-2xs">
-                                <span class="shrink-0 text-sm">🧥</span>
-                                <span><strong>穿著建議：</strong><span id="day-weather-clothing">長袖發熱衣 + 針織毛衣 + 防風防寒夾克，配舒適長褲。</span></span>
+
+                            <!-- 面板 2: 今日自駕停車場速查 -->
+                            <div id="panel-parking" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/60 border border-emerald-200/90 shadow-2xs space-y-2 text-xs">
+                                <div class="flex items-center justify-between pb-1 border-b border-emerald-200/60">
+                                    <span class="font-black text-emerald-950 flex items-center gap-1">
+                                        <span>🅿️</span> 今日自駕景點推薦停車場（點擊直達導航）：
+                                    </span>
+                                </div>
+                                <div id="day-parking-chips" class="flex flex-wrap items-center gap-2"></div>
+                            </div>
+
+                            <!-- 面板 3: 今日美饌速覽 -->
+                            <div id="panel-meals" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-50/80 via-orange-50/50 to-purple-50/50 border border-amber-200/90 shadow-2xs space-y-2 text-xs">
+                                <div class="flex flex-wrap items-center justify-between gap-2 pb-1 border-b border-amber-200/60">
+                                    <span class="font-black text-amber-950 flex items-center gap-1">
+                                        <span>🍽️</span> 今日精選三餐提案：
+                                    </span>
+                                    <button type="button" onclick="openTab('restaurants')" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-black text-[11px] shadow-2xs transition flex items-center gap-1">
+                                        <span>🍱</span> 前往 81 家美食總表 ↗
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+                                    <button type="button" onclick="scrollToMeal('breakfast')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 shadow-2xs transition text-[11px]">🌅 早餐 3 選</button>
+                                    <button type="button" onclick="scrollToMeal('lunch')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-100 text-orange-900 border border-orange-200 shadow-2xs transition text-[11px]">☀️ 午餐 3 選</button>
+                                    <button type="button" onclick="scrollToMeal('dinner')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-rose-100 text-rose-900 border border-rose-200 shadow-2xs transition text-[11px]">🌙 晚餐 3 選</button>
+                                    <button type="button" onclick="scrollToMeal('latenight')" id="quick-jump-latenight" class="px-2.5 py-1 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-2xs transition text-[11px] font-black flex items-center gap-1">
+                                        <span>🍸</span> 宵夜＆酒吧 3 選 ✨
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 面板 4: 臨時加點表單抽屜 -->
+                            <div id="custom-stop-form-drawer" class="hidden bg-gradient-to-br from-stone-50 to-amber-50/40 p-4 rounded-2xl border-2 border-amber-200 space-y-3 text-xs shadow-2xs">
+                                <div class="flex items-center justify-between pb-1 border-b border-amber-200">
+                                    <span class="font-black text-amber-900 text-xs flex items-center gap-1">
+                                        <span>✨</span> 臨時起意加點小便利貼 (自動生成 Google Maps 導航按鈕)
+                                    </span>
+                                    <button type="button" onclick="toggleSubPanel('custom')" class="text-stone-400 hover:text-stone-600 text-xs font-bold">✕ 關閉</button>
+                                </div>
+                                <form onsubmit="handleNewCustomStopSubmit(event)" class="space-y-2.5">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label class="block font-bold text-stone-700 mb-1">📍 想去的地點 / 店名 / 景點名稱：</label>
+                                            <input type="text" id="cstop-title" placeholder="例如：道の駅 阿蘇 / 南阿蘇採草莓 / 驚安殿堂" required class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold text-stone-700 mb-1">⏰ 預估時間（選填）：</label>
+                                            <input type="text" id="cstop-time" placeholder="例如：14:30、下午順遊、或晚餐後" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                        <div>
+                                            <label class="block font-bold text-stone-700 mb-1">🏷️ 類別：</label>
+                                            <select id="cstop-category" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
+                                                <option value="sight">⛩️ 順遊名勝 / 探險景點</option>
+                                                <option value="food">🍽️ 美食小吃 / 特色餐廳</option>
+                                                <option value="shopping">🛍️ 購物採買 / 超市名產</option>
+                                                <option value="transit">☕ 休息站 / 道の駅 / 加油</option>
+                                                <option value="onsen">♨️ 臨時泡湯 / 日歸溫泉</option>
+                                                <option value="farm">🍓 採果農園 / 觀光牧場</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block font-bold text-stone-700 mb-1">📝 備忘筆記 / 必買提醒（選填）：</label>
+                                            <input type="text" id="cstop-desc" placeholder="例如：附免費停車場、買新鮮草莓一盒" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium text-stone-800 focus:outline-none focus:border-amber-400">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-2 pt-1">
+                                        <button type="button" onclick="toggleSubPanel('custom')" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold text-xs transition">取消</button>
+                                        <button type="submit" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-black text-xs shadow-sm transition flex items-center gap-1">
+                                            <span>➕</span> 加入今日行程並建立導航
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 
-                        <!-- 今日自駕核心停車場速查導航 -->
-                        <div id="day-parking-quick-bar" class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/60 border border-emerald-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
-                            <div class="flex flex-wrap items-center gap-1.5">
-                                <span class="font-black text-emerald-950 flex items-center gap-1">
-                                    <span>🅿️</span> <strong>今日自駕景點推薦停車場：</strong>
-                                </span>
-                                <div id="day-parking-chips" class="flex flex-wrap items-center gap-1.5"></div>
-                            </div>
-                        </div>
-
-                        <!-- 今日美饌速查快捷列 -->
-                        <div class="mt-4 pt-3.5 border-t border-red-100 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-amber-50/70 via-orange-50/50 to-purple-50/60 p-3 rounded-2xl border border-orange-200/70">
-                            <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
-                                <span class="text-stone-600 text-[11px] font-black">🍽️ 今日美饌速覽：</span>
-                                <button type="button" onclick="scrollToMeal('breakfast')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 shadow-xs transition text-[11px]">🌅 早餐 3 選</button>
-                                <button type="button" onclick="scrollToMeal('lunch')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-orange-100 text-orange-900 border border-orange-200 shadow-xs transition text-[11px]">☀️ 午餐 3 選</button>
-                                <button type="button" onclick="scrollToMeal('dinner')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-rose-100 text-rose-900 border border-rose-200 shadow-xs transition text-[11px]">🌙 晚餐 3 選</button>
-                                <button type="button" onclick="scrollToMeal('latenight')" id="quick-jump-latenight" class="px-2.5 py-1 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition text-[11px] font-black flex items-center gap-1">
-                                    <span>🍸</span> 宵夜＆酒吧 3 選 ✨
-                                </button>
-                            </div>
-                            <button type="button" onclick="openTab('restaurants')" class="px-3 py-1 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-black text-[11px] shadow-sm transition flex items-center gap-1">
-                                <span>🍱</span> 前往 81 家美食總表 ↗
-                            </button>
-                        </div>
-
-                        <!-- 臨時起意加點按鈕與抽屜 -->
+                        <!-- 時間軸標題列 -->
                         <div class="mt-5 flex items-center justify-between pb-2 border-b border-stone-100">
                             <span class="text-xs font-black text-stone-700 flex items-center gap-1.5">
                                 <span>⏱️</span> 行程時間軸
                             </span>
-                            <button type="button" onclick="toggleCustomStopDrawer()" class="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition">
-                                <span>➕</span> 臨時起意加點 / 順遊導航
-                            </button>
-                        </div>
-
-                        <!-- 臨時加點表單抽屜 -->
-                        <div id="custom-stop-form-drawer" class="hidden mt-3 bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 rounded-2xl border-2 border-amber-300 space-y-3 text-xs shadow-sm">
-                            <div class="flex items-center justify-between pb-1 border-b border-amber-200">
-                                <span class="font-black text-amber-900 text-xs flex items-center gap-1">
-                                    <span>✨</span> 臨時起意加點小便利貼 (自動生成 Google Maps 導航按鈕)
-                                </span>
-                                <button type="button" onclick="toggleCustomStopDrawer()" class="text-stone-400 hover:text-stone-600 text-xs font-bold">✕ 關閉</button>
-                            </div>
-                            <form onsubmit="handleNewCustomStopSubmit(event)" class="space-y-2.5">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                    <div>
-                                        <label class="block font-bold text-stone-700 mb-1">📍 想去的地點 / 店名 / 景點名稱：</label>
-                                        <input type="text" id="cstop-title" placeholder="例如：道の駅 阿蘇 / 南阿蘇採草莓 / 驚安殿堂" required class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
-                                    </div>
-                                    <div>
-                                        <label class="block font-bold text-stone-700 mb-1">⏰ 預估時間（選填）：</label>
-                                        <input type="text" id="cstop-time" placeholder="例如：14:30、下午順遊、或晚餐後" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                    <div>
-                                        <label class="block font-bold text-stone-700 mb-1">🏷️ 類別：</label>
-                                        <select id="cstop-category" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none focus:border-amber-400">
-                                            <option value="sight">⛩️ 順遊名勝 / 探險景點</option>
-                                            <option value="food">🍽️ 美食小吃 / 特色餐廳</option>
-                                            <option value="shopping">🛍️ 購物採買 / 超市名產</option>
-                                            <option value="transit">☕ 休息站 / 道の駅 / 加油</option>
-                                            <option value="onsen">♨️ 臨時泡湯 / 日歸溫泉</option>
-                                            <option value="farm">🍓 採果農園 / 觀光牧場</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block font-bold text-stone-700 mb-1">📝 備忘筆記 / 必買提醒（選填）：</label>
-                                        <input type="text" id="cstop-desc" placeholder="例如：附免費停車場、買新鮮草莓一盒" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium text-stone-800 focus:outline-none focus:border-amber-400">
-                                    </div>
-                                </div>
-                                <div class="flex justify-end gap-2 pt-1">
-                                    <button type="button" onclick="toggleCustomStopDrawer()" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold text-xs transition">取消</button>
-                                    <button type="submit" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-black text-xs shadow-sm transition flex items-center gap-1">
-                                        <span>➕</span> 加入今日行程並建立導航
-                                    </button>
-                                </div>
-                            </form>
+                            <span class="text-[11px] text-stone-400 font-medium" id="mode-status-hint">🌿 清爽閱讀中・點擊項目可展開自駕細節</span>
                         </div>
 
                         <div class="mt-6 relative pl-6 border-l-2 border-dashed border-red-300 space-y-5" id="timeline-container"></div>
@@ -2046,6 +2095,7 @@ def build():
                 initCountdown();
                 initTimelineDays();
                 renderDayDetails(0);
+                setDashboardViewMode(dashboardViewMode);
                 renderAccommodations();
                 initChecklist();
                 initHandDrawnMap();
@@ -2228,6 +2278,80 @@ def build():
             localStorage.setItem(`kyushu_custom_stops_day_${{dayIdx}}`, JSON.stringify(items));
         }}
 
+        let dashboardViewMode = localStorage.getItem('dashboard_view_mode') || 'clean';
+
+        function setDashboardViewMode(mode) {{
+            dashboardViewMode = mode;
+            localStorage.setItem('dashboard_view_mode', mode);
+
+            const btnClean = document.getElementById('btn-mode-clean');
+            const btnDriver = document.getElementById('btn-mode-driver');
+            const statusHint = document.getElementById('mode-status-hint');
+
+            if (mode === 'driver') {{
+                if (btnDriver) btnDriver.className = 'px-2.5 py-1 rounded-xl transition flex items-center gap-1 bg-white text-stone-800 shadow-2xs font-black';
+                if (btnClean) btnClean.className = 'px-2.5 py-1 rounded-xl transition flex items-center gap-1 text-stone-500 hover:text-stone-800 font-bold';
+                if (statusHint) statusHint.textContent = '🚗 自駕全配中・已展開全站停車場與參觀撇步';
+                document.querySelectorAll('.timeline-detail-box').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('[id^="arrow-tl-"]').forEach(el => el.textContent = '▴');
+                showToast('已切換為「自駕全配模式」🚗');
+            }} else {{
+                if (btnClean) btnClean.className = 'px-2.5 py-1 rounded-xl transition flex items-center gap-1 bg-white text-stone-800 shadow-2xs font-black';
+                if (btnDriver) btnDriver.className = 'px-2.5 py-1 rounded-xl transition flex items-center gap-1 text-stone-500 hover:text-stone-800 font-bold';
+                if (statusHint) statusHint.textContent = '🌿 清爽簡潔中・點擊小標籤可展開自駕細節';
+                document.querySelectorAll('.timeline-detail-box').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('[id^="arrow-tl-"]').forEach(el => el.textContent = '▾');
+                showToast('已切換為「清爽簡潔模式」🌿');
+            }}
+        }}
+
+        function toggleTimelineDetail(id) {{
+            const box = document.getElementById('box-' + id);
+            const arrow = document.getElementById('arrow-' + id);
+            if (!box) return;
+            if (box.classList.contains('hidden')) {{
+                box.classList.remove('hidden');
+                if (arrow) arrow.textContent = '▴';
+            }} else {{
+                box.classList.add('hidden');
+                if (arrow) arrow.textContent = '▾';
+            }}
+        }}
+
+        function toggleSubPanel(panelName) {{
+            const panels = ['weather', 'parking', 'meals', 'custom'];
+            panels.forEach(p => {{
+                const panelEl = (p === 'custom') ? document.getElementById('custom-stop-form-drawer') : document.getElementById('panel-' + p);
+                const arrowEl = document.getElementById('capsule-' + p + '-arrow');
+                const btnEl = document.getElementById('btn-capsule-' + p);
+
+                if (p === panelName) {{
+                    if (panelEl) {{
+                        const isHidden = panelEl.classList.contains('hidden');
+                        if (isHidden) {{
+                            panelEl.classList.remove('hidden');
+                            if (arrowEl) arrowEl.textContent = '▴';
+                            if (btnEl) {{
+                                btnEl.classList.add('bg-stone-100', 'border-stone-400');
+                            }}
+                        }} else {{
+                            panelEl.classList.add('hidden');
+                            if (arrowEl) arrowEl.textContent = '▾';
+                            if (btnEl) {{
+                                btnEl.classList.remove('bg-stone-100', 'border-stone-400');
+                            }}
+                        }}
+                    }}
+                }} else {{
+                    if (panelEl) panelEl.classList.add('hidden');
+                    if (arrowEl) arrowEl.textContent = '▾';
+                    if (btnEl) {{
+                        btnEl.classList.remove('bg-stone-100', 'border-stone-400');
+                    }}
+                }}
+            }});
+        }}
+
         function toggleCustomStopDrawer() {{
             const drawer = document.getElementById('custom-stop-form-drawer');
             if (drawer) {{
@@ -2342,13 +2466,13 @@ def build():
             const souvEl = document.getElementById('day-souvenir-box');
             if (souvEl) souvEl.textContent = dayPlan.souvenir || '享受日本當令新鮮草莓與特色名物！';
 
-            // 天氣資訊渲染
+            // 隨行膠囊列與子面板更新
             const weather = dayPlan.weather;
-            const weatherCard = document.getElementById('current-day-weather-card');
-            if (weatherCard && weather) {{
-                weatherCard.classList.remove('hidden');
-                const iconEl = document.getElementById('day-weather-icon');
-                if (iconEl) iconEl.textContent = weather.icon || '⛅';
+            const weatherCapText = document.getElementById('capsule-weather-text');
+            const weatherCapIcon = document.getElementById('capsule-weather-icon');
+            if (weather) {{
+                if (weatherCapText) weatherCapText.textContent = `${{weather.temp_min}}°C ~ ${{weather.temp_max}}°C ${{weather.condition}}`;
+                if (weatherCapIcon) weatherCapIcon.textContent = weather.icon || '⛅';
                 const cityEl = document.getElementById('day-weather-city');
                 if (cityEl) cityEl.textContent = weather.city || '';
                 const condEl = document.getElementById('day-weather-condition');
@@ -2359,34 +2483,42 @@ def build():
                 if (feelEl) feelEl.textContent = `${{weather.feeling}} ｜ 降水機率：${{weather.pop}}`;
                 const clothEl = document.getElementById('day-weather-clothing');
                 if (clothEl) clothEl.textContent = weather.clothing || '';
-            }} else if (weatherCard) {{
-                weatherCard.classList.add('hidden');
             }}
 
-            // 停車場快速導航條
+            const parkings = (dayPlan.timeline || []).filter(t => t.parking);
+            const parkingCountEl = document.getElementById('capsule-parking-count');
+            if (parkingCountEl) parkingCountEl.textContent = parkings.length;
             const parkingChipsContainer = document.getElementById('day-parking-chips');
-            const parkingQuickBar = document.getElementById('day-parking-quick-bar');
-            if (parkingQuickBar && parkingChipsContainer) {{
-                const parkings = (dayPlan.timeline || []).filter(t => t.parking);
+            if (parkingChipsContainer) {{
                 if (parkings.length > 0) {{
-                    parkingQuickBar.classList.remove('hidden');
                     parkingChipsContainer.innerHTML = parkings.map(p => `
                         <a href="${{p.parking.url}}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 shadow-2xs font-bold text-[11px] flex items-center gap-1 transition" title="${{p.parking.name}} (${{p.parking.fee}})">
                             <span>🅿️</span> ${{p.parking.name.split(' ')[0]}} ↗
                         </a>
                     `).join('');
                 }} else {{
-                    parkingQuickBar.classList.add('hidden');
+                    parkingChipsContainer.innerHTML = `<span class="text-stone-400 text-xs">本日以飯店或景點免費臨停為主，無需額外尋找大型收費場。</span>`;
                 }}
             }}
+
+            // 自動收合所有展開的次面板（換日乾淨體驗）
+            ['weather', 'parking', 'meals', 'custom'].forEach(p => {{
+                const panelEl = (p === 'custom') ? document.getElementById('custom-stop-form-drawer') : document.getElementById('panel-' + p);
+                const arrowEl = document.getElementById('capsule-' + p + '-arrow');
+                const btnEl = document.getElementById('btn-capsule-' + p);
+                if (panelEl) panelEl.classList.add('hidden');
+                if (arrowEl) arrowEl.textContent = '▾';
+                if (btnEl) btnEl.classList.remove('bg-stone-100', 'border-stone-400');
+            }});
 
             const container = document.getElementById('timeline-container');
             if (!container) return;
             container.innerHTML = '';
             const quickLinks = [];
+            const isDriver = (dashboardViewMode === 'driver');
 
-            // 1. 原定計畫時間軸項目
-            dayPlan.timeline.forEach(item => {{
+            // 1. 原定計畫時間軸項目 (支援方案C手風琴折疊與雙模式)
+            dayPlan.timeline.forEach((item, itemIdx) => {{
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'relative group';
 
@@ -2400,12 +2532,14 @@ def build():
 
                 quickLinks.push(item.title);
                 const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${{encodeURIComponent(item.title)}}`;
+                const itemKey = `tl-${{idx}}-${{itemIdx}}`;
+                const hasDetails = (item.parking || item.tips);
 
                 itemDiv.innerHTML = `
-                    <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-red-500 flex items-center justify-center shadow-sm">
+                    <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-red-500 flex items-center justify-center shadow-2xs">
                         <div class="w-1.5 h-1.5 rounded-full bg-red-600"></div>
                     </div>
-                    <div class="bg-white border-2 border-stone-200/80 rounded-2xl p-4 transition space-y-1.5 shadow-sm hover:border-red-300 hover:shadow-md">
+                    <div class="bg-white border border-stone-200/90 rounded-2xl p-4 transition space-y-1.5 shadow-2xs hover:border-red-300 hover:shadow-xs">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="text-xs font-mono font-black text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">${{item.time}}</span>
                             <span class="cute-pill ${{tagClass}}">
@@ -2416,21 +2550,39 @@ def build():
                             <span>${{item.title}}</span>
                             <div class="flex items-center gap-1.5 shrink-0">
                                 ${{item.parking ? `
-                                    <a href="${{item.parking.url}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center gap-0.5 transition" title="${{item.parking.name}} (${{item.parking.fee}})">
-                                        <span>🅿️ 停車場</span> ↗
+                                    <a href="${{item.parking.url}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/70 font-bold text-xs flex items-center gap-0.5 transition" title="${{item.parking.name}} (${{item.parking.fee}})">
+                                        <span>🅿️ 停車</span> ↗
                                     </a>
                                 ` : ''}}
-                                <a href="${{mapSearchUrl}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-bold text-xs flex items-center gap-0.5 transition" title="在 Google Maps 查看">
+                                <a href="${{mapSearchUrl}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 border border-sky-200/70 font-bold text-xs flex items-center gap-0.5 transition" title="在 Google Maps 查看">
                                     <span>導航</span> ↗
                                 </a>
                             </div>
                         </h5>
                         <p class="text-xs text-stone-600 leading-relaxed font-medium">${{item.desc}}</p>
+
+                        ${{hasDetails ? `
+                            <div class="flex flex-wrap items-center gap-1.5 pt-1.5 mt-1 border-t border-stone-100">
+                                ${{item.parking ? `
+                                    <button type="button" onclick="toggleTimelineDetail('${{itemKey}}-pkg')" class="px-2 py-0.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 text-[10px] font-bold transition flex items-center gap-1">
+                                        <span>🅿️ 停車指引</span>
+                                        <span id="arrow-${{itemKey}}-pkg" class="text-[9px] text-emerald-600 font-mono">${{isDriver ? '▴' : '▾'}}</span>
+                                    </button>
+                                ` : ''}}
+                                ${{item.tips ? `
+                                    <button type="button" onclick="toggleTimelineDetail('${{itemKey}}-tips')" class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 text-[10px] font-bold transition flex items-center gap-1">
+                                        <span>💡 參觀撇步</span>
+                                        <span id="arrow-${{itemKey}}-tips" class="text-[9px] text-amber-600 font-mono">${{isDriver ? '▴' : '▾'}}</span>
+                                    </button>
+                                ` : ''}}
+                            </div>
+                        ` : ''}}
+
                         ${{item.parking ? `
-                            <div class="text-[11px] text-emerald-900 bg-emerald-50/90 border border-emerald-200 rounded-xl p-2.5 flex flex-col gap-1 mt-2">
+                            <div id="box-${{itemKey}}-pkg" class="timeline-detail-box ${{isDriver ? '' : 'hidden'}} text-[11px] text-emerald-900 bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex flex-col gap-1 mt-1.5 shadow-2xs">
                                 <div class="flex flex-wrap items-center justify-between gap-1 font-black">
-                                    <span class="flex items-center gap-1"><span>🅿️ 推薦停車：</span><span>${{item.parking.name}}</span></span>
-                                    <span class="text-emerald-800 font-mono text-[10px] bg-white px-2 py-0.5 rounded-md border border-emerald-200">${{item.parking.fee}}</span>
+                                    <span class="flex items-center gap-1"><span>🅿️ 推薦：</span><span>${{item.parking.name}}</span></span>
+                                    <span class="text-emerald-800 font-mono text-[10px] bg-white px-1.5 py-0.5 rounded-md border border-emerald-200 shadow-2xs">${{item.parking.fee}}</span>
                                 </div>
                                 <div class="text-[10px] text-emerald-800 leading-tight">
                                     🚗 車位：${{item.parking.capacity}} ｜ 💡 叮嚀：${{item.parking.tips}}
@@ -2438,8 +2590,8 @@ def build():
                             </div>
                         ` : ''}}
                         ${{item.tips ? `
-                            <div class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5 flex items-start gap-1.5 mt-2">
-                                <span>💡</span>
+                            <div id="box-${{itemKey}}-tips" class="timeline-detail-box ${{isDriver ? '' : 'hidden'}} text-[11px] text-amber-800 bg-amber-50/80 border border-amber-200/80 rounded-xl p-2.5 flex items-start gap-1.5 mt-1.5 shadow-2xs">
+                                <span class="shrink-0 text-xs">💡</span>
                                 <span><strong>小撇步：</strong>${{item.tips}}</span>
                             </div>
                         ` : ''}}
