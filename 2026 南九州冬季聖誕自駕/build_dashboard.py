@@ -1262,6 +1262,205 @@ def build():
                     </div>
                 </div>
             </div>
+
+            <!-- TOYOTA 租車官方核心重要事項大補帖 (全自駕安全與合約重要須知) -->
+            <div class="cute-card p-6 relative border-2 border-amber-200/90 bg-gradient-to-br from-white via-amber-50/20 to-orange-50/20 space-y-5 shadow-xs">
+                <div class="washi-tape washi-tape-gold"></div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b-2 border-amber-100 gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="cute-pill bg-amber-100 text-amber-900 font-bold">🚗 TOYOTA 租車官方合約說明</span>
+                            <span class="cute-pill bg-red-100 text-red-700 font-bold">自駕行前必讀</span>
+                        </div>
+                        <h4 class="text-base sm:text-lg font-black text-stone-800 mt-1 flex items-center gap-2">
+                            <span>📋</span> TOYOTA 租車重要事項說明＆自駕安全實戰手冊
+                        </h4>
+                        <p class="text-xs text-stone-500 mt-0.5">整理自 TOYOTA 日本官方「重要事項説明」與海外旅客合約規範，涵蓋櫃台取車證件、保險W方案、事故處置、違停與加油須知。</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="https://rent.toyota.co.jp/global_zh-tw/guide/importantitems.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-white hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition shrink-0">
+                            <span>🌐</span> TOYOTA 官方合約原文 ↗
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 6 大核心卡片 Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                    <!-- 卡片 1: 取車必備證件與付款政策 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-stone-100">
+                            <span class="text-stone-800 flex items-center gap-1.5">
+                                <span>📄</span> 1. 櫃台取車必備 4 大件
+                            </span>
+                            <span class="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-bold">缺一不可</span>
+                        </div>
+                        <ul class="space-y-1.5 text-[11px] text-stone-700 font-medium">
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-500 shrink-0">●</span>
+                                <span><strong>台灣護照正本</strong>：有效期限須在 6 個月以上。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-500 shrink-0">●</span>
+                                <span><strong>台灣駕照正本</strong>：務必在<strong>有效期限內</strong>（過期請先至台灣監理站換發最新版）。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-500 shrink-0">●</span>
+                                <span><strong>台灣駕照日文譯本正本</strong>：由監理站核發之 A4 規格譯本（<strong>日本不承認台灣國際駕照</strong>）。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-500 shrink-0">●</span>
+                                <span><strong>實體信用卡</strong>：<strong>官方全面停用金融卡 (Debit Card) 與預付卡</strong>，不支援行動支付，現場刷卡扣除預估費用。</span>
+                            </li>
+                        </ul>
+                        <div class="text-[10px] text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-200 leading-tight">
+                            ⚠️ <strong>多人輪流開車提醒</strong>：若有第二位駕駛，取車時所有人必須同時在櫃台出示駕照與譯本登記，未登記駕駛人肇事「保險一律不理賠」！
+                        </div>
+                    </div>
+
+                    <!-- 卡片 2: 保險賠償與安心 W 方案 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-stone-100">
+                            <span class="text-stone-800 flex items-center gap-1.5">
+                                <span>🛡️</span> 2. 保險賠償與安心 W 方案
+                            </span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">強烈推薦</span>
+                        </div>
+                        <ul class="space-y-1.5 text-[11px] text-stone-700 font-medium">
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-emerald-600 shrink-0">●</span>
+                                <span><strong>基本費用內含</strong>：對人無限額、對物無限額（自負額 ¥50,000）、車輛時價（自負額 ¥50,000）、乘客傷害每人最高 3,000 萬日圓。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-emerald-600 shrink-0">●</span>
+                                <span><strong>營業損失賠償 (NOC)</strong>：車輛能開回店鋪需付 ¥20,000；拋錨無法開回需付 ¥50,000。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-emerald-600 shrink-0">●</span>
+                                <span><strong>安心 W 方案 (¥1,650/天)</strong>：
+                                    <br>✅ <strong>免除對物與車輛自負額（現省 10 萬日圓）</strong>
+                                    <br>✅ <strong>免除營業損失賠償 NOC（現省 2~5 萬日圓）</strong>
+                                    <br>✅ <strong>免除爆胎修補、換新輪胎與輪圈受損費用</strong>
+                                </span>
+                            </li>
+                        </ul>
+                        <div class="text-[10px] text-emerald-800 bg-emerald-50 p-2 rounded-xl border border-emerald-200 leading-tight">
+                            💡 日本道路救援與換胎工資極貴，加購安心 W 方案全家自駕安心無憂！
+                        </div>
+                    </div>
+
+                    <!-- 卡片 3: 保險絕對不理賠的 6 大禁忌 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-red-200 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-red-100">
+                            <span class="text-red-800 flex items-center gap-1.5">
+                                <span>🚫</span> 3. 保險 6 大絕不理賠禁忌
+                            </span>
+                            <span class="text-[10px] bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-bold">千萬注意</span>
+                        </div>
+                        <ul class="space-y-1.5 text-[11px] text-stone-700 font-medium">
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>未向警察報案</strong>：自撞、擦撞山壁或無人受傷小刮痕，<strong>沒叫警察開立事故證明，保險 100% 不理賠</strong>！</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>非出發時登記之駕駛人肇事</strong>。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>無照駕駛、酒後駕駛</strong>（日本酒駕連坐同車乘客，處罰極嚴）。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>逾時還車未提前聯絡</strong>期間發生之任何事故。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>鑰匙留在車內導致失竊</strong>、禁菸車內抽菸污損。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-red-600 shrink-0">✖</span>
+                                <span><strong>加錯燃油造成引擎損壞</strong>（汽油車誤加柴油屬人為疏失需全額自賠）。</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 卡片 4: 事故與拋錨 4 步驟 SOP -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-stone-100">
+                            <span class="text-stone-800 flex items-center gap-1.5">
+                                <span>🚨</span> 4. 發生事故 / 拋錨應變 SOP
+                            </span>
+                            <span class="text-[10px] bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full font-bold">冷靜處理</span>
+                        </div>
+                        <ol class="space-y-1.5 text-[11px] text-stone-700 font-medium list-decimal list-inside">
+                            <li><strong>第一步：救護傷患</strong><br>若有人受傷，立即撥打 <span class="text-red-600 font-bold font-mono">119</span> 叫救護車，將車輛移至安全處。</li>
+                            <li><strong>第二步：向警察報案備案</strong><br>立即撥打 <span class="text-red-600 font-bold font-mono">110</span> 報警，向警方取得交通事故案號。</li>
+                            <li><strong>第三步：現場留證（切勿私了）</strong><br>記錄對方姓名、電話、車牌，拍照錄影保留現場跡證。</li>
+                            <li><strong>第四步：聯絡 TOYOTA 專線</strong><br>撥打店鋪電話或 TOYOTA 24小時中文專線 <span class="text-sky-700 font-bold font-mono">0800-7000-815</span> 通報派車。</li>
+                        </ol>
+                    </div>
+
+                    <!-- 卡片 5: 違規停車被貼黃單處理流程 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-stone-100">
+                            <span class="text-stone-800 flex items-center gap-1.5">
+                                <span>🅿️</span> 5. 違規停車被貼單之處理
+                            </span>
+                            <span class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-bold">還車前繳清</span>
+                        </div>
+                        <ul class="space-y-1.5 text-[11px] text-stone-700 font-medium">
+                            <li>若擋風玻璃被貼「違規停車確認標章」：</li>
+                            <li>① <strong>務必在還車前前往該轄區警察署</strong>辦理繳納罰款手續。</li>
+                            <li>② 至金融機構或便利店繳清罰款後，<strong>妥善保管收據</strong>。</li>
+                            <li>③ 還車時出示警察開立的證明與罰款收據。</li>
+                        </ul>
+                        <div class="text-[10px] text-red-800 bg-red-50 p-2 rounded-xl border border-red-200 leading-tight">
+                            ⚠️ <strong>未繳清後果嚴重</strong>：還車前若未繳，TOYOTA 將加收違約金（<strong>普通車 ¥25,000 / 中大型車 ¥30,000</strong>），並通報全日本租車協會列入拒絕租車黑名單！
+                        </div>
+                    </div>
+
+                    <!-- 卡片 6: 還車加油與油電混合結算 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border border-stone-200/90 shadow-2xs space-y-2.5">
+                        <div class="flex items-center justify-between font-black pb-1.5 border-b border-stone-100">
+                            <span class="text-stone-800 flex items-center gap-1.5">
+                                <span>⛽</span> 6. 還車加油與油電結算
+                            </span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold">還車小秘訣</span>
+                        </div>
+                        <ul class="space-y-1.5 text-[11px] text-stone-700 font-medium">
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-indigo-600 shrink-0">●</span>
+                                <span><strong>傳統油車滿油還車</strong>：還車前需在還車店鋪 <strong>5km 內的加油站加滿</strong>（選 Regular 紅色油槍「満タン」），並保留加油發票供查驗。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-indigo-600 shrink-0">●</span>
+                                <span><strong>油電混合車 (Hybrid) 便利結算</strong>：TOYOTA 獨家提供「混合動力車燃油結算」！歸還時無須先加滿油，店員直接根據儀表板「平均油耗」計算里程油資，免去市區找加油站排隊的麻煩。</span>
+                            </li>
+                            <li class="flex items-start gap-1.5">
+                                <span class="text-indigo-600 shrink-0">●</span>
+                                <span><strong>若需延長租借時間</strong>：請於原訂還車時間前致電店鋪，未聯絡超時將收取高額違約金。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 緊急聯絡備忘列 -->
+                <div class="p-3.5 bg-gradient-to-r from-red-50/90 via-rose-50/70 to-amber-50/80 border border-red-200/80 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="font-black text-red-950 flex items-center gap-1">
+                            <span>📞</span> <strong>自駕在途緊急求助電話備忘：</strong>
+                        </span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-red-200 text-red-700 font-mono font-black">🚔 警察：110</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-red-200 text-red-700 font-mono font-black">🚑 救護車：119</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-amber-200 text-amber-900 font-mono font-black">🏢 TOYOTA 免費專線：0800-7000-815</span>
+                            <span class="bg-white px-2.5 py-1 rounded-xl border border-stone-200 text-stone-700 font-mono font-black">📱 國際/手機：+81-92-577-0091</span>
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-stone-500 font-medium">服務時間：每日 8:00 ~ 20:00（提供中文、英文多語對應）</span>
+                </div>
+            </div>
         </section>
 
         <!-- TAB: 餐廳與美食總整理 -->
