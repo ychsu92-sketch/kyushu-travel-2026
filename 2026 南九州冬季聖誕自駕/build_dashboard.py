@@ -635,8 +635,8 @@ def build():
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b-2 border-red-100 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2 sm:gap-3">
             <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shrink-0 bg-white border border-purple-200 flex items-center justify-center p-1 shadow-md shadow-purple-100 overflow-hidden">
-                    <img src="./family_logo.png" alt="HSU Logo" class="w-full h-full object-contain">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shrink-0 bg-white border border-stone-200 flex items-center justify-center p-1 shadow-md shadow-stone-100 overflow-hidden">
+                    <img src="./family_logo.png" alt="Kyushu Travel Logo" class="w-full h-full object-contain">
                 </div>
                 <div class="min-w-0">
                     <div class="flex items-center gap-2">
