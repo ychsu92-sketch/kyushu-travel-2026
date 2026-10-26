@@ -813,6 +813,40 @@ def build():
                             </div>
                         </div>
 
+                        <!-- 今日天氣與穿搭提醒 (熊本與南九州逐日精準氣象) -->
+                        <div id="current-day-weather-card" class="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-sky-50/80 via-blue-50/50 to-indigo-50/60 border border-sky-200/80 shadow-xs flex flex-col gap-2">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5">
+                                    <span id="day-weather-icon" class="text-2xl drop-shadow-xs">⛅</span>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span id="day-weather-city" class="text-xs font-black text-slate-800">熊本市區</span>
+                                            <span id="day-weather-condition" class="cute-pill bg-sky-100 text-sky-800 font-bold text-[11px]">晴時多雲</span>
+                                            <span id="day-weather-temp" class="text-xs font-mono font-black text-rose-600 bg-white px-2 py-0.5 rounded-md border border-rose-200 shadow-2xs">5°C ~ 13°C</span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 font-medium mt-0.5" id="day-weather-feeling">涼冷乾爽・早晚溫差大 ｜ 降水機率：10%</div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="openTab('checklist')" class="px-2.5 py-1 rounded-xl bg-white hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-bold transition flex items-center gap-1 shadow-2xs">
+                                    <span>🧳</span> 7 天天氣穿搭指南 ↗
+                                </button>
+                            </div>
+                            <div class="text-[11px] text-slate-700 bg-white/85 p-2.5 rounded-xl border border-sky-100/80 flex items-start gap-1.5 shadow-2xs">
+                                <span class="shrink-0 text-sm">🧥</span>
+                                <span><strong>穿著建議：</strong><span id="day-weather-clothing">長袖發熱衣 + 針織毛衣 + 防風防寒夾克，配舒適長褲。</span></span>
+                            </div>
+                        </div>
+
+                        <!-- 今日自駕核心停車場速查導航 -->
+                        <div id="day-parking-quick-bar" class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/60 border border-emerald-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="font-black text-emerald-950 flex items-center gap-1">
+                                    <span>🅿️</span> <strong>今日自駕景點推薦停車場：</strong>
+                                </span>
+                                <div id="day-parking-chips" class="flex flex-wrap items-center gap-1.5"></div>
+                            </div>
+                        </div>
+
                         <!-- 今日美饌速查快捷列 -->
                         <div class="mt-4 pt-3.5 border-t border-red-100 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-amber-50/70 via-orange-50/50 to-purple-50/60 p-3 rounded-2xl border border-orange-200/70">
                             <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
@@ -1716,6 +1750,104 @@ def build():
                     </div>
                 </div>
 
+                <!-- ❄️ 2026 南九州 7 天冬季氣候分析與防寒打包對照指南 -->
+                <div class="bg-gradient-to-br from-sky-50 via-blue-50/40 to-indigo-50/50 p-5 rounded-2xl border-2 border-sky-200 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-sky-200/70 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl drop-shadow-xs">❄️</span>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-800">2026 南九州 7 天冬季氣候分析與防寒打包指南</h4>
+                                <p class="text-xs text-slate-500 font-medium">出發日期：2026/12/22 ~ 12/28 ｜ 熊本・阿蘇・黑川・高千穗・宮崎・鹿兒島</p>
+                            </div>
+                        </div>
+                        <span class="cute-pill bg-sky-100 text-sky-800 font-bold text-xs">洋蔥式穿法最舒適</span>
+                    </div>
+
+                    <!-- 7 天逐日天氣橫向對照卡片 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        <!-- Day 1 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 1 (12/22)</span>
+                                <span>⛅ 晴時多雲</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">熊本市區 (辛島町/下通)</div>
+                            <div class="text-rose-600 font-mono font-black text-sm">5°C ~ 13°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">涼冷乾爽，早晚溫差大。發熱衣+針織衫+防風外套。</div>
+                        </div>
+                        <!-- Day 2 -->
+                        <div class="bg-gradient-to-b from-sky-100/50 to-white p-3 rounded-xl border-2 border-sky-300 shadow-2xs space-y-1 relative">
+                            <span class="absolute -top-2 right-2 text-[10px] bg-sky-600 text-white font-black px-1.5 py-0.5 rounded-full shadow-2xs">全趟最冷 ⚠️</span>
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 2 (12/23)</span>
+                                <span>❄️ 初雪結霜警戒</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">阿蘇草千里・黑川溫泉</div>
+                            <div class="text-sky-700 font-mono font-black text-sm">-1°C ~ 6°C (火口 -3°C)</div>
+                            <div class="text-[11px] text-slate-600 leading-tight">山區風強！長版厚羽絨、毛帽、厚手套、防滑保暖鞋必備。</div>
+                        </div>
+                        <!-- Day 3 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 3 (12/24)</span>
+                                <span>🌤️ 山谷轉晴</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">高千穗峽 ➔ 宮崎日向灘</div>
+                            <div class="text-emerald-700 font-mono font-black text-sm">2°C ~ 12°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">高千穗峽谷涼意濃，抵達宮崎溫暖如春，外套可開襟。</div>
+                        </div>
+                        <!-- Day 4 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 4 (12/25)</span>
+                                <span>☀️ 冬日暖陽</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">宮崎日南海岸 ➔ 鹿兒島</div>
+                            <div class="text-amber-700 font-mono font-black text-sm">7°C ~ 15°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">海濱紫外線強，青島與摩艾石像需多步行，輕便好走。</div>
+                        </div>
+                        <!-- Day 5 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 5 (12/26)</span>
+                                <span>🌤️ 晴・海風</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">櫻島火山・鹿兒島市區</div>
+                            <div class="text-rose-600 font-mono font-black text-sm">6°C ~ 14°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">渡輪甲板風大需防風帽/連帽外套，仙巖園室內暖氣足。</div>
+                        </div>
+                        <!-- Day 6 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 6 (12/27)</span>
+                                <span>⛅ 高原微涼</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">霧島神宮・人吉 ➔ 熊本</div>
+                            <div class="text-indigo-700 font-mono font-black text-sm">2°C ~ 11°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">高原參拜神宮與牧場戶外開闊，建議備好毛帽與圍巾。</div>
+                        </div>
+                        <!-- Day 7 -->
+                        <div class="bg-white/95 p-3 rounded-xl border border-sky-100 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between font-black">
+                                <span class="text-red-600 font-mono">DAY 7 (12/28)</span>
+                                <span>☀️ 舒適返台</span>
+                            </div>
+                            <div class="text-slate-800 font-bold">熊本城・成趣園 ➔ 機場</div>
+                            <div class="text-rose-600 font-mono font-black text-sm">4°C ~ 12°C</div>
+                            <div class="text-[11px] text-slate-500 leading-tight">登天守閣梯級多，穿透氣內搭+好收納輕羽絨，回台方便脫下。</div>
+                        </div>
+                        <!-- 穿搭核心叮嚀卡 -->
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-3 rounded-xl border border-amber-200 shadow-2xs space-y-1">
+                            <div class="font-black text-amber-900 flex items-center gap-1">
+                                <span>💡</span> 洋蔥式穿搭秘訣
+                            </div>
+                            <div class="text-[11px] text-amber-800 leading-tight">
+                                日本<strong>室內與自駕車內暖氣極強 (22~24°C)</strong>，務必選擇<strong>開襟拉鍊毛衣/輕羽絨外套</strong>，上車即脫、下車即穿，長輩最不易感冒！
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-3">
                         <div class="flex items-center justify-between pb-2 border-b-2 border-sky-100">
@@ -2210,6 +2342,44 @@ def build():
             const souvEl = document.getElementById('day-souvenir-box');
             if (souvEl) souvEl.textContent = dayPlan.souvenir || '享受日本當令新鮮草莓與特色名物！';
 
+            // 天氣資訊渲染
+            const weather = dayPlan.weather;
+            const weatherCard = document.getElementById('current-day-weather-card');
+            if (weatherCard && weather) {{
+                weatherCard.classList.remove('hidden');
+                const iconEl = document.getElementById('day-weather-icon');
+                if (iconEl) iconEl.textContent = weather.icon || '⛅';
+                const cityEl = document.getElementById('day-weather-city');
+                if (cityEl) cityEl.textContent = weather.city || '';
+                const condEl = document.getElementById('day-weather-condition');
+                if (condEl) condEl.textContent = weather.condition || '';
+                const tempEl = document.getElementById('day-weather-temp');
+                if (tempEl) tempEl.textContent = weather.temp_display || `${{weather.temp_min}}°C ~ ${{weather.temp_max}}°C`;
+                const feelEl = document.getElementById('day-weather-feeling');
+                if (feelEl) feelEl.textContent = `${{weather.feeling}} ｜ 降水機率：${{weather.pop}}`;
+                const clothEl = document.getElementById('day-weather-clothing');
+                if (clothEl) clothEl.textContent = weather.clothing || '';
+            }} else if (weatherCard) {{
+                weatherCard.classList.add('hidden');
+            }}
+
+            // 停車場快速導航條
+            const parkingChipsContainer = document.getElementById('day-parking-chips');
+            const parkingQuickBar = document.getElementById('day-parking-quick-bar');
+            if (parkingQuickBar && parkingChipsContainer) {{
+                const parkings = (dayPlan.timeline || []).filter(t => t.parking);
+                if (parkings.length > 0) {{
+                    parkingQuickBar.classList.remove('hidden');
+                    parkingChipsContainer.innerHTML = parkings.map(p => `
+                        <a href="${{p.parking.url}}" target="_blank" class="px-2.5 py-1 rounded-xl bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 shadow-2xs font-bold text-[11px] flex items-center gap-1 transition" title="${{p.parking.name}} (${{p.parking.fee}})">
+                            <span>🅿️</span> ${{p.parking.name.split(' ')[0]}} ↗
+                        </a>
+                    `).join('');
+                }} else {{
+                    parkingQuickBar.classList.add('hidden');
+                }}
+            }}
+
             const container = document.getElementById('timeline-container');
             if (!container) return;
             container.innerHTML = '';
@@ -2244,11 +2414,29 @@ def build():
                         </div>
                         <h5 class="text-sm font-black text-stone-800 flex items-center justify-between">
                             <span>${{item.title}}</span>
-                            <a href="${{mapSearchUrl}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-bold text-xs flex items-center gap-0.5 transition" title="在 Google Maps 查看">
-                                <span>導航</span> ↗
-                            </a>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                ${{item.parking ? `
+                                    <a href="${{item.parking.url}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 font-bold text-xs flex items-center gap-0.5 transition" title="${{item.parking.name}} (${{item.parking.fee}})">
+                                        <span>🅿️ 停車場</span> ↗
+                                    </a>
+                                ` : ''}}
+                                <a href="${{mapSearchUrl}}" target="_blank" class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-bold text-xs flex items-center gap-0.5 transition" title="在 Google Maps 查看">
+                                    <span>導航</span> ↗
+                                </a>
+                            </div>
                         </h5>
                         <p class="text-xs text-stone-600 leading-relaxed font-medium">${{item.desc}}</p>
+                        ${{item.parking ? `
+                            <div class="text-[11px] text-emerald-900 bg-emerald-50/90 border border-emerald-200 rounded-xl p-2.5 flex flex-col gap-1 mt-2">
+                                <div class="flex flex-wrap items-center justify-between gap-1 font-black">
+                                    <span class="flex items-center gap-1"><span>🅿️ 推薦停車：</span><span>${{item.parking.name}}</span></span>
+                                    <span class="text-emerald-800 font-mono text-[10px] bg-white px-2 py-0.5 rounded-md border border-emerald-200">${{item.parking.fee}}</span>
+                                </div>
+                                <div class="text-[10px] text-emerald-800 leading-tight">
+                                    🚗 車位：${{item.parking.capacity}} ｜ 💡 叮嚀：${{item.parking.tips}}
+                                </div>
+                            </div>
+                        ` : ''}}
                         ${{item.tips ? `
                             <div class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-2.5 flex items-start gap-1.5 mt-2">
                                 <span>💡</span>
