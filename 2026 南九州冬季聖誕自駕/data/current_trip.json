@@ -74,7 +74,7 @@
       "google_maps_url": "https://maps.google.com/?q=Via+Inn+Prime+Kumamoto",
       "phone": "+81-96-324-5489",
       "confirmation_no": "VIA-KMJ-1222",
-      "booking_platform": "Agoda 預訂（費用：JPY 15,686 ≈ NT$ 3,259）",
+      "booking_platform": "Booking.com 預訂（費用：JPY 15,686 ≈ NT$ 3,259）",
       "price_twd": 3259,
       "notes": "下通商圈步行即達，交通便利，一樓有大浴場可舒緩航程疲勞。"
     },
@@ -104,7 +104,7 @@
       "google_maps_url": "https://maps.google.com/?q=Seagaia+Forest+Condominiums+Miyazaki",
       "phone": "+81-985-21-1111",
       "confirmation_no": "SEA-MIY-1224",
-      "booking_platform": "海景公寓預訂（費用：NT$ 4,046）",
+      "booking_platform": "Agoda 預訂（費用：NT$ 4,046）",
       "price_twd": 4046,
       "notes": "大客廳廚房海景公寓，大幅緩解高千穗直奔鹿兒島之長途駕駛疲勞。"
     },
@@ -119,7 +119,7 @@
       "google_maps_url": "https://maps.google.com/?q=Kagoshima+Chuo+Station",
       "phone": "+81-99-253-1111",
       "confirmation_no": "PRC-KAG-303",
-      "booking_platform": "市區公寓預訂（2 晚費用：NT$ 10,537）",
+      "booking_platform": "Agoda 預訂（2 晚費用：NT$ 10,537）",
       "price_twd": 10537,
       "notes": "連住2晚免換飯店，方便前往櫻島渡輪、天文館黑豚名店與居酒屋。"
     },
@@ -134,7 +134,7 @@
       "google_maps_url": "https://maps.google.com/?q=Hotel+Amanek+Kumamoto",
       "phone": "+81-96-311-5500",
       "confirmation_no": "AMK-KMJ-1227",
-      "booking_platform": "Agoda 預訂（費用：JPY 27,115 ≈ NT$ 5,633）",
+      "booking_platform": "Booking.com 預訂（費用：JPY 27,115 ≈ NT$ 5,633）",
       "price_twd": 5633,
       "notes": "頂樓露天大浴場與無邊際景觀水池，下樓即是新市街與勝烈亭總店。"
     }

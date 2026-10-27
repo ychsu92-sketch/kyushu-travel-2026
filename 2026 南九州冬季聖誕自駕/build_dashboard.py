@@ -2929,23 +2929,38 @@ def build():
             grid.innerHTML = '';
 
             TRIP_DATA.accommodations.forEach(acc => {{
+                let platformBadge = '';
+                const platformStr = acc.booking_platform || '';
+                if (platformStr.includes('Booking.com')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-100 text-[#003580] border border-blue-200 shadow-sm"><span class="w-2 h-2 rounded-full bg-[#003580]"></span>Booking.com</span>';
+                }} else if (platformStr.includes('Agoda')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-sky-100 text-sky-800 border border-sky-300 shadow-sm"><span class="w-2 h-2 rounded-full bg-sky-500"></span>Agoda</span>';
+                }} else if (platformStr.includes('官網')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>旅館官網</span>';
+                }} else {{
+                    platformBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-700 border border-stone-200">${{platformStr.split(' ')[0]}}</span>`;
+                }}
+
                 const div = document.createElement('div');
                 div.className = 'cute-card p-5 relative border-2 border-stone-200 space-y-3';
                 div.innerHTML = `
                     <div class="flex items-start justify-between">
                         <div>
-                            <span class="cute-pill bg-red-100 text-red-700">${{acc.night}}</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="cute-pill bg-red-100 text-red-700">${{acc.night}}</span>
+                                ${{platformBadge}}
+                            </div>
                             <h4 class="text-sm font-black text-stone-800 mt-1.5">${{acc.hotel_name}}</h4>
                             <p class="text-xs text-stone-400">${{acc.city}}</p>
                         </div>
-                        <a href="${{acc.google_maps_url}}" target="_blank" class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 text-xs font-bold transition">
+                        <a href="${{acc.google_maps_url}}" target="_blank" class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 text-xs font-bold transition shadow-sm">
                             地圖 ↗
                         </a>
                     </div>
-                    <div class="bg-stone-50 rounded-2xl p-3 space-y-1 text-xs border border-stone-200 font-medium">
+                    <div class="bg-stone-50 rounded-2xl p-3 space-y-1.5 text-xs border border-stone-200 font-medium">
                         <div class="flex justify-between"><span class="text-stone-400">房型配置：</span><span class="text-stone-800 font-bold">${{acc.room_type}}</span></div>
                         <div class="flex justify-between"><span class="text-stone-400">入住/退房：</span><span class="text-stone-600">${{acc.check_in.split(' ')[1] || acc.check_in}} / ${{acc.check_out.split(' ')[1] || acc.check_out}}</span></div>
-                        <div class="flex justify-between"><span class="text-stone-400">訂房費用：</span><span class="text-emerald-700 font-bold">${{acc.booking_platform}}</span></div>
+                        <div class="flex justify-between items-center"><span class="text-stone-400">訂房管道與明細：</span><span class="text-stone-800 font-bold text-right">${{acc.booking_platform}}</span></div>
                     </div>
                     <div class="text-[11px] text-stone-500 leading-relaxed italic">
                         備註：${{acc.notes}}
