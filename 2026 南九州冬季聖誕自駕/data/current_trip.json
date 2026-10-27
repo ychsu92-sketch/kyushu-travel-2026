@@ -34,7 +34,8 @@
       "seat": "4人同行 (阿純代墊官網刷卡)",
       "baggage": "托運 23kg x 1 + 隨身 7kg",
       "aircraft": "A321neo / B738",
-      "class": "經濟艙"
+      "class": "經濟艙",
+      "flight_cost_twd": 34515
     },
     "inbound": {
       "airline": "中華航空 China Airlines",
@@ -131,92 +132,9 @@
     }
   ],
   "expense_summary": {
-    "total_spent_twd": 71250.06,
-    "total_spent_jpy": 342878,
-    "per_person_avg_twd": 17812.5,
-    "status": "已平帳 (收支平衡)",
-    "categories": [
-      {
-        "name": "🚗 交通費用",
-        "spent_twd": 33150,
-        "pct": 46.5,
-        "color": "#38bdf8",
-        "desc": "華航 TPE ➔ KMJ 來回機票 (4人)（後續租車與ETC過路費另記）"
-      },
-      {
-        "name": "🏨 住宿飯店",
-        "spent_twd": 38100.06,
-        "pct": 53.5,
-        "color": "#a855f7",
-        "desc": "黑川溫泉山彥(含早餐)、熊本2晚、宮崎公寓、鹿兒島公寓2晚"
-      },
-      {
-        "name": "🍱 餐飲美食",
-        "spent_twd": 0,
-        "pct": 0,
-        "color": "#10b981",
-        "desc": "孫三郎/黑樺牛燒肉、吾愛人黑豚鍋、初榮牛排、勝烈亭豬排 (現場記帳)"
-      },
-      {
-        "name": "🎫 體驗門票",
-        "spent_twd": 0,
-        "pct": 0,
-        "color": "#ec4899",
-        "desc": "各景點門票、櫻島渡輪、熊本城天守閣 (現場記帳)"
-      },
-      {
-        "name": "🛍️ 購物採買",
-        "spent_twd": 0,
-        "pct": 0,
-        "color": "#f59e0b",
-        "desc": "鶴屋百貨、城彩苑伴手禮、超市水果零食 (現場記帳)"
-      },
-      {
-        "name": "⚙️ 雜支保險",
-        "spent_twd": 0,
-        "pct": 0,
-        "color": "#6366f1",
-        "desc": "海外旅遊平安險、日本 eSIM 網卡、路面電車一日券、停車費"
-      }
-    ],
-    "members_settlement": [
-      {
-        "name": "阿純",
-        "paid_twd": 47775,
-        "should_pay_twd": 20575,
-        "diff_twd": 27200,
-        "status": "🟢 應收款（多墊）",
-        "action": "由其他人補給 阿純 NT$ 27,200",
-        "details": "代墊全員華航機票 NT$ 33,150 + 黑川溫泉山彥旅館 NT$ 14,625"
-      },
-      {
-        "name": "阿嚕",
-        "paid_twd": 23475.06,
-        "should_pay_twd": 9525,
-        "diff_twd": 13950,
-        "status": "🟢 應收款（多墊）",
-        "action": "由其他人補給 阿嚕 NT$ 13,950",
-        "details": "代墊 Via Inn (NT$ 3,259) + 宮崎公寓 (NT$ 4,046) + 鹿兒島2晚 (NT$ 10,537) + 熊本阿曼尼克 (NT$ 5,633)"
-      },
-      {
-        "name": "阿姨",
-        "paid_twd": 0,
-        "should_pay_twd": 20575,
-        "diff_twd": -20575,
-        "status": "🔴 應補款（少付）",
-        "action": "阿姨 應支付 NT$ 20,575",
-        "details": "分攤機票 NT$ 11,050 + 住宿均攤 NT$ 9,525"
-      },
-      {
-        "name": "姨丈",
-        "paid_twd": 0,
-        "should_pay_twd": 20575,
-        "diff_twd": -20575,
-        "status": "🔴 應補款（少付）",
-        "action": "姨丈 應支付 NT$ 20,575",
-        "details": "分攤機票 NT$ 11,050 + 住宿均攤 NT$ 9,525"
-      }
-    ]
+    "total_spent_twd": 91983.06,
+    "per_person_avg_twd": 22995.8,
+    "status": "已平帳 (收支平衡)"
   },
   "pre_trip_bookings": [
     {
@@ -3837,6 +3755,113 @@
       "day": 6,
       "meal_type": "latenight",
       "meal_name": "🍸 宵夜＆酒吧"
+    }
+  ],
+  "expenses_list": [
+    {
+      "day": "Day 1 (12/22)",
+      "item": "華航 TPE ➔ KMJ 來回機票 (4人)",
+      "category": "交通",
+      "payer": "阿純",
+      "currency": "TWD",
+      "amount_orig": 34515.0,
+      "amount_twd": 34515.0,
+      "split": {
+        "achun": true,
+        "alu": false,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "2026-12-22 00:00:00",
+      "item": "Via Inn Prime Kumamoto",
+      "category": "住宿",
+      "payer": "阿嚕",
+      "currency": "JPY",
+      "amount_orig": 15686.0,
+      "amount_twd": 3222.0,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "2026-12-23 00:00:00",
+      "item": "黑川溫泉-山彥旅館",
+      "category": "住宿",
+      "payer": "阿純",
+      "currency": "JPY",
+      "amount_orig": 70400.0,
+      "amount_twd": 14462.0,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "2026-12-24 00:00:00",
+      "item": "Seagaia Forest Condominiums",
+      "category": "住宿",
+      "payer": "阿嚕",
+      "currency": "TWD",
+      "amount_orig": 4046.0,
+      "amount_twd": 4046.0,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "12/25-12/26",
+      "item": "Perch's Apartment 303",
+      "category": "住宿",
+      "payer": "阿嚕",
+      "currency": "TWD",
+      "amount_orig": 10537.06,
+      "amount_twd": 10537.06,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "2026-12-27 00:00:00",
+      "item": "HOTEL AMANEK Kumamoto",
+      "category": "住宿",
+      "payer": "阿嚕",
+      "currency": "JPY",
+      "amount_orig": 27115.0,
+      "amount_twd": 5570.0,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
+    },
+    {
+      "day": "12/23-27",
+      "item": "Toyota rent a car (W2)",
+      "category": "交通",
+      "payer": "阿純",
+      "currency": "JPY",
+      "amount_orig": 95562.0,
+      "amount_twd": 19631.0,
+      "split": {
+        "achun": true,
+        "alu": true,
+        "ayee": true,
+        "yijhang": true
+      }
     }
   ]
 }

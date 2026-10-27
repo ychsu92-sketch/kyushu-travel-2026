@@ -319,8 +319,9 @@ def build():
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
     
     expense_sum = trip.get('expense_summary', {})
-    total_spent_twd = expense_sum.get('total_spent_twd', 71250)
-    per_person_avg = expense_sum.get('per_person_avg_twd', 17812.5)
+    total_spent_twd = expense_sum.get('total_spent_twd', 91992.06)
+    per_person_avg = expense_sum.get('per_person_avg_twd', round(total_spent_twd / 4, 1))
+    flight_cost_twd = trip.get('flights', {}).get('outbound', {}).get('flight_cost_twd', 34515)
 
     packing = trip['packing_checklist']
     all_items = packing['documents'] + packing['carry_on'] + packing['checked_bag']
@@ -1544,8 +1545,8 @@ def build():
                     </div>
                     <div class="bg-gradient-to-tr from-amber-100 to-amber-200/70 border border-amber-300 rounded-3xl px-5 py-3 text-right shadow-sm">
                         <div class="text-xs text-amber-800 font-bold">目前累計已記帳總花費</div>
-                        <div class="text-2xl font-black text-stone-800 font-mono" id="cost-total-amount">NT$ 71,250</div>
-                        <div class="text-[11px] text-stone-600" id="cost-per-person">平均每人應付 NT$ 17,813</div>
+                        <div class="text-2xl font-black text-stone-800 font-mono" id="cost-total-amount">NT$ {total_spent_twd:,.0f}</div>
+                        <div class="text-[11px] text-stone-600" id="cost-per-person">平均每人應付 NT$ {per_person_avg:,.0f}</div>
                     </div>
                 </div>
 
@@ -1554,6 +1555,38 @@ def build():
 
                 <!-- 平帳匯款小指引 (動態計算) -->
                 <div class="sticky-note p-4 text-xs text-stone-800 leading-relaxed flex items-start gap-3" id="settlement-guide-box"></div>
+
+                <!-- 📊 Google 試算表已登記公費項目 (動態列表) -->
+                <div class="cute-card p-5 border-2 border-stone-200 space-y-3 bg-white/95">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-stone-100 gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">📋</span>
+                            <h4 class="text-sm font-black text-stone-800">Google 試算表已登記公費支出明細</h4>
+                            <span class="cute-pill bg-emerald-100 text-emerald-800 text-[10px]" id="base-expenses-count-badge">7 筆</span>
+                        </div>
+                        <a href="https://docs.google.com/spreadsheets/d/1P4niaKfXpHnrlVkiexFmxa2Q0U7kwOvj6yUINn--WNo/edit" target="_blank" class="text-xs text-amber-800 hover:text-amber-900 font-bold flex items-center gap-1 self-start sm:self-auto">
+                            <span>開啟 2026家族🇯🇵南九州 雲端試算表 ↗</span>
+                        </a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left text-stone-700">
+                            <thead class="text-[11px] text-stone-500 bg-stone-50 font-black border-b border-stone-200">
+                                <tr>
+                                    <th class="px-3 py-2">日期 / 天數</th>
+                                    <th class="px-3 py-2">消費項目與內容</th>
+                                    <th class="px-3 py-2">類別</th>
+                                    <th class="px-3 py-2">付款人</th>
+                                    <th class="px-3 py-2 text-right">原幣金額</th>
+                                    <th class="px-3 py-2 text-right">折合台幣</th>
+                                    <th class="px-3 py-2 text-center">分攤名單</th>
+                                </tr>
+                            </thead>
+                            <tbody id="base-expenses-table-body" class="divide-y divide-stone-100">
+                                <!-- JS 動態渲染公費明細 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <!-- 📝 旅途快速記帳小助手 -->
                 <div class="bg-amber-50/50 border-2 border-amber-200 rounded-3xl p-5 space-y-4">
@@ -1861,7 +1894,7 @@ def build():
                         </div>
                         <div class="text-xs text-stone-500 pt-2 border-t border-sky-100 flex justify-between">
                             <span>4人同行 ｜ 托運 23kg + 隨身 7kg</span>
-                            <span class="font-bold text-sky-600">機票費用：NT$ 33,150</span>
+                            <span class="font-bold text-sky-600">機票費用：NT$ {flight_cost_twd:,.0f}</span>
                         </div>
                     </div>
 
@@ -4401,10 +4434,10 @@ def build():
         }};
 
         const MEMBER_CONFIG = {{
-            achun: {{ key: 'achun', icon: '🌸', color: 'text-red-600', basePaid: 47775, baseShould: 20575, note: '代墊華航機票 NT$ 33,150 ＋ 黑川山彥溫泉旅館 (含早餐)。' }},
-            alu: {{ key: 'alu', icon: '🐻', color: 'text-sky-600', basePaid: 23475, baseShould: 9525, note: '代墊熊本 Via Inn、宮崎海景公寓、鹿兒島 Perch 與熊本 AMANEK。' }},
-            ayee: {{ key: 'ayee', icon: '🌼', color: 'text-amber-600', basePaid: 0, baseShould: 20575, note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }},
-            yijhang: {{ key: 'yijhang', icon: '🎩', color: 'text-purple-600', basePaid: 0, baseShould: 20575, note: '分攤華航機票 NT$ 11,050 ＋ 各晚特色旅宿。' }}
+            achun: {{ key: 'achun', icon: '🌸', color: 'text-red-600' }},
+            alu: {{ key: 'alu', icon: '🐻', color: 'text-sky-600' }},
+            ayee: {{ key: 'ayee', icon: '🌼', color: 'text-amber-600' }},
+            yijhang: {{ key: 'yijhang', icon: '🎩', color: 'text-purple-600' }}
         }};
 
         function getMemberNames() {{
@@ -4576,16 +4609,46 @@ def build():
         function renderCosts() {{
             const customList = getCustomExpenses();
             const names = getMemberNames();
-            let baseTotalSpent = 71250;
+            const baseList = (TRIP_DATA && Array.isArray(TRIP_DATA.expenses_list)) ? TRIP_DATA.expenses_list : [];
+
+            let baseTotalSpent = 0;
             let customSpentTotal = 0;
 
             const membersCalc = {{
-                achun: {{ paid: MEMBER_CONFIG.achun.basePaid, should: MEMBER_CONFIG.achun.baseShould }},
-                alu: {{ paid: MEMBER_CONFIG.alu.basePaid, should: MEMBER_CONFIG.alu.baseShould }},
-                ayee: {{ paid: MEMBER_CONFIG.ayee.basePaid, should: MEMBER_CONFIG.ayee.baseShould }},
-                yijhang: {{ paid: MEMBER_CONFIG.yijhang.basePaid, should: MEMBER_CONFIG.yijhang.baseShould }}
+                achun: {{ paid: 0, should: 0, paidItems: [] }},
+                alu: {{ paid: 0, should: 0, paidItems: [] }},
+                ayee: {{ paid: 0, should: 0, paidItems: [] }},
+                yijhang: {{ paid: 0, should: 0, paidItems: [] }}
             }};
 
+            // 1. 動態計算 Google 試算表同步下來的公費支出
+            baseList.forEach(item => {{
+                const twd = Number(item.amount_twd || 0);
+                baseTotalSpent += twd;
+
+                const payerKey = resolveMemberKey(item.payer);
+                if (membersCalc[payerKey]) {{
+                    membersCalc[payerKey].paid += twd;
+                    membersCalc[payerKey].paidItems.push(item.item);
+                }}
+
+                const splitMembers = [];
+                if (item.split) {{
+                    if (item.split.achun) splitMembers.push('achun');
+                    if (item.split.alu) splitMembers.push('alu');
+                    if (item.split.ayee) splitMembers.push('ayee');
+                    if (item.split.yijhang) splitMembers.push('yijhang');
+                }}
+
+                if (splitMembers.length > 0) {{
+                    const share = twd / splitMembers.length;
+                    splitMembers.forEach(k => {{
+                        if (membersCalc[k]) membersCalc[k].should += share;
+                    }});
+                }}
+            }});
+
+            // 2. 累加本地即時記帳的小項目 (尚未回寫或額外暫存者)
             customList.forEach(item => {{
                 const twd = Number(item.amount_twd || 0);
                 customSpentTotal += twd;
@@ -4593,6 +4656,7 @@ def build():
                 const payerKey = resolveMemberKey(item.payer);
                 if (membersCalc[payerKey]) {{
                     membersCalc[payerKey].paid += twd;
+                    membersCalc[payerKey].paidItems.push(item.item);
                 }}
 
                 const splitMembers = [];
@@ -4602,7 +4666,7 @@ def build():
                 if (item.uncle) splitMembers.push('yijhang');
 
                 if (splitMembers.length > 0) {{
-                    const share = Math.round(twd / splitMembers.length);
+                    const share = twd / splitMembers.length;
                     splitMembers.forEach(k => {{
                         if (membersCalc[k]) membersCalc[k].should += share;
                     }});
@@ -4613,10 +4677,11 @@ def build():
             const currentPerPerson = Math.round(currentTotalSpent / 4);
 
             const totalEl = document.getElementById('cost-total-amount');
-            if (totalEl) totalEl.textContent = `NT$ ${{currentTotalSpent.toLocaleString()}}`;
+            if (totalEl) totalEl.textContent = `NT$ ${{Math.round(currentTotalSpent).toLocaleString()}}`;
             const perEl = document.getElementById('cost-per-person');
             if (perEl) perEl.textContent = `平均每人應付 NT$ ${{currentPerPerson.toLocaleString()}}`;
 
+            // 渲染 4 位成員的結算看板卡片
             const cardsContainer = document.getElementById('members-settlement-cards');
             if (cardsContainer) {{
                 cardsContainer.innerHTML = '';
@@ -4624,9 +4689,16 @@ def build():
                     const m = membersCalc[k];
                     const cfg = MEMBER_CONFIG[k];
                     const displayName = names[k];
-                    const diff = m.paid - m.should;
+                    const diff = Math.round(m.paid - m.should);
                     const isCredit = diff > 0;
                     const isBalanced = diff === 0;
+
+                    let noteText = '';
+                    if (m.paidItems.length > 0) {{
+                        noteText = `代墊：${{m.paidItems.join('、')}}`;
+                    }} else {{
+                        noteText = `分攤家族機票、自駕租車與特色旅宿公費`;
+                    }}
 
                     const div = document.createElement('div');
                     div.className = 'polaroid-card space-y-3 bg-gradient-to-b from-white to-stone-50/50 relative group';
@@ -4643,11 +4715,11 @@ def build():
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between text-stone-500">
                                 <span>累計已墊：</span>
-                                <span class="font-bold text-stone-800 font-mono">NT$ ${{m.paid.toLocaleString()}}</span>
+                                <span class="font-bold text-stone-800 font-mono">NT$ ${{Math.round(m.paid).toLocaleString()}}</span>
                             </div>
                             <div class="flex justify-between text-stone-500">
                                 <span>個人應付：</span>
-                                <span class="font-mono text-stone-600">NT$ ${{m.should.toLocaleString()}}</span>
+                                <span class="font-mono text-stone-600">NT$ ${{Math.round(m.should).toLocaleString()}}</span>
                             </div>
                             <div class="flex justify-between pt-2 border-t border-stone-200 text-sm">
                                 <span class="${{isCredit ? 'text-emerald-700' : (isBalanced ? 'text-stone-600' : 'text-red-600')}} font-black">
@@ -4658,20 +4730,21 @@ def build():
                                 </span>
                             </div>
                         </div>
-                        <div class="text-[11px] text-stone-600 bg-white p-2.5 rounded-xl border border-stone-200 leading-relaxed">
-                            💡 ${{cfg.note}}
+                        <div class="text-[11px] text-stone-600 bg-white p-2.5 rounded-xl border border-stone-200 leading-relaxed truncate" title="${{escapeHtml(noteText)}}">
+                            💡 ${{escapeHtml(noteText)}}
                         </div>
                     `;
                     cardsContainer.appendChild(div);
                 }});
             }}
 
+            // 渲染平帳指引
             const guideBox = document.getElementById('settlement-guide-box');
             if (guideBox) {{
                 const debtors = [];
                 const creditors = [];
                 ['achun', 'alu', 'ayee', 'yijhang'].forEach(k => {{
-                    const diff = membersCalc[k].paid - membersCalc[k].should;
+                    const diff = Math.round(membersCalc[k].paid - membersCalc[k].should);
                     if (diff < -5) debtors.push({{ key: k, name: names[k], amount: Math.abs(diff) }});
                     else if (diff > 5) creditors.push({{ key: k, name: names[k], amount: diff }});
                 }});
@@ -4693,13 +4766,44 @@ def build():
                 }}
 
                 guideBox.innerHTML = `
-                    <span class="text-xl">💌</span>
-                    <div>
+                    <span class="text-xl shrink-0">💌</span>
+                    <div class="space-y-1">
                         <strong class="text-sm font-bold text-amber-800">一鍵搞定即時平帳匯款指引：</strong><br>
                         ${{steps.length > 0 ? steps.map((s, idx) => `${{idx + 1}}. ${{s}}。<br>`).join('') : '目前所有成員帳目完全平整，無需匯款！✨'}}<br>
-                        ✨ 照著匯款，全家族帳目一秒歸零收支平衡！
+                        <span class="text-stone-500 text-[11px]">✨ 照著匯款，全家族公費帳目一秒歸零收支平衡！</span>
                     </div>
                 `;
+            }}
+
+            // 渲染 Google 試算表已登記公費項目表格
+            const tableBody = document.getElementById('base-expenses-table-body');
+            const countBadge = document.getElementById('base-expenses-count-badge');
+            if (countBadge) countBadge.textContent = `${{baseList.length}} 筆`;
+
+            if (tableBody) {{
+                tableBody.innerHTML = '';
+                baseList.forEach(item => {{
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-amber-50/40 transition';
+
+                    const splitList = [];
+                    if (item.split?.achun) splitList.push('阿純');
+                    if (item.split?.alu) splitList.push('阿嚕');
+                    if (item.split?.ayee) splitList.push('阿姨');
+                    if (item.split?.yijhang) splitList.push('姨丈');
+                    const splitStr = splitList.length === 4 ? '<span class="cute-pill bg-sky-50 text-sky-700 text-[10px]">4人全員</span>' : splitList.join('、');
+
+                    tr.innerHTML = `
+                        <td class="px-3 py-2.5 font-medium text-stone-500 whitespace-nowrap">${{escapeHtml(item.day || '-')}}</td>
+                        <td class="px-3 py-2.5 font-bold text-stone-800">${{escapeHtml(item.item || '-')}}</td>
+                        <td class="px-3 py-2.5"><span class="cute-pill bg-stone-100 text-stone-600 text-[10px]">${{escapeHtml(item.category || '-')}}</span></td>
+                        <td class="px-3 py-2.5 font-bold text-amber-800">${{escapeHtml(item.payer || '-')}}</td>
+                        <td class="px-3 py-2.5 text-right font-mono text-stone-500 whitespace-nowrap">${{item.currency}} ${{Number(item.amount_orig || item.amount_twd).toLocaleString()}}</td>
+                        <td class="px-3 py-2.5 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">NT$ ${{Math.round(Number(item.amount_twd || 0)).toLocaleString()}}</td>
+                        <td class="px-3 py-2.5 text-center whitespace-nowrap">${{splitStr}}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                }});
             }}
 
             const countEl = document.getElementById('custom-expense-count');

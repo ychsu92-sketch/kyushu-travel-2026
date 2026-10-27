@@ -78,6 +78,47 @@ def sync():
     with open(os.path.join(DATA_DIR, 'parsed_kyushu_trip.json'), 'w', encoding='utf-8') as f:
         json.dump({'days': days, 'expenses': expenses}, f, ensure_ascii=False, indent=2)
 
+    # 同步更新 current_trip.json
+    current_trip_path = os.path.join(DATA_DIR, 'current_trip.json')
+    if os.path.exists(current_trip_path):
+        with open(current_trip_path, 'r', encoding='utf-8') as f:
+            trip = json.load(f)
+
+        items = []
+        total_twd = 0
+        for e in expenses:
+            twd_val = round(float(e['amount_twd'] or 0), 2)
+            total_twd += twd_val
+            items.append({
+                'day': e['date'],
+                'item': e['item'],
+                'category': e['category'],
+                'payer': e['payer'],
+                'currency': e['currency'],
+                'amount_orig': float(e['amount_original'] or twd_val),
+                'amount_twd': twd_val,
+                'split': {
+                    'achun': e['achun'],
+                    'alu': e['alu'],
+                    'ayee': e['aunt'],
+                    'yijhang': e['uncle']
+                }
+            })
+            if '華航' in e['item'] or '機票' in e['item']:
+                if 'flights' in trip and 'outbound' in trip['flights']:
+                    trip['flights']['outbound']['flight_cost_twd'] = int(twd_val)
+
+        trip['expenses_list'] = items
+        trip['expense_summary'] = {
+            'total_spent_twd': total_twd,
+            'per_person_avg_twd': round(total_twd / 4, 1),
+            'status': '已平帳 (收支平衡)'
+        }
+
+        with open(current_trip_path, 'w', encoding='utf-8') as f:
+            json.dump(trip, f, ensure_ascii=False, indent=2)
+        print(f"✅ current_trip.json 已成功同步試算表共 {len(items)} 筆公費支出，總額 NT$ {total_twd:,.0f}")
+
     # 執行建置
     import build_dashboard
     build_dashboard.build()
