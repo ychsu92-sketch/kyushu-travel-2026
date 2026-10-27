@@ -31,8 +31,6 @@
       "arrival_terminal": "國際線航廈",
       "arrival_time": "2026-12-22 17:30",
       "duration": "2小時00分",
-      "pnr": "CI-KYU26",
-      "ticket_no": "297-88491024",
       "seat": "4人同行 (阿純代墊官網刷卡)",
       "baggage": "托運 23kg x 1 + 隨身 7kg",
       "aircraft": "A321neo / B738",
@@ -48,8 +46,6 @@
       "arrival_terminal": "T2 第二航廈",
       "arrival_time": "2026-12-28 20:10",
       "duration": "2小時35分",
-      "pnr": "CI-KYU26",
-      "ticket_no": "297-88491025",
       "seat": "4人同行",
       "baggage": "托運 23kg x 1 + 隨身 7kg",
       "aircraft": "A321neo / B738",
@@ -73,7 +69,6 @@
       "address": "熊本市中央區辛島町",
       "google_maps_url": "https://maps.google.com/?q=Via+Inn+Prime+Kumamoto",
       "phone": "+81-96-324-5489",
-      "confirmation_no": "VIA-KMJ-1222",
       "booking_platform": "Booking.com 預訂（費用：JPY 15,686 ≈ NT$ 3,259）",
       "price_twd": 3259,
       "notes": "下通商圈步行即達，交通便利，一樓有大浴場可舒緩航程疲勞。"
@@ -88,7 +83,6 @@
       "address": "熊本縣阿蘇郡南小國町黑川溫泉",
       "google_maps_url": "https://maps.google.com/?q=Yamabiko+Ryokan+Kurokawa",
       "phone": "+81-967-44-0311",
-      "confirmation_no": "YMB-20261223",
       "booking_platform": "旅館官網（費用：JPY 70,400 ≈ NT$ 14,625，含早餐）",
       "price_twd": 14625,
       "notes": "冬季限定「湯明 (湯あかり)」竹燈祭步行可達，擁仙人風呂露天名湯。"
@@ -102,8 +96,7 @@
       "room_type": "兩房海景渡假公寓 (4人合住)",
       "address": "宮崎市山崎町濱山",
       "google_maps_url": "https://maps.google.com/?q=Seagaia+Forest+Condominiums+Miyazaki",
-      "phone": "+81-985-21-1111",
-      "confirmation_no": "SEA-MIY-1224",
+      "phone": "Airbnb 官方 App 訊息聯絡房東",
       "booking_platform": "Airbnb 預訂（費用：NT$ 4,046）",
       "price_twd": 4046,
       "notes": "大客廳廚房海景公寓，大幅緩解高千穗直奔鹿兒島之長途駕駛疲勞。"
@@ -117,8 +110,7 @@
       "room_type": "市區優質公寓套房 (2晚連住)",
       "address": "鹿兒島市中央町周邊",
       "google_maps_url": "https://maps.google.com/?q=Kagoshima+Chuo+Station",
-      "phone": "+81-99-253-1111",
-      "confirmation_no": "PRC-KAG-303",
+      "phone": "Airbnb 官方 App 訊息聯絡房東",
       "booking_platform": "Airbnb 預訂（2 晚費用：NT$ 10,537）",
       "price_twd": 10537,
       "notes": "連住2晚免換飯店，方便前往櫻島渡輪、天文館黑豚名店與居酒屋。"
@@ -133,7 +125,6 @@
       "address": "熊本市中央區新市街",
       "google_maps_url": "https://maps.google.com/?q=Hotel+Amanek+Kumamoto",
       "phone": "+81-96-311-5500",
-      "confirmation_no": "AMK-KMJ-1227",
       "booking_platform": "Booking.com 預訂（費用：JPY 27,115 ≈ NT$ 5,633）",
       "price_twd": 5633,
       "notes": "頂樓露天大浴場與無邊際景觀水池，下樓即是新市街與勝烈亭總店。"

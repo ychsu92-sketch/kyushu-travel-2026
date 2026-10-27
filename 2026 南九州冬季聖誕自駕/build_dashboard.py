@@ -2970,10 +2970,6 @@ def build():
                             <span class="text-stone-400">入住/退房：</span>
                             <span class="text-stone-700 font-semibold">${{acc.check_in.split(' ')[1] || acc.check_in}} / ${{acc.check_out.split(' ')[1] || acc.check_out}}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-stone-400">確認序號：</span>
-                            <span class="font-mono font-bold text-stone-700 bg-stone-200/60 px-2 py-0.5 rounded border border-stone-300/50 select-all tracking-wider">${{acc.confirmation_no || '已確認'}}</span>
-                        </div>
                         <div class="flex justify-between items-center pt-1 border-t border-stone-200/60">
                             <span class="text-stone-400">訂購管道 / 費用：</span>
                             <span class="text-emerald-700 font-black">${{acc.booking_platform}}</span>
