@@ -2929,41 +2929,59 @@ def build():
             grid.innerHTML = '';
 
             TRIP_DATA.accommodations.forEach(acc => {{
+                // 判斷訂房平台標籤與主題色彩
                 let platformBadge = '';
-                const platformStr = acc.booking_platform || '';
-                if (platformStr.includes('Booking.com')) {{
-                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-100 text-[#003580] border border-blue-200 shadow-sm"><span class="w-2 h-2 rounded-full bg-[#003580]"></span>Booking.com</span>';
-                }} else if (platformStr.includes('Agoda')) {{
-                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-sky-100 text-sky-800 border border-sky-300 shadow-sm"><span class="w-2 h-2 rounded-full bg-sky-500"></span>Agoda</span>';
-                }} else if (platformStr.includes('官網')) {{
-                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>旅館官網</span>';
+                const pStr = acc.booking_platform || '';
+                if (pStr.includes('Booking.com')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 font-black text-[11px] shadow-2xs"><span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>Booking.com 預訂</span>';
+                }} else if (pStr.includes('Airbnb')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 font-black text-[11px] shadow-2xs"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>Airbnb 民宿預訂</span>';
+                }} else if (pStr.includes('官網')) {{
+                    platformBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 font-black text-[11px] shadow-2xs"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>♨️ 旅館官網直訂</span>';
                 }} else {{
-                    platformBadge = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-stone-700 border border-stone-200">${{platformStr.split(' ')[0]}}</span>`;
+                    platformBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 font-bold text-[11px]">已預約</span>';
                 }}
 
                 const div = document.createElement('div');
-                div.className = 'cute-card p-5 relative border-2 border-stone-200 space-y-3';
+                div.className = 'cute-card p-5 relative border-2 border-stone-200 space-y-3.5 hover:border-red-200 transition-all';
                 div.innerHTML = `
-                    <div class="flex items-start justify-between">
+                    <div class="flex items-start justify-between gap-2">
                         <div>
-                            <div class="flex items-center gap-1.5 flex-wrap">
+                            <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
                                 <span class="cute-pill bg-red-100 text-red-700">${{acc.night}}</span>
                                 ${{platformBadge}}
                             </div>
-                            <h4 class="text-sm font-black text-stone-800 mt-1.5">${{acc.hotel_name}}</h4>
-                            <p class="text-xs text-stone-400">${{acc.city}}</p>
+                            <h4 class="text-base font-black text-stone-800 tracking-tight leading-snug">${{acc.hotel_name}}</h4>
+                            <p class="text-xs text-stone-400 font-medium flex items-center gap-1 mt-0.5">
+                                <span>📍</span>${{acc.city}}
+                            </p>
                         </div>
-                        <a href="${{acc.google_maps_url}}" target="_blank" class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 text-xs font-bold transition shadow-sm">
+                        <a href="${{acc.google_maps_url}}" target="_blank" class="shrink-0 px-3 py-1 rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 text-xs font-black transition flex items-center gap-1">
                             地圖 ↗
                         </a>
                     </div>
-                    <div class="bg-stone-50 rounded-2xl p-3 space-y-1.5 text-xs border border-stone-200 font-medium">
-                        <div class="flex justify-between"><span class="text-stone-400">房型配置：</span><span class="text-stone-800 font-bold">${{acc.room_type}}</span></div>
-                        <div class="flex justify-between"><span class="text-stone-400">入住/退房：</span><span class="text-stone-600">${{acc.check_in.split(' ')[1] || acc.check_in}} / ${{acc.check_out.split(' ')[1] || acc.check_out}}</span></div>
-                        <div class="flex justify-between items-center"><span class="text-stone-400">訂房管道與明細：</span><span class="text-stone-800 font-bold text-right">${{acc.booking_platform}}</span></div>
+
+                    <div class="bg-stone-50 rounded-2xl p-3.5 space-y-2 text-xs border border-stone-200 font-medium">
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">房型配置：</span>
+                            <span class="text-stone-800 font-bold">${{acc.room_type}}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">入住/退房：</span>
+                            <span class="text-stone-700 font-semibold">${{acc.check_in.split(' ')[1] || acc.check_in}} / ${{acc.check_out.split(' ')[1] || acc.check_out}}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-stone-400">確認序號：</span>
+                            <span class="font-mono font-bold text-stone-700 bg-stone-200/60 px-2 py-0.5 rounded border border-stone-300/50 select-all tracking-wider">${{acc.confirmation_no || '已確認'}}</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-1 border-t border-stone-200/60">
+                            <span class="text-stone-400">訂購管道 / 費用：</span>
+                            <span class="text-emerald-700 font-black">${{acc.booking_platform}}</span>
+                        </div>
                     </div>
-                    <div class="text-[11px] text-stone-500 leading-relaxed italic">
-                        備註：${{acc.notes}}
+
+                    <div class="text-[11px] text-stone-500 leading-relaxed bg-amber-50/60 rounded-xl p-2.5 border border-amber-200/50">
+                        <span class="font-bold text-amber-800">💡 旅宿亮點：</span>${{acc.notes}}
                     </div>
                 `;
                 grid.appendChild(div);
