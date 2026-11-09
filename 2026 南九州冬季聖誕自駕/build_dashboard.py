@@ -9,6 +9,7 @@
 import os
 import json
 from datetime import datetime
+import tax_refund_guide
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
@@ -28,7 +29,7 @@ MAP_LANDMARKS = [
         "y": 375,
         "color": "#2563eb",
         "desc": "2023全新落成航廈，木造質感溫馨，全九州名產與免稅店雲集，華航 CI194/195 直飛起降點！",
-        "tips": "回程提早 2 小時抵達，免稅店採買時間充裕。"
+        "tips": "⚠️ 2026退稅新制：先至大廳 TAX REFUND 機台刷護照亮綠燈，再辦理行李託運！"
     },
     {
         "id": "hotel_viainn",
@@ -333,6 +334,7 @@ def build():
     trip_json_str = json.dumps(trip, ensure_ascii=False)
     history_json_str = json.dumps(history, ensure_ascii=False)
     landmarks_json_str = json.dumps(MAP_LANDMARKS, ensure_ascii=False)
+    tax_refund_html = tax_refund_guide.get_tax_refund_guide_html()
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-TW">
@@ -782,7 +784,7 @@ def build():
                 <span>🎒</span> 行李
             </button>
             <button onclick="openTab('tools')" id="tab-btn-tools" class="xmas-tab-btn w-full sm:flex-1 min-w-0 px-1 py-2 sm:px-3 text-[11px] sm:text-xs">
-                <span>🎟️</span> 優惠/工具
+                <span>🛍️</span> 退稅/工具
             </button>
         </nav>
 
@@ -2171,6 +2173,8 @@ def build():
 
         <!-- TAB 7: 工具箱與優惠券專區 -->
         <section id="tab-content-tools" class="tab-content hidden space-y-6">
+{tax_refund_html}
+
             <!-- 🎟️ 折價券、優惠券專區 (可即時出示條碼與 QRcode) -->
             <div class="cute-card p-6 relative border-2 border-red-200 space-y-5">
                 <div class="washi-tape washi-tape-gold"></div>

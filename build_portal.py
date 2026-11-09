@@ -455,6 +455,7 @@ def build_portal(release_mode: bool = False):
                         </div>
 
                         <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-300 font-black">🛍️ 2026退稅新制實戰指南</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold">🌋 阿蘇中岳火山口</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200 font-bold">♨️ 黑川山彥仙人風呂 (含早餐)</span>
                             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200 font-bold">🚣 高千穗峽划船</span>
